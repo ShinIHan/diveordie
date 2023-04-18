@@ -41,6 +41,10 @@ public:
 
     // 서버 시작
     virtual void ServerStart();
+    
+    virtual bool CreateWorkerThread();
+
+    virtual void WorkerThread();
 
     // 클라이언트 송신
     virtual void Send(SOCKETINFO* pSocket);
@@ -53,6 +57,7 @@ protected:
     SOCKET      ListenSocket;
     HANDLE      hIOCP;
     bool        bWorkerThread;
+    bool        bWorkerThread = true;
     HANDLE* hWorkerHandle;
     int         iThreadCnt;
 };

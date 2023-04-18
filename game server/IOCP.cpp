@@ -77,6 +77,8 @@ void IOCP::ServerStart()
     SOCKET clientSocket;
     DWORD recvBytes;
     DWORD flags;
+    
+    if (!CreateWorkerThread()) return;
 
     hIOCP = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
 
@@ -91,7 +93,7 @@ void IOCP::ServerStart()
             cout << "[ERROR] Accept 실패" << endl;
             return;
         }
-
+        cout << "[INFO] 클라이언트 접속" << endl;
         SocketInfo = new SOCKETINFO();
         SocketInfo->socket = clientSocket;
         SocketInfo->recvBytes = 0;
@@ -118,6 +120,16 @@ void IOCP::ServerStart()
             return;
         }
     }
+}
+
+bool IOCP::CreateWorkerThread()
+{
+    return false;
+}
+
+void IOCP::WorkerThread()
+{
+
 }
 
 void IOCP::Send(SOCKETINFO* pSocket)

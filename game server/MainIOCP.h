@@ -22,8 +22,8 @@ public:
     MainIOCP();
     ~MainIOCP();
 
-    virtual bool CreateWorkerThread();
-    virtual void WorkerThread();
+    virtual bool CreateWorkerThread() override;
+    virtual void WorkerThread() override;
 
     virtual void ServerStart() override;
 
