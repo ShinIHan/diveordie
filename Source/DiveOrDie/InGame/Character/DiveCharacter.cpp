@@ -81,7 +81,7 @@ void ADiveCharacter::UnPossessed()
 	{
 		if (DiveCharacter_WG->IsInViewport())
 		{
-			DiveCharacter_WG->RemoveFromViewport();
+			DiveCharacter_WG->RemoveFromParent();
 			DiveCharacter_WG = nullptr;
 		}
 	}

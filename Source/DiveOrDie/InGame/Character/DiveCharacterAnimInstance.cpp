@@ -36,7 +36,8 @@ void UDiveCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		bOnJump = Character->GetMovementComponent()->IsFalling();
 
-		direction = CalculateDirection(Character->GetVelocity(), Character->GetActorRotation());
+		//direction = CalculateDirection(Character->GetVelocity(), Character->GetActorRotation());
+		direction = FVector::DotProduct(Character->GetVelocity().GetSafeNormal(), Character->GetActorForwardVector());
 		speed = Character->GetVelocity().Size();
 		
 	}
