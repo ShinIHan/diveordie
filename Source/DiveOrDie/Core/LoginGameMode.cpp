@@ -7,7 +7,8 @@
 
 ALoginGameMode::ALoginGameMode()
 {
-	static ConstructorHelpers::FClassFinder<UUserWidget> LOGIN_WG(TEXT("/Game/Blueprints/Login_WGBP.Login_WGBP_C"));
+	//static ConstructorHelpers::FClassFinder<UUserWidget> LOGIN_WG(TEXT("/Game/Blueprints/Login_WGBP.Login_WGBP_C"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> LOGIN_WG(TEXT(""));
 	if (LOGIN_WG.Succeeded())
 	{
 		HUDWidgetClass = LOGIN_WG.Class;
