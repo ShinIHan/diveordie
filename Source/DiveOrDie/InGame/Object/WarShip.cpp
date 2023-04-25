@@ -21,8 +21,6 @@ AWarShip::AWarShip()
 	mesh->SetEnableGravity(true);
 	mesh->SetSimulatePhysics(true);
 
-	mesh->SetMassOverrideInKg(NAME_None, 100.0f);
-
 	buoyancy->AddCustomPontoon(200.0f, FVector(500.0f, 410.0f, 200.0f));
 	buoyancy->AddCustomPontoon(200.0f, FVector(500.0f, -390.0f, 200.0f));
 	buoyancy->AddCustomPontoon(200.0f, FVector(-620.0f, 410.0f, 200.0f));
