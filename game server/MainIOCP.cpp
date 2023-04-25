@@ -101,9 +101,51 @@ void MainIOCP::Login(stringstream& RecvStream, SOCKETINFO* pSocket)
 
     stringstream SendStream;
     SendStream << EPacketType::LOGIN << endl;
-    SendStream << Conn.SearchAccount(Id, Pw) << endl;
+    if (Conn.SearchAccount(Id, Pw))
+    {
+        SendStream << true << endl;
+        SendStream << Conn.GetDifficulty(Id) << endl;
+        SendStream << Conn.GetStage(Id) << endl;
+        SendStream << Conn.GetKey(Id) << endl;
+    }
+    else
+    {
+        SendStream << false << endl;
+    }
 
     CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
+    pSocket->dataBuf.buf = pSocket->messageBuffer;
+    pSocket->dataBuf.len = SendStream.str().length();
+
+    Send(pSocket);
+}
+
+void MainIOCP::SetUserData(stringstream& RecvStream, SOCKETINFO* pSocket)
+{
+    int difficulty;
+    int stage;
+    int key;
+
+    RecvStream >> difficulty;
+    RecvStream >> stage;
+    RecvStream >> key;
+
+    cout << "[INFO] 유저 데이터 저장 시도 {KEY = " << key << "}" << endl;
+
+    stringstream SendStream;
+    SendStream << EPacketType::SETUSERDATA << endl;
+
+    if (Conn.SetUserData(difficulty, stage, key))
+    {
+        SendStream << true << endl;
+    }
+    else
+    {
+        SendStream << false << endl;
+    }
+
+    CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
+
     pSocket->dataBuf.buf = pSocket->messageBuffer;
     pSocket->dataBuf.len = SendStream.str().length();
 

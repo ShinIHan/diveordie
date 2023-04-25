@@ -80,3 +80,70 @@ bool DBConnector::SignUpAccount(const string& Id, const string& Password)
         return true;
     }
 }
+
+bool DBConnector::SetUserData(const int& difficulty, const int& stage, const int& key)
+{
+    string sql = "SELECT * FROM `UserAccount`.`UserInfo` (`Key`) VALUES ('";
+    sql += to_string(key) + "')";
+
+    Res = Stmt->executeQuery(sql);
+
+    if (Res->next())
+    {
+        sql = "INSERT INTO `UserAccount`.`UserInfo` (`Difficulty`, `Stage`) VALUES ('";
+        sql += to_string(difficulty) + "', '" + to_string(stage) + "')";
+
+        Stmt->executeUpdate(sql);
+        cout << "[DB] 데이터 입력 성공" << endl;
+
+        return true;
+    }
+
+    else cout << "[DB] 해당 유저 없음 {KEY = " << key << "}" << endl;
+    return false;
+}
+
+int DBConnector::GetDifficulty(const string& Id)
+{
+    string sql = "SELECT * FROM `UserAccount`.`UserInfo` WHERE `Id` = '";
+    sql += Id + "'";
+
+    Res = Stmt->executeQuery(sql);
+
+    if (Res->next())
+    {
+        return Res->getInt("Difficulty");
+    }
+
+    return 0;
+}
+
+int DBConnector::GetStage(const string& Id)
+{
+    string sql = "SELECT * FROM `UserAccount`.`UserInfo` WHERE `Id` = '";
+    sql += Id + "'";
+
+    Res = Stmt->executeQuery(sql);
+
+    if (Res->next())
+    {
+        return Res->getInt("Stage");
+    }
+
+    return 0;
+}
+
+int DBConnector::GetKey(const string& Id)
+{
+    string sql = "SELECT * FROM `UserAccount`.`UserInfo` WHERE `Id` = '";
+    sql += Id + "'";
+
+    Res = Stmt->executeQuery(sql);
+
+    if (Res->next())
+    {
+        return Res->getInt("Key");
+    }
+
+    return 0;
+}

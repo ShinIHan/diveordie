@@ -6,14 +6,15 @@
 
 
 #define DB_ADDRESS      "localhost"
-#define DB_PORT         3306
+#define DB_PORT         7777
 #define DB_ID           "admin"
 #define DB_PW           "qwer123$"
 
 enum EPacketType
 {
     SIGNUP,
-    LOGIN
+    LOGIN,
+    SETUSERDATA
 };
 
 class MainIOCP : public IOCP
@@ -41,5 +42,6 @@ private:
     // DB에 로그인
     static void Login(stringstream& RecvStream, SOCKETINFO* pSocket);
 
-
+    // DB에 유저 데이터 저장
+    static void SetUserData(stringstream& RecvStream, SOCKETINFO* pSocket);
 };

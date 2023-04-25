@@ -23,6 +23,12 @@ public:
 
     bool SearchAccount(const string& Id, const string& Password);
     bool SignUpAccount(const string& Id, const string& Password);
+    bool SetUserData(const int& difficulty, const int& stage, const int& key);
+
+
+    int GetDifficulty(const string& Id);
+    int GetStage(const string& Id);
+    int GetKey(const string& Id);
 
 private:
     sql::Driver* Driver = nullptr;
