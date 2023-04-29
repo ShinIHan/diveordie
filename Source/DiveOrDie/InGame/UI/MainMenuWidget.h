@@ -19,7 +19,6 @@ UCLASS()
 class GAME_API UMainMenuWidget : public UDiveGameWidget
 {
 	GENERATED_BODY()
-
 public:
 	virtual void NativeConstruct() override;
 

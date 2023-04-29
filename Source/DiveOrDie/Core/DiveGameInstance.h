@@ -60,10 +60,10 @@ protected:
 	virtual void Init() override;
 
 	UFUNCTION(BlueprintCallable)
-	void CreateServer();
+		void CreateServer();
 
 	UFUNCTION(BlueprintCallable)
-	void JoinServer();
+		void JoinServer();
 
 	virtual void OnCreateSessionComplete(FName SessionName, bool bResult);
 	virtual	void OnFindSessionComplete(bool bResult);
