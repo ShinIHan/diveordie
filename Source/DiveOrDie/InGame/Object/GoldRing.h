@@ -18,7 +18,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int PointValue;
+	int PointValue = 10;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundBase* Sound;

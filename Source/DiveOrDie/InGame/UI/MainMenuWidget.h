@@ -8,12 +8,6 @@
 /**
  * 
  */
-UENUM()
-enum EPlayType
-{
-	SINGLEPLAY,
-	MULTIPLAY
-};
 
 UCLASS()
 class GAME_API UMainMenuWidget : public UDiveGameWidget
@@ -25,12 +19,5 @@ public:
 	virtual void NativeDestruct() override;
 
 	UFUNCTION(BlueprintCallable)
-	int GetPlayType();
-
-	UFUNCTION(BlueprintCallable)
-	void SetPlayType(int playType);
-
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	int _ePlayType = EPlayType::SINGLEPLAY;
+	void DataSave(int difficulty, int stage, int key);
 };

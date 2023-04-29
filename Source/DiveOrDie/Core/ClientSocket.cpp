@@ -146,13 +146,14 @@ bool ClientSocket::Login(const FText& Id, const FText& Pw, UDiveGameInstance* Ga
 	return bLoginResult;
 }
 
-bool ClientSocket::SetUserData(int difficulty, int stage)
+bool ClientSocket::SetUserData(int difficulty, int stage, int key)
 {
 	stringstream SendStream;
 
 	SendStream << EPacketType::SETUSERDATA << endl;
 	SendStream << difficulty << endl;
 	SendStream << stage << endl;
+	SendStream << key << endl;
 
 	int iSendLen = send(
 		ServerSocket,

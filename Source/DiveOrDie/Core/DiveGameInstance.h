@@ -37,8 +37,8 @@ class GAME_API UDiveGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
+
 public:
-	
 	void SetUserInfo(int difficulty, int stage, int key);
 
 	UFUNCTION(BlueprintCallable)
@@ -48,32 +48,47 @@ public:
 	int GetDifficulty();
 
 	UFUNCTION(BlueprintCallable)
+	void SetDifficulty(int difficulty);
+
+	UFUNCTION(BlueprintCallable)
 	int GetStage();
 
-	UPROPERTY(BlueprintReadWrite)
-		int iStageNum = 1;
+	UFUNCTION(BlueprintCallable)
+	void SetStage(int stage);
+
+	void GameClear(int stage);
 
 	UPROPERTY(BlueprintReadWrite)
-		bool bIsOnline = false;
+	int iStageNum = 1;
 
-protected:
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsOnline = false;
+
+	UFUNCTION(BlueprintCallable)
+	void DestroySession();
+
 	virtual void Init() override;
 
 	UFUNCTION(BlueprintCallable)
-		void CreateServer();
+	void CreateServer();
 
 	UFUNCTION(BlueprintCallable)
-		void JoinServer();
+	void JoinServer();
 
 	virtual void OnCreateSessionComplete(FName SessionName, bool bResult);
 	virtual	void OnFindSessionComplete(bool bResult);
 	virtual void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+	virtual void OnDestroySessionComplete(FName SessionName, bool bResult);
 
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
 
 	IOnlineSessionPtr SessionInterface;
 
-	
+	UPROPERTY(BlueprintReadOnly)
+	FName CurrentSessionName = FName("");
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsLogin = false;
 private:
 	FUserInfo _stUserInfo;
 };

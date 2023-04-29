@@ -4,9 +4,12 @@
 #include "DiveCharacter.h"
 #include "DivePlayerController.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "DiveOrDie/Core/DiveGameInstance.h"
+#include "DiveOrDie/Core/DiveGameState.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -62,28 +65,15 @@ ADiveCharacter::ADiveCharacter()
 void ADiveCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-	if (Cast<APlayerController>(NewController))
-	{
-		if (!DiveCharacter_WG)
-		{
-			DiveCharacter_WG = CreateWidget<UDiveCharacterWidget>(GetWorld(), DiveCharacter_WGBP);
-			DiveCharacter_WG->Character = this;
-			if (!DiveCharacter_WG->IsInViewport())
-				DiveCharacter_WG->AddToViewport();
-		}
-	}
 }
 
 void ADiveCharacter::UnPossessed()
 {
 	Super::UnPossessed();
+
 	if (DiveCharacter_WG)
 	{
-		if (DiveCharacter_WG->IsInViewport())
-		{
-			DiveCharacter_WG->RemoveFromParent();
-			DiveCharacter_WG = nullptr;
-		}
+		UWidgetLayoutLibrary::RemoveAllWidgets(this);
 	}
 }
 
@@ -125,6 +115,12 @@ float ADiveCharacter::GetCurrentOxygen()
 
 void ADiveCharacter::OxygenConsume()
 {
+	if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) < 100.0f))
+	{
+		_fCurrentOxygen += 50.0f;
+		return;
+	}
+
 	_fCurrentOxygen -= 10.0f;
 }
 
@@ -157,16 +153,34 @@ int ADiveCharacter::GetDepth()
 
 void ADiveCharacter::UpdateScore(int Points)
 {
-	_iScore += Points;
+	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
+
+	GameState->iScore += Points;
 }
 
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
+	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
+
+	if (DiveGameInstance)
+	{
+		if (DiveGameInstance->GetDifficulty() == 0)
+		{
+			damage *= 0.8f;
+		}
+		else if (DiveGameInstance->GetDifficulty() == 2)
+		{
+			damage *= 1.2f;
+		}
+	}
+
 	_fCurrentHp -= damage;
 
 	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particles, GetActorTransform(), true, EPSCPoolMethod::None, true);
+
 	if (_fCurrentHp <= 0.0f)
 	{
+		OnPlayerDieCheck.Broadcast();
 		Destroy();
 	}
 }
