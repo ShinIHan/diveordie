@@ -24,17 +24,12 @@ void AGameOverMode::BeginPlay()
 	GetWorld()->GetFirstPlayerController()->SetShowMouseCursor(true);
 }
 
-void AGameOverMode::GoToMainMenu()
-{
-	LOG_SCREEN("Go To MainMenu");
-	UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu"));
-}
-
 void AGameOverMode::RetryGame()
 {
 	_iRetrying++;
+	LOG_SCREEN("%d", _iRetrying);
 
-	if (_iRetrying == _iPlayerCount)
+	if (_iRetrying >= _iPlayerCount)
 	{
 		LOG_SCREEN("ReStart Game");
 		UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());

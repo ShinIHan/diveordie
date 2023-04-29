@@ -21,9 +21,6 @@ public:
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
-	void GoToMainMenu();
-
-	UFUNCTION(BlueprintCallable)
 	void RetryGame();
 
 private:

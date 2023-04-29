@@ -117,11 +117,18 @@ void ADiveCharacter::OxygenConsume()
 {
 	if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) < 100.0f))
 	{
+		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 50.0f, 0.0f, _fMaxOxygen);
 		_fCurrentOxygen += 50.0f;
+		
 		return;
 	}
 
 	_fCurrentOxygen -= 10.0f;
+
+	if (_fCurrentOxygen <= 0.0f)
+	{
+		ReceiveAnyDamage(300.0f);
+	}
 }
 
 void ADiveCharacter::StartSwim(FVector waterBodyPos)
