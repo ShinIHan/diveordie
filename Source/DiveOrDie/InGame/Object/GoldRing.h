@@ -16,9 +16,8 @@ public:
 	// Sets default values for this actor's properties
 	AGoldRing();
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int PointValue;
+	int PointValue = 10;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USoundBase* Sound;

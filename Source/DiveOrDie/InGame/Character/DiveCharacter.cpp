@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "DiveOrDie/Core/DiveGameState.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -157,7 +158,9 @@ int ADiveCharacter::GetDepth()
 
 void ADiveCharacter::UpdateScore(int Points)
 {
-	_iScore += Points;
+	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
+
+	GameState->iScore += Points;
 }
 
 void ADiveCharacter::ReceiveAnyDamage(float damage)
