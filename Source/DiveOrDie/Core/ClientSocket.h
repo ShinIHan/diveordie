@@ -65,7 +65,7 @@ public:
 
 	void SetPlayerController(ADivePlayerController* playerController);
 
-	bool SetUserData(int difficulty, int stage);
+	bool SetUserData(int difficulty, int stage, int key);
 
 	static ClientSocket* GetSingleton()
 	{

@@ -15,6 +15,6 @@ class GAME_API UDiveCharacterWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	ADiveCharacter* Character;
 };

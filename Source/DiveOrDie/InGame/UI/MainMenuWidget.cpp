@@ -2,10 +2,18 @@
 
 
 #include "MainMenuWidget.h"
+#include "DiveOrDie/Core/DiveGameInstance.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
+	
+	if (DiveGameInstance)
+	{
+		DiveGameInstance->DestroySession();
+	}
 }
 
 void UMainMenuWidget::NativeDestruct()
@@ -13,12 +21,7 @@ void UMainMenuWidget::NativeDestruct()
 	Super::NativeDestruct();
 }
 
-int UMainMenuWidget::GetPlayType()
+void UMainMenuWidget::DataSave(int difficulty, int stage, int key)
 {
-	return _ePlayType;
-}
-
-void UMainMenuWidget::SetPlayType(int playType)
-{
-	_ePlayType = playType;
+	GetSocket()->SetUserData(difficulty, stage, key);
 }

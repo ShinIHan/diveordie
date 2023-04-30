@@ -22,9 +22,9 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void MoveTarget();
+	void MoveTarget(ADiveCharacter* Target);
 
-	void Shoot();
+	void Shoot(ADiveCharacter* Target);
 
 	void ShootReload();
 
@@ -40,7 +40,7 @@ private:
 	UBuoyancyComponent* buoyancy;
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = true))
-	ADiveCharacter* Target;
+	TArray<ADiveCharacter*> Targets;
 	
 	
 public:	

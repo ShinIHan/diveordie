@@ -14,6 +14,7 @@ UCLASS()
 class GAME_API UDiveGameWidget : public UUserWidget
 {
 	GENERATED_BODY()
+
 public:
 	virtual void NativeConstruct() override;			// UMG Widget 생성시, 위젯의 초기화 담당.
 
