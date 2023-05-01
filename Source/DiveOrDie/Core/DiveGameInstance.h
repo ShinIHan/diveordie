@@ -20,6 +20,15 @@ enum EDIFFICULTY
 	HARD
 };
 
+UENUM(BlueprintType)
+enum class SessionStatus : uint8
+{
+	NONE UMETA(DisplayName = "None"),
+	SEARCH UMETA(DisplayName = "Search"),
+	JOIN UMETA(DisplayName = "Join"),
+	HOST UMETA(DisplayName = "Host")
+};
+
 USTRUCT()
 struct FUserInfo
 {
@@ -64,6 +73,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsOnline = false;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsLocal = false;
+
 	UFUNCTION(BlueprintCallable)
 	void DestroySession();
 
@@ -89,6 +101,10 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsLogin = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	SessionStatus SessionStatus = SessionStatus::NONE;
+
 private:
 	FUserInfo _stUserInfo;
 };

@@ -57,6 +57,14 @@ public:
 	float GetCurrentOxygen();
 
 private:
+	void GamePause();
+
+	bool _bGamePause = false;
+
+	class UUserWidget* PauseMenu_WG = nullptr;
+
+	TSubclassOf<UUserWidget> PauseMenu_WGBP = nullptr;
+
 	void OxygenConsume();
 
 	FTimerHandle OxygenTimer;
@@ -117,9 +125,9 @@ private:
 	int _iDepth = 0;
 
 
-	// ----------------------- CC기 ----------------------- //
+	// ----------------------- CC�?----------------------- //
 public:
-	// 속박
+	// ?�박
 	void Restraint(float time);
 
 	void RestraintEnd();
@@ -129,7 +137,7 @@ public:
 
 	void SternEnd();
 
-	// 둔화
+	// ?�화
 	void SlowDown(float time);
 
 	void SlowDownEnd();

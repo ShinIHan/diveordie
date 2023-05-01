@@ -60,6 +60,11 @@ ADiveCharacter::ADiveCharacter()
     {
 	    DiveCharacter_WGBP = CHARACTER_WG.Class;
     }
+	static ConstructorHelpers::FClassFinder<UUserWidget> PAUSEMENU_WG(TEXT("/Game/Blueprints/PauseMenu_WGBP.PauseMenu_WGBP_C"));
+	if (PAUSEMENU_WG.Succeeded())
+	{
+		PauseMenu_WGBP = PAUSEMENU_WG.Class;
+	}
 }
 
 void ADiveCharacter::PossessedBy(AController* NewController)
@@ -112,6 +117,35 @@ float ADiveCharacter::GetCurrentOxygen()
 {
 	return _fCurrentOxygen;
 }
+
+void ADiveCharacter::GamePause()
+{
+	UDiveGameInstance* GameInstance = Cast<UDiveGameInstance>(GetGameInstance());
+	if (GameInstance)
+	{
+		if (!GameInstance->bIsOnline)
+		{
+			LOG_SCREEN("Pause Game");
+			if (PauseMenu_WGBP) PauseMenu_WG = CreateWidget(GetWorld(), PauseMenu_WGBP);
+
+			if (PauseMenu_WG)
+			{
+				if (!PauseMenu_WG->IsInViewport())
+				{
+					PauseMenu_WG->AddToViewport();
+					APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
+					if (PlayerController)
+					{
+						PlayerController->SetPause(true);
+						PlayerController->SetShowMouseCursor(true);
+					}
+				}
+			}
+
+		}
+	}
+}
+
 
 void ADiveCharacter::OxygenConsume()
 {
@@ -346,6 +380,8 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	InputComponent->BindAction("Pause", IE_Pressed, this, &ADiveCharacter::GamePause);
 	
 
 }

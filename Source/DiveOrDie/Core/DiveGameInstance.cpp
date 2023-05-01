@@ -2,6 +2,7 @@
 
 
 #include "DiveOrDie/Core/DiveGameInstance.h"
+#include <string>
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
@@ -28,13 +29,17 @@ void UDiveGameInstance::Init()
 void UDiveGameInstance::CreateServer()
 {
 	LOG_SCREEN("Create Server");
+	SessionStatus = SessionStatus::HOST;
 	FOnlineSessionSettings SessionSettings;
 	SessionSettings.bAllowJoinInProgress = true;
 	SessionSettings.bIsDedicated = false;
-	SessionSettings.bIsLANMatch = (IOnlineSubsystem::Get()->GetSubsystemName() != "NULL") ? false : true;
+	SessionSettings.bIsLANMatch = bIsLocal;
 	SessionSettings.bShouldAdvertise = true;
 	SessionSettings.bUsesPresence = true;
 	SessionSettings.NumPublicConnections = 5;
+
+	FString str = FString::FromInt(_stUserInfo.eDifficulty + iStageNum);
+	SessionSettings.Set(SEARCH_KEYWORDS, str, EOnlineDataAdvertisementType::ViaOnlineService);
 
 	SessionInterface->DestroySession(CurrentSessionName);
 	SessionInterface->CreateSession(0, FName("TestSession"), SessionSettings);
@@ -42,10 +47,13 @@ void UDiveGameInstance::CreateServer()
 
 void UDiveGameInstance::JoinServer()
 {
+	SessionStatus = SessionStatus::SEARCH;
 	SessionSearch = MakeShareable(new FOnlineSessionSearch());
-	SessionSearch->bIsLanQuery = (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL");
-	SessionSearch->MaxSearchResults = 10000;
-	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+	
+	SessionSearch->bIsLanQuery = bIsLocal;
+	SessionSearch->MaxSearchResults = 100;
+	FString str = FString::FromInt(_stUserInfo.eDifficulty + iStageNum);
+	SessionSearch->QuerySettings.Set(SEARCH_KEYWORDS, str, EOnlineComparisonOp::Equals);
 
 	SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
 }
@@ -71,8 +79,11 @@ void UDiveGameInstance::OnFindSessionComplete(bool bResult)
 	{
 		TArray<FOnlineSessionSearchResult> SearchResults = SessionSearch->SearchResults;
 
-		if (SearchResults.Num())
+		LOG_SCREEN("Search Session Count : %d", SearchResults.Num());
+		
+		if (SearchResults.Num() != 0)
 		{
+			SessionStatus = SessionStatus::JOIN;
 			SessionInterface->JoinSession(0, FName("TestSession"), SearchResults[0]);
 		}
 		else
@@ -92,6 +103,7 @@ void UDiveGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionC
 
 		if (JoinAddress != "")
 		{
+			LOG_SCREEN("Join Success");
 			CurrentSessionName = SessionName;
 			PlayerController->ClientTravel(JoinAddress, ETravelType::TRAVEL_Absolute);
 		}
