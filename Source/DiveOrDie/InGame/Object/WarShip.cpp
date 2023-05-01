@@ -97,7 +97,7 @@ void AWarShip::Tick(float DeltaTime)
 	{
 		if (Target != nullptr)
 		{
-			if (Target->OnSwim() && Target->GetDepth() <= 1)
+			if (Target->GetCharacterMovement()->IsSwimming() && Target->GetDepth() <= 1)
 			{
 				SetActorRotation(FRotator(GetActorRotation().Pitch,
 					UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()).Yaw,

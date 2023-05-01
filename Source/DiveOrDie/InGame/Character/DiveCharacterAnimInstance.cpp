@@ -9,6 +9,7 @@ UDiveCharacterAnimInstance::UDiveCharacterAnimInstance()
 	bOnMove = false;
 	bOnJump = false;
 	bOnSwim = false;
+	bOnDie = false;
 }
 
 void UDiveCharacterAnimInstance::NativeBeginPlay()
@@ -29,7 +30,7 @@ void UDiveCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		else
 			bOnMove = false;
 
-		if (Character->OnSwim())
+		if (Character->GetCharacterMovement()->IsSwimming())
 			bOnSwim = true;
 		else
 			bOnSwim = false;

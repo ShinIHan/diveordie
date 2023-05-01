@@ -18,6 +18,8 @@ public:
 	// Sets default values for this character's properties
 	ADiveCharacter();
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void UnPossessed() override;
@@ -34,6 +36,7 @@ private:
 	bool _bCanTurn = true;
 
 public:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
 
@@ -41,8 +44,6 @@ public:
 	float BaseLookUpRate;
 
 	bool OnMove();
-
-	bool OnSwim();
 
 	UFUNCTION(BlueprintCallable)
 	float GetMaxHP();
@@ -59,6 +60,8 @@ public:
 private:
 	void GamePause();
 
+	void Interaction();
+
 	bool _bGamePause = false;
 
 	class UUserWidget* PauseMenu_WG = nullptr;
@@ -74,9 +77,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnJump = false;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	bool _bOnSwim = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float _fMaxHp;
@@ -125,26 +125,33 @@ private:
 	int _iDepth = 0;
 
 
-	// ----------------------- CCÍ∏?----------------------- //
+	// ----------------------- CC±‚ ----------------------- //
 public:
-	// ?çÎ∞ï
+	// º”π⁄
 	void Restraint(float time);
-
 	void RestraintEnd();
 
-	// Í∏∞Ï†à
+	UFUNCTION(Server, Reliable)
+	void ServerRestraintEnd(ADiveCharacter* DiveCharacter);
+
+	bool GetRestraint();
+
+	// ±‚¿˝
 	void Stern(float time);
 
 	void SternEnd();
 
-	// ?îÌôî
+	// µ–»≠
 	void SlowDown(float time);
 
 	void SlowDownEnd();
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Restraint, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnRestraint = false;
+
+	UFUNCTION()
+	void OnRep_Restraint();
 
 	FTimerHandle RestraintTimer;
 
@@ -153,11 +160,13 @@ private:
 
 	FTimerHandle SternTimer;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnSlowDown = false;
 
 	FTimerHandle SlowDownTimer;
+
+	UPROPERTY()
+	class UDiveCharacterAnimInstance* DiveCharacterAnim;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
@@ -170,6 +179,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
@@ -177,6 +188,8 @@ protected:
 	void TurnAtRate(float Rate);
 
 	void LookUpAtRate(float Rate);
+
+	void Die();
 
 public:
 	// Called every frame

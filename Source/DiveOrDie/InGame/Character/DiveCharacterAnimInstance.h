@@ -9,6 +9,8 @@
 /**
  * 
  */
+DECLARE_MULTICAST_DELEGATE(FDiveCharacterDelegate)
+
 UCLASS()
 class GAME_API UDiveCharacterAnimInstance : public UAnimInstance
 {
@@ -20,6 +22,9 @@ public:
 private:
 	class ADiveCharacter* Character;
 
+public:
+	FDiveCharacterDelegate OnDieCheck;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	bool bOnMove;
@@ -29,6 +34,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	bool bOnJump;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnDie;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	float direction;

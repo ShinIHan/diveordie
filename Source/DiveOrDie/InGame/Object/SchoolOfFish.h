@@ -3,6 +3,8 @@
 #pragma once
 
 #include "../game.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "GameFramework/RotatingMovementComponent.h"
 #include "GameFramework/Actor.h"
 #include "SchoolOfFish.generated.h"
 
@@ -27,8 +29,17 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UStaticMeshComponent*> fishArr;
 	
+	UPROPERTY(VisibleAnywhere)
+	UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	URotatingMovementComponent* RotatingMovementComponent;
+
+	int _iRot;
+
+	FVector _StartLocation;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };
