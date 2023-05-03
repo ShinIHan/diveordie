@@ -5,6 +5,7 @@
 
 map<int, SOCKET>    MainIOCP::SessionSocket;
 DBConnector         MainIOCP::Conn;
+SessionsManager     MainIOCP::Sessions;
 
 unsigned int WINAPI CallWorkerThread(LPVOID p)
 {
@@ -19,7 +20,10 @@ MainIOCP::MainIOCP()
 
     fnProcess[EPacketType::SIGNUP].funcProcessPacket = SignUp;
     fnProcess[EPacketType::LOGIN].funcProcessPacket = Login;
-
+    fnProcess[EPacketType::SETUSERDATA].funcProcessPacket = SetUserData;
+    fnProcess[EPacketType::SEARCHSESSION].funcProcessPacket = SearchSession;
+    fnProcess[EPacketType::CREATESESSION].funcProcessPacket = CreateSession;
+    fnProcess[EPacketType::DESTROYSESSION].funcProcessPacket = DestroySession;
 }
 
 MainIOCP::~MainIOCP()
@@ -143,6 +147,99 @@ void MainIOCP::SetUserData(stringstream& RecvStream, SOCKETINFO* pSocket)
     {
         SendStream << false << endl;
     }
+
+    CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
+
+    pSocket->dataBuf.buf = pSocket->messageBuffer;
+    pSocket->dataBuf.len = SendStream.str().length();
+
+    Send(pSocket);
+}
+void MainIOCP::CreateSession(stringstream& RecvStream, SOCKETINFO* pSocket)
+{
+    string ip;
+    int difficulty;
+    int stage;
+
+    RecvStream >> ip;
+    RecvStream >> difficulty;
+    RecvStream >> stage;
+
+    cout << "[INFO] 세션을 만드는 중..." << endl;
+
+    stringstream SendStream;
+    SendStream << EPacketType::CREATESESSION << endl;
+
+    SessionInfo Session;
+    Session.IP = ip;
+    Session.Difficulty = difficulty;
+    Session.Stage = stage;
+
+    Sessions.CreateSession(Session);
+
+    SendStream << true << endl;
+
+    CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
+
+    pSocket->dataBuf.buf = pSocket->messageBuffer;
+    pSocket->dataBuf.len = SendStream.str().length();
+
+    Send(pSocket);
+}
+
+void MainIOCP::SearchSession(stringstream& RecvStream, SOCKETINFO* pSocket)
+{
+    int difficulty;
+    int stage;
+
+    RecvStream >> difficulty;
+    RecvStream >> stage;
+
+    stringstream SendStream;
+    SendStream << EPacketType::SEARCHSESSION << endl;
+
+    cout << "[INFO] 세션을 찾는 중..." << endl;
+
+    SessionInfo Session = Sessions.SearchSession(difficulty, stage);
+
+    if (Session.IP == "None")
+    {
+        SendStream << false << endl;
+    }
+    else
+    {
+        SendStream << true << endl;
+        SendStream << Session.IP << endl;
+    }
+
+    CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
+
+    pSocket->dataBuf.buf = pSocket->messageBuffer;
+    pSocket->dataBuf.len = SendStream.str().length();
+               
+
+    Send(pSocket);
+ 
+       
+    }
+
+void MainIOCP::DestroySession(stringstream& RecvStream, SOCKETINFO* pSocket)
+{
+    string ip;
+    int difficulty;
+    int stage;
+    RecvStream >> ip;
+    RecvStream >> difficulty;
+    RecvStream >> stage;
+
+    cout << "[INFO] 세션을 삭제 중..." << endl;
+
+    stringstream SendStream;
+    SendStream << EPacketType::DESTROYSESSION << endl;
+
+    bool bResult = Sessions.DestroySession(ip, difficulty, stage);
+
+    SendStream << bResult << endl;
 
     CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
 

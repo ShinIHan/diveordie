@@ -1,8 +1,10 @@
 #pragma once
 #pragma once
 
+#include <vector>
 #include "IOCP.h"
 #include "DBConnector.h"
+#include "SessionsManager.h"
 
 
 #define DB_ADDRESS      "localhost"
@@ -14,8 +16,14 @@ enum EPacketType
 {
     SIGNUP,
     LOGIN,
-    SETUSERDATA
+    SETUSERDATA,
+    SEARCHSESSION,
+    CREATESESSION,
+    DESTROYSESSION
 };
+
+
+
 
 class MainIOCP : public IOCP
 {
@@ -34,6 +42,7 @@ private:
     static map<int, SOCKET> SessionSocket;
     static float            HitPoint;
     static DBConnector      Conn;
+    static SessionsManager  Sessions;
 
     FuncProcess             fnProcess[100];
 
@@ -44,4 +53,9 @@ private:
 
     // DB에 유저 데이터 저장
     static void SetUserData(stringstream& RecvStream, SOCKETINFO* pSocket);
+
+    static void SearchSession(stringstream& RecvStream, SOCKETINFO* pSocket);
+
+
+    static void DestroySession(stringstream& RecvStream, SOCKETINFO* pSocket);
 };

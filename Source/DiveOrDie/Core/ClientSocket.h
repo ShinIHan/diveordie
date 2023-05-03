@@ -44,7 +44,15 @@ enum EPacketType
 	LOGIN,
 	SETUSERDATA,
 	CREATESESSION,
-	SEARCHSESSION
+	SEARCHSESSION,
+	DESTROYSESSION
+};
+
+struct SessionInfo
+{
+	string  IP = "";
+	int     Difficulty;
+	int     Stage;
 };
 
 /**
@@ -63,9 +71,17 @@ public:
 	bool SignUp(const FText& Id, const FText& Pw);
 	bool Login(const FText& Id, const FText& Pw, UDiveGameInstance* GameInstance);
 
+	bool SearchSession(int difficulty, int stage);
+
+	bool CreateSession(const FText& IP, int difficulty, int stage);
+
+	bool DestroySession(const FText& IP, int difficulty, int stage);
+
 	void SetPlayerController(ADivePlayerController* playerController);
 
 	bool SetUserData(int difficulty, int stage, int key);
+
+	SessionInfo GetSearchResult() { return SearchResult; }
 
 	static ClientSocket* GetSingleton()
 	{
@@ -76,6 +92,7 @@ public:
 private:
 	ADivePlayerController* _playerController = nullptr;
 	SOCKET ServerSocket;
+	SessionInfo SearchResult;
 	char recvBuffer[MAX_BUFFER];
 	
 };

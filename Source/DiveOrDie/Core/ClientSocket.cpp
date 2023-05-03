@@ -146,6 +146,127 @@ bool ClientSocket::Login(const FText& Id, const FText& Pw, UDiveGameInstance* Ga
 	return bLoginResult;
 }
 
+bool ClientSocket::SearchSession(int difficulty, int stage)
+{
+	stringstream SendStream;
+
+	SendStream << EPacketType::SEARCHSESSION << endl;
+	SendStream << difficulty << endl;
+	SendStream << stage << endl;
+
+	int iSendLen = send(
+		ServerSocket,
+		(CHAR*)SendStream.str().c_str(),
+		SendStream.str().length(),
+		0);
+
+	if (iSendLen == -1) return false;
+
+	int iRecvLen = recv(
+		ServerSocket,
+		(CHAR*)&recvBuffer,
+		MAX_BUFFER,
+		0);
+
+	if (iRecvLen <= 0) return false;
+
+	stringstream RecvStream;
+	int ePacketType;
+	bool bSearchResult;
+
+	RecvStream << recvBuffer;
+	RecvStream >> ePacketType;
+	RecvStream >> bSearchResult;
+
+	if (EPacketType::SEARCHSESSION != ePacketType) return false;
+
+	if (bSearchResult)
+	{
+		SearchResult.Difficulty = difficulty;
+		SearchResult.Stage = stage;
+		RecvStream >> SearchResult.IP;
+	}
+
+	return bSearchResult;
+}
+
+bool ClientSocket::CreateSession(const FText& IP, int difficulty, int stage)
+{
+	stringstream SendStream;
+
+	SendStream << EPacketType::CREATESESSION << endl;
+	SendStream << TCHAR_TO_UTF8(*IP.ToString()) << endl;
+	SendStream << difficulty << endl;
+	SendStream << stage << endl;
+
+	int iSendLen = send(
+		ServerSocket,
+		(CHAR*)SendStream.str().c_str(),
+		SendStream.str().length(),
+		0);
+
+	if (iSendLen == -1) return false;
+
+	int iRecvLen = recv(
+		ServerSocket,
+		(CHAR*)&recvBuffer,
+		MAX_BUFFER,
+		0);
+
+	if (iRecvLen <= 0) return false;
+
+	stringstream RecvStream;
+	int ePacketType;
+	bool bCreateResult;
+
+	RecvStream << recvBuffer;
+	RecvStream >> ePacketType;
+	RecvStream >> bCreateResult;
+
+	if (EPacketType::CREATESESSION != ePacketType) return false;
+
+	return bCreateResult;
+}
+
+bool ClientSocket::DestroySession(const FText& IP, int difficulty, int stage)
+{
+	stringstream SendStream;
+
+	SendStream << EPacketType::DESTROYSESSION << endl;
+	SendStream << TCHAR_TO_UTF8(*IP.ToString()) << endl;
+	SendStream << difficulty << endl;
+	SendStream << stage << endl;
+
+	int iSendLen = send(
+		ServerSocket,
+		(CHAR*)SendStream.str().c_str(),
+		SendStream.str().length(),
+		0);
+
+	if (iSendLen == -1) return false;
+
+	int iRecvLen = recv(
+		ServerSocket,
+		(CHAR*)&recvBuffer,
+		MAX_BUFFER,
+		0);
+
+	if (iRecvLen <= 0) return false;
+
+	stringstream RecvStream;
+	int ePacketType;
+	bool bDestroyResult;
+
+	RecvStream << recvBuffer;
+	RecvStream >> ePacketType;
+	RecvStream >> bDestroyResult;
+
+	if (EPacketType::DESTROYSESSION != ePacketType) return false;
+
+	return bDestroyResult;
+}
+
+
 bool ClientSocket::SetUserData(int difficulty, int stage, int key)
 {
 	stringstream SendStream;

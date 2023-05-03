@@ -17,7 +17,7 @@ void ALobbyGameMode::BeginPlay()
 	if (DiveGameInstance)
 	{
 		iStage = DiveGameInstance->iStageNum;
-		DiveGameInstance->JoinServer();
+		
 	}
 }
 

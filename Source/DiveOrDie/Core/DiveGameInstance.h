@@ -4,9 +4,6 @@
 
 #include "DiveOrDie/InGame/game.h"
 #include "Engine/GameInstance.h"
-#include "OnlineSubsystem.h"
-#include "OnlineSubsystemUtils.h"
-#include "Interfaces/OnlineSessionInterface.h"
 #include "DiveGameInstance.generated.h"
 
 /**
@@ -20,14 +17,7 @@ enum EDIFFICULTY
 	HARD
 };
 
-UENUM(BlueprintType)
-enum class SessionStatus : uint8
-{
-	NONE UMETA(DisplayName = "None"),
-	SEARCH UMETA(DisplayName = "Search"),
-	JOIN UMETA(DisplayName = "Join"),
-	HOST UMETA(DisplayName = "Host")
-};
+
 
 USTRUCT()
 struct FUserInfo
@@ -67,6 +57,9 @@ public:
 
 	void GameClear(int stage);
 
+	UFUNCTION(BlueprintCallable)
+		FString GetIPAddress();
+
 	UPROPERTY(BlueprintReadWrite)
 	int iStageNum = 1;
 
@@ -76,34 +69,11 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsLocal = false;
 
-	UFUNCTION(BlueprintCallable)
-	void DestroySession();
-
-	virtual void Init() override;
-
-	UFUNCTION(BlueprintCallable)
-	void CreateServer();
-
-	UFUNCTION(BlueprintCallable)
-	void JoinServer();
-
-	virtual void OnCreateSessionComplete(FName SessionName, bool bResult);
-	virtual	void OnFindSessionComplete(bool bResult);
-	virtual void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
-	virtual void OnDestroySessionComplete(FName SessionName, bool bResult);
-
-	TSharedPtr<FOnlineSessionSearch> SessionSearch;
-
-	IOnlineSessionPtr SessionInterface;
-
-	UPROPERTY(BlueprintReadOnly)
-	FName CurrentSessionName = FName("");
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsLogin = false;
 
-	UPROPERTY(BlueprintReadOnly)
-	SessionStatus SessionStatus = SessionStatus::NONE;
+	
 
 private:
 	FUserInfo _stUserInfo;

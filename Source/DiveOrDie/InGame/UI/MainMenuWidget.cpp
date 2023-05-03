@@ -8,12 +8,6 @@ void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
-	
-	if (DiveGameInstance)
-	{
-		DiveGameInstance->DestroySession();
-	}
 }
 
 void UMainMenuWidget::NativeDestruct()
