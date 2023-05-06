@@ -13,6 +13,8 @@ void UMainMenuWidget::NativeConstruct()
 void UMainMenuWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
+
+	GetSocket()->DestroySession();
 }
 
 void UMainMenuWidget::DataSave(int difficulty, int stage, int key)

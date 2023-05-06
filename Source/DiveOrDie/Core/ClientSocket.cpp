@@ -228,7 +228,7 @@ bool ClientSocket::CreateSession(const FText& IP, int difficulty, int stage)
 	return bCreateResult;
 }
 
-bool ClientSocket::DestroySession(const FText& IP, int difficulty, int stage)
+bool ClientSocket::DestroySession()
 {
 	stringstream SendStream;
 

@@ -15,9 +15,9 @@ class SessionsManager
 public:
     SessionsManager();
 
-    void CreateSession(const SessionInfo& session);
+    bool CreateSession(const SessionInfo& session);
     SessionInfo SearchSession(const int& difficulty, const int& stage);
-    bool DestroySession(const string& ip, const int& difficulty, const int& stage);
+    bool DestroySession(const string& ip);
 
 private:
     vector<SessionInfo> Sessions;

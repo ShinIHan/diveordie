@@ -98,6 +98,7 @@ void IOCP::ServerStart()
         SocketInfo->socket = clientSocket;
         SocketInfo->recvBytes = 0;
         SocketInfo->sendBytes = 0;
+        SocketInfo->clientAddr = inet_ntoa(clientAddr.sin_addr);
         SocketInfo->dataBuf.len = MAX_BUFFER;
         SocketInfo->dataBuf.buf = SocketInfo->messageBuffer;
         flags = 0;

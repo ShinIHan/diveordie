@@ -59,7 +59,7 @@ void ADiveGameMode::PostLogin(APlayerController* NewPlayer)
 void ADiveGameMode::GameClear()
 {
 	LOG_SCREEN("GameClear");
-	GetWorld()->ServerTravel("/Game/Maps/GameClear");
+	GetWorld()->ServerTravel("/Game/Maps/GameClear?listen");
 }
 
 void ADiveGameMode::GameOver()
@@ -68,7 +68,7 @@ void ADiveGameMode::GameOver()
 	
 	if (StageManagerActor->bIsOnline)
 	{
-		GetWorld()->ServerTravel("/Game/Maps/GameOver");
+		GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
 		return;
 	}
 	

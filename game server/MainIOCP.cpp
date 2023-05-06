@@ -166,18 +166,21 @@ void MainIOCP::CreateSession(stringstream& RecvStream, SOCKETINFO* pSocket)
     RecvStream >> stage;
 
     cout << "[INFO] 세션을 만드는 중..." << endl;
+    cout << "[INFO] IP : " << pSocket->clientAddr << endl;
 
     stringstream SendStream;
     SendStream << EPacketType::CREATESESSION << endl;
 
     SessionInfo Session;
-    Session.IP = ip;
+    Session.IP = pSocket->clientAddr;
     Session.Difficulty = difficulty;
     Session.Stage = stage;
 
     Sessions.CreateSession(Session);
+    bool bResult = Sessions.CreateSession(Session);
+    cout << "[INFO] 세션 생성 " << (bResult ? "성공" : "실패") << endl;
 
-    SendStream << true << endl;
+    SendStream << bResult << endl;
 
     CopyMemory(pSocket->messageBuffer, (CHAR*)SendStream.str().c_str(), SendStream.str().length());
 
@@ -204,10 +207,12 @@ void MainIOCP::SearchSession(stringstream& RecvStream, SOCKETINFO* pSocket)
 
     if (Session.IP == "None")
     {
+        cout << "[INFO] 해당하는 세션 없음" << endl;
         SendStream << false << endl;
     }
     else
     {
+        cout << "[INFO] 세션 찾음 : " << Session.IP << endl;
         SendStream << true << endl;
         SendStream << Session.IP << endl;
     }
@@ -225,19 +230,15 @@ void MainIOCP::SearchSession(stringstream& RecvStream, SOCKETINFO* pSocket)
 
 void MainIOCP::DestroySession(stringstream& RecvStream, SOCKETINFO* pSocket)
 {
-    string ip;
-    int difficulty;
-    int stage;
-    RecvStream >> ip;
-    RecvStream >> difficulty;
-    RecvStream >> stage;
+    
 
     cout << "[INFO] 세션을 삭제 중..." << endl;
 
     stringstream SendStream;
     SendStream << EPacketType::DESTROYSESSION << endl;
 
-    bool bResult = Sessions.DestroySession(ip, difficulty, stage);
+    bbool bResult = Sessions.DestroySession(pSocket->clientAddr);
+
 
     SendStream << bResult << endl;
 

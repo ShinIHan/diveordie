@@ -8,7 +8,7 @@
 #include "Core.h"
 
 #define MAX_BUFFER 4096
-#define SERVER_PORT 25565
+#define SERVER_PORT 80
 #define MAX_CLIENTS 100
 
 struct SOCKETINFO
@@ -16,6 +16,7 @@ struct SOCKETINFO
     WSAOVERLAPPED   overlapped;
     WSABUF          dataBuf;
     SOCKET          socket;
+    string          clientAddr;
     char            messageBuffer[MAX_BUFFER];
     int             recvBytes;
     int             sendBytes;

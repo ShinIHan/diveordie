@@ -58,15 +58,3 @@ void UDiveGameInstance::GameClear(int stage)
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
 
-FString UDiveGameInstance::GetIPAddress()
-{
-	FString IpAddr("NONE");
-	bool bBind = false;
-	TSharedRef<FInternetAddr>LocalIp = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->GetLocalHostAddr(*GLog, bBind);
-	if (LocalIp->IsValid())
-	{
-		IpAddr = LocalIp->ToString(false);
-	}
-
-	return IpAddr;
-}

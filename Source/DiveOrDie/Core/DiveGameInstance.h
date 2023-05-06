@@ -57,17 +57,14 @@ public:
 
 	void GameClear(int stage);
 
-	UFUNCTION(BlueprintCallable)
-		FString GetIPAddress();
-
+	
 	UPROPERTY(BlueprintReadWrite)
 	int iStageNum = 1;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsOnline = false;
 
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsLocal = false;
+	
 
 
 	UPROPERTY(BlueprintReadWrite)

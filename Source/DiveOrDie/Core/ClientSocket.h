@@ -24,7 +24,7 @@ class ADivePlayerController;
 class UDiveGameInstance;
 
 #define	MAX_BUFFER		4096
-#define SERVER_PORT		25565
+#define SERVER_PORT		80
 #define SERVER_IP		"127.0.0.1"
 #define MAX_CLIENTS		100
 
@@ -75,7 +75,7 @@ public:
 
 	bool CreateSession(const FText& IP, int difficulty, int stage);
 
-	bool DestroySession(const FText& IP, int difficulty, int stage);
+	bool DestroySession();
 
 	void SetPlayerController(ADivePlayerController* playerController);
 
