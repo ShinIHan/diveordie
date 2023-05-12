@@ -15,8 +15,8 @@ int button1 = 2;
 int button2;
 int button3;
 int button4;
-float ax;
-float ay;
+int ax;
+int ay;
 
 int StandardCount = 0;
 int secondCount = 0;
@@ -29,14 +29,11 @@ int seconddata[10][2] = { 2 };
 
 ADiveGameMode::ADiveGameMode()
 {
-   
     static ConstructorHelpers::FClassFinder<ADiveCharacter> CHARCTER_BP(TEXT("/Game/Blueprints/BP_DiveCharacter.BP_DiveCharacter_C"));
     if (CHARCTER_BP.Succeeded())
     {
         DefaultPawnClass = CHARCTER_BP.Class;
     }
-
-    PrimaryActorTick.bCanEverTick = true;
 
     static ConstructorHelpers::FClassFinder<ADiveGameState> GAMESTATE_BP(TEXT("/Game/Blueprints/BP_DiveGameState.BP_DiveGameState_C"));
     if (GAMESTATE_BP.Succeeded())
@@ -44,6 +41,7 @@ ADiveGameMode::ADiveGameMode()
         GameStateClass = GAMESTATE_BP.Class;
     }
 
+    PrimaryActorTick.bCanEverTick = true;
     bUseSeamlessTravel = true;
 }
 
@@ -65,21 +63,10 @@ void ADiveGameMode::BeginPlay()
     if (_serialPort == nullptr)
     {
         _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
+        LOG_SCREEN("Serial");
     }
-}
 
-void ADiveGameMode::PostLogin(APlayerController* NewPlayer)
-{
-    Super::PostLogin(NewPlayer);
-
-    if (NewPlayer)
-    {
-        ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(NewPlayer->GetPawn());
-        if (DiveCharacter)
-        {
-            DiveCharacter->OnPlayerDieCheck.AddUObject(this, &ADiveGameMode::GameOver);
-        }
-    }
+    LOG_SCREEN("Start");
 }
 
 void ADiveGameMode::Tick(float DeltaTime)
@@ -97,13 +84,51 @@ void ADiveGameMode::Tick(float DeltaTime)
         // 마지막 단어 뒤에 쉼표가 없는 경우 false로 설정하여 초과 오류 방지
         data.ParseIntoArray(words, TEXT(","), false);
 
-        //시리얼 통신으로 부터 받아오는 10개의 값 출력
-        LOG_SCREEN("%s %s %s  %s  %s  %s  %s  %s  %s  %s", *words[0], *words[1], *words[2], *words[3], *words[4], *words[5], *words[6], *words[7], *words[8], *words[9]);
+        if (words.Num() == 10)
+        {
+            button1 = FCString::Atoi(*words[0]);
+            button2 = FCString::Atoi(*words[1]);
+            button3 = FCString::Atoi(*words[2]);
+            button4 = FCString::Atoi(*words[3]);
+
+            unsigned int ValueX, ValueY;
+
+            sscanf(TCHAR_TO_ANSI(*words[4]), "%x", &ValueX);
+            sscanf(TCHAR_TO_ANSI(*words[5]), "%x", &ValueY);
+
+            if (words[4].StartsWith("-"))
+            {
+                ValueX = -ValueX;
+            }
+            if (words[5].StartsWith("-"))
+            {
+                ValueY = -ValueY;
+            }
+
+            ax = ValueX;
+            ay = ValueY;
+
+            LOG_SCREEN("%d, %d, %d, %d, %d, %d", button1, button2, button3, button4, ax, ay);
+        }
     }
     catch (const std::exception& e)
     {
         // 에러 처리
         UE_LOG(LogTemp, Error, TEXT("Error occurred while sending serial data: %s"), *FString(e.what()));
+    }
+}
+
+void ADiveGameMode::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+
+    if (NewPlayer)
+    {
+        ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(NewPlayer->GetPawn());
+        if (DiveCharacter)
+        {
+            DiveCharacter->OnPlayerDieCheck.AddUObject(this, &ADiveGameMode::GameOver);
+        }
     }
 }
 
@@ -123,4 +148,3 @@ void ADiveGameMode::GameOver()
     }
     UGameplayStatics::OpenLevel(GetWorld(), "GameOver");
 }
-
