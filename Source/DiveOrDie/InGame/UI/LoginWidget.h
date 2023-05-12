@@ -21,7 +21,8 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable, Category = "Login")
 	bool Login(const FText& Id, const FText& Pw);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Login")
 	bool SignUp(const FText& Id, const FText& Pw);
+	
 };

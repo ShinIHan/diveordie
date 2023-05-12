@@ -42,7 +42,7 @@ void AJellyFish::BeginPlay()
 void AJellyFish::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	LOG_SCREEN("Overlap JellyFish");
+	//LOG_SCREEN("Overlap JellyFish");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{

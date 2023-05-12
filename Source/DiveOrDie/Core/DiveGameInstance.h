@@ -17,8 +17,6 @@ enum EDIFFICULTY
 	HARD
 };
 
-
-
 USTRUCT()
 struct FUserInfo
 {
@@ -36,13 +34,13 @@ class GAME_API UDiveGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 
-
+	
 public:
 	void SetUserInfo(int difficulty, int stage, int key);
 
 	UFUNCTION(BlueprintCallable)
 	int GetUserKey();
-
+	
 	UFUNCTION(BlueprintCallable)
 	int GetDifficulty();
 
@@ -56,7 +54,6 @@ public:
 	void SetStage(int stage);
 
 	void GameClear(int stage);
-
 	
 	UPROPERTY(BlueprintReadWrite)
 	int iStageNum = 1;
@@ -64,14 +61,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsOnline = false;
 
-	
-
-
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsLogin = false;
-
 	
-
 private:
 	FUserInfo _stUserInfo;
 };

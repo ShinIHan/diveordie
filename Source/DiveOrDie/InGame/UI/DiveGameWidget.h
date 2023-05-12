@@ -2,7 +2,6 @@
 
 #pragma once
 
-
 #include "DiveOrDie/Core/ClientSocket.h"
 #include "Blueprint/UserWidget.h"
 #include "DiveGameWidget.generated.h"
@@ -16,9 +15,9 @@ class GAME_API UDiveGameWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	virtual void NativeConstruct() override;			// UMG Widget 생성시, 위젯의 초기화 담당.
+	virtual void NativeConstruct() override;
 
-	virtual void NativeDestruct() override;				// UMG Widget 객체 파괴시 호출. 할당한 리소스 해제
+	virtual void NativeDestruct() override;
 
 	bool GetIsConnect();
 
@@ -27,4 +26,5 @@ public:
 private:
 	ClientSocket* Socket = nullptr;
 	bool _bIsConnected = false;
+	
 };

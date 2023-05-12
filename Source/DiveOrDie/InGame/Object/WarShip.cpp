@@ -9,15 +9,15 @@
 // Sets default values
 AWarShip::AWarShip()
 {
-	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	
 	RootComponent = mesh;
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 
 	mesh->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
-
+	
 	mesh->SetEnableGravity(true);
 	mesh->SetSimulatePhysics(true);
 
@@ -25,12 +25,12 @@ AWarShip::AWarShip()
 	buoyancy->AddCustomPontoon(200.0f, FVector(500.0f, -390.0f, 200.0f));
 	buoyancy->AddCustomPontoon(200.0f, FVector(-620.0f, 410.0f, 200.0f));
 	buoyancy->AddCustomPontoon(200.0f, FVector(-620.0f, -390.0f, 200.0f));
-
+	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> WARSHIP_MESH(TEXT("/Game/Meshes/Submarine.Submarine"));
-	if (WARSHIP_MESH.Succeeded())
-	{
-		mesh->SetStaticMesh(WARSHIP_MESH.Object);
-	}
+    if (WARSHIP_MESH.Succeeded())
+    {
+    	mesh->SetStaticMesh(WARSHIP_MESH.Object);
+    }
 }
 
 // Called when the game starts or when spawned
@@ -46,12 +46,7 @@ void AWarShip::BeginPlay()
 		if (actor)
 		{
 			ADiveCharacter* Character = Cast<ADiveCharacter>(actor);
-
-			if (!Character)
-			{
-				continue;
-			}
-
+			if (!Character) continue;
 			Targets.Add(Character);
 		}
 	}
@@ -60,11 +55,11 @@ void AWarShip::BeginPlay()
 void AWarShip::MoveTarget(ADiveCharacter* Target)
 {
 	bOnMove = true;
-
+	
 	float force = UKismetMathLibrary::MapRangeClamped(
-		GetVelocity().Size(),
-		0.0f, 400.0f,
-		10000.0f, 0.0f);
+	GetVelocity().Size(),
+	0.0f, 400.0f,
+	10000.0f, 0.0f);
 
 	mesh->AddForce(mesh->GetForwardVector() * force, NAME_None, true);
 }
@@ -102,10 +97,10 @@ void AWarShip::Tick(float DeltaTime)
 				SetActorRotation(FRotator(GetActorRotation().Pitch,
 					UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation()).Yaw,
 					GetActorRotation().Roll));
-
-				if (FVector::Dist(GetActorLocation(), Target->GetActorLocation()) < 3000.0f)
+			
+				if (FVector::Dist(GetActorLocation(), Target->GetActorLocation()) < 4000.0f)
 				{
-					Shoot(Target);
+					Shoot(Target);	
 				}
 				else
 				{
@@ -122,3 +117,4 @@ void AWarShip::Tick(float DeltaTime)
 		}
 	}
 }
+

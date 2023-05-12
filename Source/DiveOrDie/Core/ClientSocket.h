@@ -25,7 +25,7 @@ class UDiveGameInstance;
 
 #define	MAX_BUFFER		4096
 #define SERVER_PORT		80
-#define SERVER_IP		"127.0.0.1"
+#define SERVER_IP		"14.32.107.246"
 #define MAX_CLIENTS		100
 
 struct SOCKETINFO
@@ -43,8 +43,8 @@ enum EPacketType
 	SIGNUP,
 	LOGIN,
 	SETUSERDATA,
-	CREATESESSION,
 	SEARCHSESSION,
+	CREATESESSION,
 	DESTROYSESSION
 };
 
@@ -54,7 +54,6 @@ struct SessionInfo
 	int     Difficulty;
 	int     Stage;
 };
-
 /**
  * 
  */
@@ -73,9 +72,11 @@ public:
 
 	bool SearchSession(int difficulty, int stage);
 
-	bool CreateSession(const FText& IP, int difficulty, int stage);
+	bool CreateSession(int difficulty, int stage);
 
 	bool DestroySession();
+
+	
 
 	void SetPlayerController(ADivePlayerController* playerController);
 

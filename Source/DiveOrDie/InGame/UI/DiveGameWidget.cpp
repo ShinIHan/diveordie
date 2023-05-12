@@ -10,7 +10,6 @@ void UDiveGameWidget::NativeConstruct()
 	Socket = ClientSocket::GetSingleton();
 	Socket->InitSocket();
 	_bIsConnected = Socket->Connect(SERVER_IP, SERVER_PORT);
-
 	if (_bIsConnected)
 	{
 		LOG_SCREEN("IOCP Server Connect Success");

@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 DECLARE_MULTICAST_DELEGATE(FDiveCharacterDelegate)
 
 UCLASS()
@@ -20,12 +21,15 @@ public:
 	UDiveCharacterAnimInstance();
 	
 private:
+	UFUNCTION()
+	void AnimNotify_Die();
+	
 	class ADiveCharacter* Character;
 
 public:
 	FDiveCharacterDelegate OnDieCheck;
 
-protected:
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	bool bOnMove;
 

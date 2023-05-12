@@ -28,7 +28,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UStaticMeshComponent*> fishArr;
-	
+
 	UPROPERTY(VisibleAnywhere)
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
@@ -38,8 +38,9 @@ private:
 	int _iRot;
 
 	FVector _StartLocation;
-
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
 };

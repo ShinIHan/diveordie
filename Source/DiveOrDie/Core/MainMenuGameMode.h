@@ -16,15 +16,18 @@ class GAME_API AMainMenuGameMode : public AGameModeBase
 
 public:
 	AMainMenuGameMode();
-
+	
 	virtual void BeginPlay() override;
+
 	virtual void PostInitializeComponents() override;
+
 
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true))
 	TSubclassOf<class UUserWidget> HUDWidgetClass = nullptr;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true))
 	class UUserWidget* CurrentWidget = nullptr;
+	
 };

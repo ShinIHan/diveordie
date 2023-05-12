@@ -14,7 +14,7 @@ UCLASS()
 class GAME_API UGameOverWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 public:
 	UPROPERTY(BlueprintCallable, BlueprintReadWrite, BlueprintAssignable)
 	FPlayerDelegate OnPlayerGoToMainMenuCheck;

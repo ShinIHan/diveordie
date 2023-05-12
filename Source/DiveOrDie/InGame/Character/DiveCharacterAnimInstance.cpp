@@ -12,6 +12,11 @@ UDiveCharacterAnimInstance::UDiveCharacterAnimInstance()
 	bOnDie = false;
 }
 
+void UDiveCharacterAnimInstance::AnimNotify_Die()
+{
+	OnDieCheck.Broadcast();
+}
+
 void UDiveCharacterAnimInstance::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
@@ -37,8 +42,7 @@ void UDiveCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		
 		bOnJump = Character->GetMovementComponent()->IsFalling();
 
-		//direction = CalculateDirection(Character->GetVelocity(), Character->GetActorRotation());
-		direction = FVector::DotProduct(Character->GetVelocity().GetSafeNormal(), Character->GetActorForwardVector());
+		direction = CalculateDirection(Character->GetVelocity(), Character->GetActorRotation());
 		speed = Character->GetVelocity().Size();
 		
 	}

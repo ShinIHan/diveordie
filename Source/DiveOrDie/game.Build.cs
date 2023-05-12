@@ -8,7 +8,7 @@ public class game : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "OnlineSubsystem", "OnlineSubsystemNull", "OnlineSubsystemSteam" });
-        bEnableUndefinedIdentifierWarnings = false;
-    }
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "EnhancedInput", "OnlineSubsystem", "OnlineSubsystemUtils", "Networking", "Sockets" });
+		bEnableUndefinedIdentifierWarnings = false;
+	}
 }

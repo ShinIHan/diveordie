@@ -190,12 +190,11 @@ bool ClientSocket::SearchSession(int difficulty, int stage)
 	return bSearchResult;
 }
 
-bool ClientSocket::CreateSession(const FText& IP, int difficulty, int stage)
+bool ClientSocket::CreateSession(int difficulty, int stage)
 {
 	stringstream SendStream;
 
 	SendStream << EPacketType::CREATESESSION << endl;
-	SendStream << TCHAR_TO_UTF8(*IP.ToString()) << endl;
 	SendStream << difficulty << endl;
 	SendStream << stage << endl;
 
@@ -222,7 +221,7 @@ bool ClientSocket::CreateSession(const FText& IP, int difficulty, int stage)
 	RecvStream << recvBuffer;
 	RecvStream >> ePacketType;
 	RecvStream >> bCreateResult;
-
+	
 	if (EPacketType::CREATESESSION != ePacketType) return false;
 
 	return bCreateResult;
@@ -233,9 +232,6 @@ bool ClientSocket::DestroySession()
 	stringstream SendStream;
 
 	SendStream << EPacketType::DESTROYSESSION << endl;
-	SendStream << TCHAR_TO_UTF8(*IP.ToString()) << endl;
-	SendStream << difficulty << endl;
-	SendStream << stage << endl;
 
 	int iSendLen = send(
 		ServerSocket,
@@ -260,12 +256,11 @@ bool ClientSocket::DestroySession()
 	RecvStream << recvBuffer;
 	RecvStream >> ePacketType;
 	RecvStream >> bDestroyResult;
-
+	
 	if (EPacketType::DESTROYSESSION != ePacketType) return false;
 
 	return bDestroyResult;
 }
-
 
 bool ClientSocket::SetUserData(int difficulty, int stage, int key)
 {

@@ -415,6 +415,3 @@ ASALocalRun/
 
 # IP
 ip.txt
-*.old
-*.response
-*.response

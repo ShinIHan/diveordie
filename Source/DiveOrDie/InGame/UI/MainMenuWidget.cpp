@@ -2,19 +2,19 @@
 
 
 #include "MainMenuWidget.h"
+
 #include "DiveOrDie/Core/DiveGameInstance.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	GetSocket()->DestroySession();
 }
 
 void UMainMenuWidget::NativeDestruct()
 {
 	Super::NativeDestruct();
-
-	GetSocket()->DestroySession();
 }
 
 void UMainMenuWidget::DataSave(int difficulty, int stage, int key)

@@ -13,17 +13,20 @@ UCLASS()
 class GAME_API AGameOverMode : public AGameModeBase
 {
 	GENERATED_BODY()
-
+	
 public:
 	AGameOverMode();
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
 	virtual void BeginPlay() override;
 
 	UFUNCTION(BlueprintCallable)
 	void RetryGame();
 
 private:
+
 	int _iPlayerCount = 0;
+
 	int _iRetrying = 0;
 };

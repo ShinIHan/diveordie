@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DiveOrDie/InGame/StageManagerActor.h"
+#include "Misc/Paths.h"
+#include "DiveOrDie/InGame/StageManager/StageManagerActor.h"
 #include "GameFramework/GameModeBase.h"
 #include "DiveGameMode.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class GAME_API ADiveGameMode : public AGameModeBase
@@ -19,17 +20,21 @@ public:
 	ADiveGameMode();
 
 	virtual void BeginPlay() override;
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	UFUNCTION()
-	void GameClear();
+		void GameClear();
 
 	UFUNCTION()
-	void GameOver();
+		void GameOver();
+
 
 	UPROPERTY(BlueprintReadWrite)
-	AStageManagerActor* StageManagerActor = nullptr;
+		AStageManagerActor* StageManagerActor = nullptr;
 
 	bool bIsOnline;
 };

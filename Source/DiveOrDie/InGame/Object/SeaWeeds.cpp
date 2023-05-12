@@ -36,7 +36,7 @@ ASeaWeeds::ASeaWeeds()
 void ASeaWeeds::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	LOG_SCREEN("Overlap SeaWeeds");
+	//LOG_SCREEN("Overlap SeaWeeds");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{

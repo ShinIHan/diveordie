@@ -27,7 +27,6 @@ ASchoolOfFish::ASchoolOfFish()
 	RotatingMovementComponent = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovementCompoennt"));
 	RotatingMovementComponent->SetUpdatedComponent(RootComponent);
 	RotatingMovementComponent->RotationRate = FRotator(180.0f, 0.0f, 0.0f);
-
 	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> FISH_MESH(TEXT("/Game/Meshes/tuna.tuna"));
 	if (FISH_MESH.Succeeded())
@@ -57,19 +56,20 @@ ASchoolOfFish::ASchoolOfFish()
 	
 }
 
-// Called when the game starts or when spawned
+// Called when the5 game starts or when spawned
 void ASchoolOfFish::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	ProjectileMovementComponent->Velocity = GetActorForwardVector() * ProjectileMovementComponent->InitialSpeed;
 	_StartLocation = GetActorLocation();
+	
 }
 
 void ASchoolOfFish::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	LOG_SCREEN("Overlap SchoolOfFish");
+	//LOG_SCREEN("Overlap SchoolOfFish");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
@@ -85,11 +85,11 @@ void ASchoolOfFish::Tick(float DeltaTime)
 	if (_iRot == 10)
 	{
 		RotatingMovementComponent->RotationRate = FRotator(RotatingMovementComponent->RotationRate.Pitch * -1.0f, 0.0f, 0.0f);
-		LOG_SCREEN("pitch : %f", RotatingMovementComponent->RotationRate.Pitch);
+		//LOG_SCREEN("pitch : %f", RotatingMovementComponent->RotationRate.Pitch);
 		_iRot = 0;
 	}
 	++_iRot;
-
+	
 	FRotator TargetRotator = GetActorRotation();
 	FVector TargetLocation = FVector(_StartLocation.X + FMath::FRandRange(-300.0f, 300.0f),
 		_StartLocation.Y + FMath::FRandRange(-300.0f, 300.0f),

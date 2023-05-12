@@ -9,10 +9,12 @@
  * 
  */
 
+
 UCLASS()
 class GAME_API UMainMenuWidget : public UDiveGameWidget
 {
 	GENERATED_BODY()
+
 public:
 	virtual void NativeConstruct() override;
 
@@ -20,4 +22,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void DataSave(int difficulty, int stage, int key);
+	
+	
 };

@@ -18,13 +18,14 @@ public:
 	ADiveGameState();
 
 	void StageInit();
-
+	
 	UPROPERTY(BlueprintReadWrite)
 	int iScore = 0;
 
 	UPROPERTY(BlueprintReadWrite)
 	int iMinutes = 0;
-
+	
 	UPROPERTY(BlueprintReadWrite)
 	int iSeconds = 0;
+	
 };

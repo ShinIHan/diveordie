@@ -2,6 +2,7 @@
 
 
 #include "DiveCharacter.h"
+
 #include "DiveCharacterAnimInstance.h"
 #include "DivePlayerController.h"
 #include "Blueprint/UserWidget.h"
@@ -22,7 +23,7 @@
 // Sets default values
 ADiveCharacter::ADiveCharacter()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
@@ -34,7 +35,7 @@ ADiveCharacter::ADiveCharacter()
 
 	_fMaxHp = 400.0f;
 	_fCurrentHp = _fMaxHp;
-	_fMaxOxygen = 500.0f;
+	_fMaxOxygen = 400.0f;
 	_fCurrentOxygen = _fMaxOxygen;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -51,12 +52,12 @@ ADiveCharacter::ADiveCharacter()
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
 	GetCharacterMovement()->JumpOutOfWaterPitch = -1.0f;
-
+	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SOLDIER_SK(TEXT("/Game/Meshes/Soldier/Soldier_T_Pose_.Soldier_T_Pose_"));
-	if (SOLDIER_SK.Succeeded())
-	{
-		GetMesh()->SetSkeletalMesh(SOLDIER_SK.Object);
-	}
+    if (SOLDIER_SK.Succeeded())
+    {
+	    GetMesh()->SetSkeletalMesh(SOLDIER_SK.Object);
+    }
 
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FClassFinder<UAnimInstance> SOLDIER_ANIM(TEXT("/Game/Blueprints/DiveCharacterAnimBP.DiveCharacterAnimBP_C"));
@@ -66,17 +67,17 @@ ADiveCharacter::ADiveCharacter()
 	}
 
 	static ConstructorHelpers::FClassFinder<UDiveCharacterWidget> CHARACTER_WG(TEXT("/Game/Blueprints/HUD_Main.HUD_Main_C"));
-	if (CHARACTER_WG.Succeeded())
-	{
-		DiveCharacter_WGBP = CHARACTER_WG.Class;
-	}
+    if (CHARACTER_WG.Succeeded())
+    {
+	    DiveCharacter_WGBP = CHARACTER_WG.Class;
+    }
 
 	static ConstructorHelpers::FClassFinder<UUserWidget> PAUSEMENU_WG(TEXT("/Game/Blueprints/PauseMenu_WGBP.PauseMenu_WGBP_C"));
 	if (PAUSEMENU_WG.Succeeded())
 	{
 		PauseMenu_WGBP = PAUSEMENU_WG.Class;
 	}
-
+	
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -89,7 +90,7 @@ void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void ADiveCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
+	
 }
 
 void ADiveCharacter::UnPossessed()
@@ -136,25 +137,19 @@ float ADiveCharacter::GetCurrentOxygen()
 void ADiveCharacter::GamePause()
 {
 	UDiveGameInstance* GameInstance = Cast<UDiveGameInstance>(GetGameInstance());
-	
 	if (GameInstance)
 	{
 		if (!GameInstance->bIsOnline)
 		{
-			LOG_SCREEN("Pause Game");
+			//LOG_SCREEN("Pause Game");
+			if (PauseMenu_WGBP) PauseMenu_WG = CreateWidget(GetWorld(), PauseMenu_WGBP);
 			
-			if (PauseMenu_WGBP)
-			{
-				PauseMenu_WG = CreateWidget(GetWorld(), PauseMenu_WGBP);
-			}
-
 			if (PauseMenu_WG)
 			{
 				if (!PauseMenu_WG->IsInViewport())
 				{
 					PauseMenu_WG->AddToViewport();
 					APlayerController* PlayerController = Cast<APlayerController>(GetWorld()->GetFirstPlayerController());
-					
 					if (PlayerController)
 					{
 						PlayerController->SetPause(true);
@@ -162,7 +157,7 @@ void ADiveCharacter::GamePause()
 					}
 				}
 			}
-
+			
 		}
 	}
 }
@@ -180,25 +175,25 @@ void ADiveCharacter::Interaction()
 		FCollisionShape::MakeSphere(50.0f),
 		Params);
 
-	// #if ENABLE_DRAW_DEBUG
-	//
-	// 	FVector TraceVec = GetActorForwardVector() * 500.0f;
-	// 	FVector Center = GetActorLocation() + TraceVec * 0.5f;
-	// 	float HalfHeight = 500.0f * 0.5f + 50.0f;
-	// 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
-	// 	FColor DrawColor = bResult ? FColor::Green :FColor::Red;
-	// 	float DebugLifeTime = 5.0f;
-	//
-	// 	DrawDebugCapsule(GetWorld(),
-	// 		Center,
-	// 		HalfHeight,
-	// 		50.0f,
-	// 		CapsuleRot,
-	// 		DrawColor,
-	// 		false,
-	// 		DebugLifeTime);
-	//
-	// #endif
+// #if ENABLE_DRAW_DEBUG
+//
+// 	FVector TraceVec = GetActorForwardVector() * 500.0f;
+// 	FVector Center = GetActorLocation() + TraceVec * 0.5f;
+// 	float HalfHeight = 500.0f * 0.5f + 50.0f;
+// 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
+// 	FColor DrawColor = bResult ? FColor::Green :FColor::Red;
+// 	float DebugLifeTime = 5.0f;
+//
+// 	DrawDebugCapsule(GetWorld(),
+// 		Center,
+// 		HalfHeight,
+// 		50.0f,
+// 		CapsuleRot,
+// 		DrawColor,
+// 		false,
+// 		DebugLifeTime);
+//
+// #endif
 
 	if (bResult)
 	{
@@ -209,25 +204,23 @@ void ADiveCharacter::Interaction()
 				FDamageEvent DamageEvent;
 				ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(Hit.GetActor());
 				if (!DiveCharacter) continue;
-				LOG_SCREEN("Trace Character : %s", *DiveCharacter->GetName());
+				//LOG_SCREEN("Trace Character : %s", *DiveCharacter->GetName());
 
 				ServerRestraintEnd(DiveCharacter);
 			}
 		}
 	}
-
+	
 }
 
 void ADiveCharacter::OxygenConsume()
 {
 	if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) < 100.0f))
 	{
-		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 50.0f, 0.0f, _fMaxOxygen);
+		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 40.0f, 0.0f, _fMaxOxygen);
 		return;
 	}
-
 	_fCurrentOxygen -= 10.0f;
-
 	if (_fCurrentOxygen <= 0.0f)
 	{
 		ReceiveAnyDamage(300.0f);
@@ -253,7 +246,7 @@ void ADiveCharacter::StopSwim()
 int ADiveCharacter::GetDepth()
 {
 	_iDepth = int(FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z))) / 100;
-
+	
 	return GetCharacterMovement()->IsSwimming() ? _iDepth : 0;
 }
 
@@ -269,22 +262,14 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 	if (DiveGameInstance)
 	{
-		if (DiveGameInstance->GetDifficulty() == 0)
-		{
-			damage *= 0.8f;
-		}
-		else if (DiveGameInstance->GetDifficulty() == 2)
-		{
-			damage *= 1.2f;
-		}
+		if (DiveGameInstance->GetDifficulty() == 0) damage *= 0.8f;
+		else if (DiveGameInstance->GetDifficulty() == 2) damage *= 1.2f; 
 	}
-
 	_fCurrentHp -= damage;
-
+	
 	if (_fCurrentHp <= 0.0f)
 	{
-		OnPlayerDieCheck.Broadcast();
-		Destroy();
+		Die();
 	}
 }
 
@@ -292,13 +277,13 @@ void ADiveCharacter::Restraint(float time)
 {
 	if (_bOnRestraint) return;
 
-	LOG_SCREEN("Restraint!");
+	//LOG_SCREEN("Restraint!");
 	_bOnRestraint = true;
 
 	GetMovementComponent()->StopMovementImmediately();
-
+	
 	SetEnableInput(false);
-
+	
 	GetWorld()->GetTimerManager().SetTimer(RestraintTimer, this, &ADiveCharacter::RestraintEnd, time, false);
 }
 
@@ -306,7 +291,7 @@ void ADiveCharacter::RestraintEnd()
 {
 	_bOnRestraint = false;
 	GetWorld()->GetTimerManager().ClearTimer(RestraintTimer);
-	LOG_SCREEN("Restraint End!");
+	//LOG_SCREEN("Restraint End!");
 	SetEnableInput();
 }
 
@@ -324,7 +309,7 @@ void ADiveCharacter::Stern(float time)
 {
 	if (_bOnStern) return;
 
-	LOG_SCREEN("Stern!");
+	//LOG_SCREEN("Stern!");
 	_bOnStern = true;
 
 	GetMovementComponent()->StopMovementImmediately();
@@ -338,7 +323,7 @@ void ADiveCharacter::SternEnd()
 {
 	_bOnStern = false;
 
-	LOG_SCREEN("Stern End!");
+	//LOG_SCREEN("Stern End!");
 
 	SetEnableInput();
 }
@@ -347,7 +332,7 @@ void ADiveCharacter::SlowDown(float time)
 {
 	if (_bOnSlowDown) return;
 
-	LOG_SCREEN("SlowDown!");
+	//LOG_SCREEN("SlowDown!");
 	_bOnSlowDown = true;
 
 	GetCharacterMovement()->MaxSwimSpeed *= 0.5f;
@@ -360,8 +345,8 @@ void ADiveCharacter::SlowDownEnd()
 {
 	_bOnSlowDown = false;
 
-	LOG_SCREEN("SlowDown End!");
-
+	//LOG_SCREEN("SlowDown End!");
+	
 	GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed *= 2.0f;
 }
@@ -384,14 +369,14 @@ void ADiveCharacter::PostInitializeComponents()
 	DiveCharacterAnim = Cast<UDiveCharacterAnimInstance>(GetMesh()->GetAnimInstance());
 	if (DiveCharacterAnim != nullptr)
 	{
-		DiveCharacterAnim->OnDieCheck.AddUObject(this, &ADiveCharacter::Die);
+		DiveCharacterAnim->OnDieCheck.AddUObject(this, &ADiveCharacter::DieEnd);
 	}
 }
 
 void ADiveCharacter::MoveForward(float Value)
 {
 	if (!_bCanMove) return;
-
+	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		if (GetCharacterMovement()->IsSwimming())
@@ -411,61 +396,73 @@ void ADiveCharacter::MoveForward(float Value)
 
 void ADiveCharacter::MoveRight(float Value)
 {
-	if (!_bCanMove || GetCharacterMovement()->IsSwimming()) 
-		return;
-
+	if (!_bCanMove || GetCharacterMovement()->IsSwimming()) return;
+	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		
 		AddMovementInput(Direction, Value);
 	}
 }
 
 void ADiveCharacter::TurnAtRate(float Rate)
 {
-	if (!_bCanTurn) 
-		return;
-
+	if (!_bCanTurn) return;
+	
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void ADiveCharacter::LookUpAtRate(float Rate)
 {
 	if (!_bCanTurn) return;
-
+	
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void ADiveCharacter::Jump()
+{
+	if (!_bOnMove) return;
+	
+	Super::Jump();
+}
+
+void ADiveCharacter::StopJumping()
+{
+	if (!_bOnMove) return;
+	
+	Super::StopJumping();
 }
 
 void ADiveCharacter::Die()
 {
+	SetEnableInput(false, false);
+	GetCharacterMovement()->Buoyancy = 0.0f;
+	DiveCharacterAnim->bOnDie = true;
+}
 
+void ADiveCharacter::DieEnd()
+{
+	OnPlayerDieCheck.Broadcast();
+	Destroy();
 }
 
 // Called every frame
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if (GetVelocity().Size() > 0)
-	{
 		_bOnMove = true;
-	}		
 	else
-	{
 		_bOnMove = false;
-	}
-		
+
 	if (!_bOnJump && GetCharacterMovement()->IsFalling())
-	{
 		_bOnJump = true;
-	}		
 	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
-	{
 		_bOnJump = false;
-	}	
 }
 
 // Called to bind functionality to input
@@ -477,9 +474,9 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	InputComponent->BindAxis("LeftRight", this, &ADiveCharacter::MoveRight);
 	InputComponent->BindAxis("Yaw", this, &ADiveCharacter::TurnAtRate);
 	InputComponent->BindAxis("Pitch", this, &ADiveCharacter::LookUpAtRate);
-
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	
+	InputComponent->BindAction("Jump", IE_Pressed, this, &ADiveCharacter::Jump);
+	InputComponent->BindAction("Jump", IE_Released, this, &ADiveCharacter::StopJumping);
 
 	InputComponent->BindAction("Pause", IE_Pressed, this, &ADiveCharacter::GamePause);
 	InputComponent->BindAction("Interaction", IE_Pressed, this, &ADiveCharacter::Interaction);

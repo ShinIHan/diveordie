@@ -1,16 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "DiveGameInstance.h"
 
-#include "DiveOrDie/Core/DiveGameInstance.h"
-#include <string>
 #include "SocketSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
-
-
-
-
-
 
 
 void UDiveGameInstance::SetUserInfo(int difficulty, int stage, int key)
@@ -54,7 +48,6 @@ void UDiveGameInstance::GameClear(int stage)
 			SetStage(GetStage() + 1);
 		}
 	}
-
+	
 	UGameplayStatics::OpenLevel(GetWorld(), "MainMenu");
 }
-

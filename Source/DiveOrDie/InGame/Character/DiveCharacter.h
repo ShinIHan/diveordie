@@ -31,16 +31,16 @@ public:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanTurn = true;
-
+	
 public:
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
 	bool OnMove();
@@ -63,33 +63,33 @@ private:
 	void Interaction();
 
 	bool _bGamePause = false;
-
+	
 	class UUserWidget* PauseMenu_WG = nullptr;
-
+	
 	TSubclassOf<UUserWidget> PauseMenu_WGBP = nullptr;
-
+	
 	void OxygenConsume();
 
 	FTimerHandle OxygenTimer;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnMove = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnJump = false;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float _fMaxHp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float _fCurrentHp;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float _fMaxOxygen;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	float _fCurrentOxygen;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	int _iScore = 0;
 
@@ -101,7 +101,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TSubclassOf<UDiveCharacterWidget> DiveCharacter_WGBP = nullptr;
-
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void StartSwim(FVector waterBodyPos);
@@ -111,23 +111,23 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	int GetDepth();
-
+	
 	UFUNCTION(BlueprintCallable)
 	void UpdateScore(int Points);
-
+	
 	void ReceiveAnyDamage(float damage);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	FVector _WaterBodyPos;
-
+	FVector _WaterBodyPos; 
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	int _iDepth = 0;
 
-
-	// ----------------------- CC±‚ ----------------------- //
+	
+	// ----------------------- CCÍ∏?----------------------- //
 public:
-	// º”π⁄
+	// ?çÎ∞ï
 	void Restraint(float time);
 	void RestraintEnd();
 
@@ -135,13 +135,13 @@ public:
 	void ServerRestraintEnd(ADiveCharacter* DiveCharacter);
 
 	bool GetRestraint();
-
-	// ±‚¿˝
+		
+	// Í∏∞Ï†à
 	void Stern(float time);
 
 	void SternEnd();
 
-	// µ–»≠
+	// ?îÌôî
 	void SlowDown(float time);
 
 	void SlowDownEnd();
@@ -155,11 +155,13 @@ private:
 
 	FTimerHandle RestraintTimer;
 
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnStern = false;
 
 	FTimerHandle SternTimer;
 
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnSlowDown = false;
 
@@ -167,7 +169,7 @@ private:
 
 	UPROPERTY()
 	class UDiveCharacterAnimInstance* DiveCharacterAnim;
-
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 	class USpringArmComponent* CameraBoom;
@@ -189,9 +191,15 @@ protected:
 
 	void LookUpAtRate(float Rate);
 
+	virtual void Jump() override;
+
+	virtual void StopJumping() override;
+
 	void Die();
 
-public:
+	void DieEnd();
+
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

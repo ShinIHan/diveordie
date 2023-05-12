@@ -39,7 +39,7 @@ AGoldRing::AGoldRing()
 void AGoldRing::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	LOG_SCREEN("Overlap GoldenRing");
+	//LOG_SCREEN("Overlap GoldenRing");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{

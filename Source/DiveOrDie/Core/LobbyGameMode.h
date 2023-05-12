@@ -13,15 +13,17 @@ UCLASS()
 class GAME_API ALobbyGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
 public:
 	ALobbyGameMode();
 
 	virtual void BeginPlay() override;
+
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 private:
 	int iPlayerCount = 0;
 
 	int iStage;
+	
 };

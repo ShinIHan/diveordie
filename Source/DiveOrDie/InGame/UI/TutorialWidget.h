@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "TutorialWidget.generated.h"
 
+
 DECLARE_MULTICAST_DELEGATE(FTutorialDelegate)
 /**
  * 
@@ -19,10 +20,11 @@ public:
 	void StartTutorialTimer();
 
 	void TutorialEnd();
-
+	
 	FTutorialDelegate OnTutorialEnd;
 
 private:
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FTimerHandle TutorialTimer;
+	
 };
