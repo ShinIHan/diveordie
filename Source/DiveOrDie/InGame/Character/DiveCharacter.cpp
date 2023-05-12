@@ -76,8 +76,7 @@ ADiveCharacter::ADiveCharacter()
 	if (PAUSEMENU_WG.Succeeded())
 	{
 		PauseMenu_WGBP = PAUSEMENU_WG.Class;
-	}
-	
+	}	
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -453,7 +452,7 @@ void ADiveCharacter::DieEnd()
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;
 	else
@@ -481,6 +480,3 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	InputComponent->BindAction("Pause", IE_Pressed, this, &ADiveCharacter::GamePause);
 	InputComponent->BindAction("Interaction", IE_Pressed, this, &ADiveCharacter::Interaction);
 }
-
-
-
