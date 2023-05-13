@@ -21,9 +21,9 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void PostLogin(APlayerController* NewPlayer) override;
-
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 protected:
 	UFUNCTION()
