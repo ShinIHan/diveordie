@@ -35,7 +35,7 @@ ADiveCharacter::ADiveCharacter()
 
 	_fMaxHp = 400.0f;
 	_fCurrentHp = _fMaxHp;
-	_fMaxOxygen = 400.0f;
+	_fMaxOxygen = 500.0f;
 	_fCurrentOxygen = _fMaxOxygen;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -47,7 +47,7 @@ ADiveCharacter::ADiveCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->MaxSwimSpeed = 700.0f;
+	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
@@ -217,7 +217,7 @@ void ADiveCharacter::OxygenConsume()
 {
 	if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) < 100.0f))
 	{
-		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 40.0f, 0.0f, _fMaxOxygen);
+		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 50.0f, 0.0f, _fMaxOxygen);
 		return;
 	}
 	_fCurrentOxygen -= 10.0f;
