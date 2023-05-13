@@ -104,12 +104,12 @@ void ADiveGameMode::ReadSerialData()
                 // 버튼 값을 가져오는 작업 생성
                 auto getButtonValues = std::async(std::launch::async, [&words]()
                     {
-                        int buttonA = FCString::Atoi(*words[0]);
-                        int buttonB = FCString::Atoi(*words[1]);
-                        int buttonC = FCString::Atoi(*words[2]);
-                        int buttonD = FCString::Atoi(*words[3]);
+                        int button1 = FCString::Atoi(*words[0]);
+                        int button2 = FCString::Atoi(*words[1]);
+                        int button3 = FCString::Atoi(*words[2]);
+                        int button4 = FCString::Atoi(*words[3]);
 
-                        return std::make_tuple(buttonA, buttonB, buttonC, buttonD);
+                        return std::make_tuple(button1, button2, button3, button4);
                     });
 
                 // 좌표 값을 가져오는 작업 생성
@@ -151,8 +151,7 @@ void ADiveGameMode::ReadSerialData()
         }
         catch (const std::exception& e)
         {
-            // 에러 처리
-            UE_LOG(LogTemp, Error, TEXT("Error occurred while sending serial data: %s"), *FString(e.what()));
+            UE_LOG(LogTemp, Error, TEXT("Failed, %s"), e.what());
         }
     }
 }

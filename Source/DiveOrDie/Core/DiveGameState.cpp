@@ -8,9 +8,4 @@ ADiveGameState::ADiveGameState()
 	
 }
 
-void ADiveGameState::StageInit()
-{
-	iScore = 0;
-	iSeconds = 0;
-	iMinutes = 0;
-}
+

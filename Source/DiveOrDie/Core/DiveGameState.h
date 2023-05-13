@@ -17,7 +17,7 @@ class GAME_API ADiveGameState : public AGameStateBase
 public:
 	ADiveGameState();
 
-	void StageInit();
+	
 	
 	UPROPERTY(BlueprintReadWrite)
 	int iScore = 0;

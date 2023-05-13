@@ -67,10 +67,10 @@ public:
 	            throw std::runtime_error(TCHAR_TO_UTF8(*FString("Unable to set serial port timeouts")));
 	        }
 	    }
-	    catch (const std::exception& e)
-	    {
-	        UE_LOG(LogTemp, Error, TEXT("Failed"));
-	    }     
+		catch (const std::exception& e)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed, %s"), e.what());
+		}
 	}
 	
 	~SerialPort() {

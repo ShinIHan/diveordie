@@ -30,11 +30,6 @@ void AStageManagerActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ADiveGameState* DiveGameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
-	if (DiveGameState)
-	{
-		DiveGameState->StageInit();
-	}
 	
 	UDiveGameInstance* GameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 	if (GameInstance)
