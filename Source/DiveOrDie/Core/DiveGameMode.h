@@ -25,16 +25,18 @@ public:
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
+	void ReadSerialData();
+
 protected:
 	UFUNCTION()
-		void GameClear();
+	void GameClear();
 
 	UFUNCTION()
-		void GameOver();
+	void GameOver();
 
 
 	UPROPERTY(BlueprintReadWrite)
-		AStageManagerActor* StageManagerActor = nullptr;
+	AStageManagerActor* StageManagerActor = nullptr;
 
 	bool bIsOnline;
 };
