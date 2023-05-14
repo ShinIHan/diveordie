@@ -10,14 +10,25 @@
 #include "DiveOrDie/InGame/Character/DiveCharacter.h"
 #include <future>
 
-SerialPort* _serialPort = nullptr;
+int buttonA = 2;
+int buttonB = 2;
+int buttonC = 2;
+int buttonD = 2;
+int ax = 0;
+int ay = 0;
+int az = 0;
+int gx = 0;
+int gy = 0;
+int gz = 0;
+float Rx = 0.f;
+float Ry = 0.f;
+float Rz = 0.f;
 
-int buttonA;
-int buttonB;
-int buttonC;
-int buttonD;
-int ax;
-int ay;
+double Gyro_Angle_x = 0, Gyro_Angle_y = 0, Gyro_Angle_z = 0;
+double tmp_angle_x = 0, tmp_angle_y = 0, tmp_angle_z = 0;
+double Pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+
+SerialPort* _serialPort = nullptr;
 
 ADiveGameMode::ADiveGameMode()
 {
@@ -104,47 +115,51 @@ void ADiveGameMode::ReadSerialData()
                 // 버튼 값을 가져오는 작업 생성
                 auto getButtonValues = std::async(std::launch::async, [&words]()
                     {
-                        int button1 = FCString::Atoi(*words[0]);
-                        int button2 = FCString::Atoi(*words[1]);
-                        int button3 = FCString::Atoi(*words[2]);
-                        int button4 = FCString::Atoi(*words[3]);
+                        int buttonQ = FCString::Atoi(*words[0]);
+                        int buttonW = FCString::Atoi(*words[1]);
+                        int buttonE = FCString::Atoi(*words[2]);
+                        int buttonR = FCString::Atoi(*words[3]);
 
-                        return std::make_tuple(button1, button2, button3, button4);
+                        return std::make_tuple(buttonQ, buttonW, buttonE, buttonR);
                     });
 
-                // 좌표 값을 가져오는 작업 생성
-                auto getCoordinates = std::async(std::launch::async, [&words]()
+                // 가속도 값을 가져오는 작업 생성
+                auto getAccelerometerValues = std::async(std::launch::async, [&words]()
                     {
-                        int value1 = std::stoi(TCHAR_TO_ANSI(*words[4]));
-                        int value2 = std::stoi(TCHAR_TO_ANSI(*words[5]));
+                        int accelerometerX = FCString::Atoi(*words[4]);
+                        int accelerometerY = FCString::Atoi(*words[5]);
+                        int accelerometerZ = FCString::Atoi(*words[6]);
 
-                        if (words[4].StartsWith("-"))
-                        {
-                            value1 = -abs(value1);
-                        }
-                        if (words[5].StartsWith("-"))
-                        {
-                            value2 = -abs(value2);
-                        }
-
-                        return std::make_tuple(value1, value2);
+                        return std::make_tuple(accelerometerX, accelerometerY, accelerometerZ);
                     });
 
-                // 버튼 값을 가져오는 작업의 결과를 기다립니다.
-                std::tuple<int, int, int, int> buttonValues = getButtonValues.get();
+                auto getGyroValues = std::async(std::launch::async, [&words]()
+                    {
+                        int gyroX = FCString::Atoi(*words[7]);
+                        int gyroY = FCString::Atoi(*words[8]);
+                        int gyroZ = FCString::Atoi(*words[9]);
 
+                        return std::make_tuple(gyroX, gyroY, gyroZ);
+                    });
+
+                // 작업이 완료될 때까지 대기
+                std::tuple<int, int, int, int> buttonValues = getButtonValues.get();
+                std::tuple<int, int, int> accelerometerValues = getAccelerometerValues.get();
+                std::tuple<int, int, int> gyroValues = getGyroValues.get();
+
+                // 결과를 변수에 저장
                 buttonA = std::get<0>(buttonValues);
                 buttonB = std::get<1>(buttonValues);
                 buttonC = std::get<2>(buttonValues);
                 buttonD = std::get<3>(buttonValues);
 
-                // 좌표 값을 가져오는 작업의 결과를 기다립니다.
-                std::tuple<int, int> coordinates = getCoordinates.get();
-                int valueX = std::get<0>(coordinates);
-                int valueY = std::get<1>(coordinates);
+                ax = std::get<0>(accelerometerValues);
+                ay = std::get<1>(accelerometerValues);
+                az = std::get<2>(accelerometerValues);
 
-                ax = valueX;
-                ay = valueY;
+                gx = std::get<0>(gyroValues);
+                gy = std::get<1>(gyroValues);
+                gz = std::get<2>(gyroValues);
 
                 //LOG_SCREEN("%d, %d, %d, %d, %d, %d", buttonA, buttonB, buttonC, buttonD, ax, ay);
             }

@@ -8,6 +8,20 @@
 #include "GameFramework/GameModeBase.h"
 #include "DiveGameMode.generated.h"
 
+extern int buttonA;
+extern int buttonB;
+extern int buttonC;
+extern int buttonD;
+extern int ax;
+extern int ay;
+extern int az;
+extern int gx;
+extern int gy;
+extern int gz;
+extern float Rx;
+extern float Ry;
+extern float Rz;
+
 /**
  *
  */

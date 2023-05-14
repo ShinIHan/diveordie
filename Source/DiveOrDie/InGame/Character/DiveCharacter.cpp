@@ -10,6 +10,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "DiveOrDie/Core/DiveGameMode.h"
 #include "DiveOrDie/Core/DiveGameInstance.h"
 #include "DiveOrDie/Core/DiveGameState.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
@@ -19,6 +20,11 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Net/UnrealNetwork.h"
+
+int i = 0;
+float standardRX = 0;
+float standardRY = 0;
+float standardRZ = 0;
 
 // Sets default values
 ADiveCharacter::ADiveCharacter()
@@ -219,7 +225,16 @@ void ADiveCharacter::OxygenConsume()
 		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 50.0f, 0.0f, _fMaxOxygen);
 		return;
 	}
-	_fCurrentOxygen -= 10.0f;
+
+	if (_fCurrentOxygen - 10.f <= 0.f)
+	{
+		_fCurrentOxygen = 0;
+	}
+	else
+	{
+		_fCurrentOxygen -= 10.f;
+	}
+
 	if (_fCurrentOxygen <= 0.0f)
 	{
 		ReceiveAnyDamage(300.0f);
@@ -264,8 +279,16 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 		if (DiveGameInstance->GetDifficulty() == 0) damage *= 0.8f;
 		else if (DiveGameInstance->GetDifficulty() == 2) damage *= 1.2f; 
 	}
-	_fCurrentHp -= damage;
-	
+
+	if (_fCurrentHp - damage <= 0.f)
+	{
+		_fCurrentHp = 0;
+	}
+	else
+	{
+		_fCurrentHp -= damage;
+	}
+
 	if (_fCurrentHp <= 0.0f)
 	{
 		Die();
@@ -462,6 +485,30 @@ void ADiveCharacter::Tick(float DeltaTime)
 		_bOnJump = true;
 	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
 		_bOnJump = false;
+
+	if (buttonA == 0)
+	{
+		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
+		buttonA = 1;
+	}
+
+	if (buttonB == 0)
+	{
+		AddControllerYawInput(1.f);
+		buttonB = 1;
+	}
+
+	if (buttonC == 0)
+	{
+		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
+		buttonC = 1;
+	}
+
+	if (buttonD == 0)
+	{
+		AddControllerYawInput(-1.f);
+		buttonD = 1;
+	}
 }
 
 // Called to bind functionality to input
