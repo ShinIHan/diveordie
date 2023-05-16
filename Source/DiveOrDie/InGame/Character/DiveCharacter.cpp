@@ -473,13 +473,20 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (GetVelocity().Size() > 0)
+		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W)
+			|| buttonA == 0 || buttonB == 0 || buttonC == 0 || buttonD == 0)
 		{
-			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.01f));
+			if (GetCharacterMovement()->IsMovingOnGround())
+			{
+			}
+			else
+			{
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
+			}
 		}
 		else
 		{
-			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.01f));
+			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
 		}
 	}
 	if (GetVelocity().Size() > 0)
