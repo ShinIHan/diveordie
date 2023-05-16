@@ -20,13 +20,14 @@ int az = 0;
 int gx = 0;
 int gy = 0;
 int gz = 0;
-float Rx = 0.f;
-float Ry = 0.f;
-float Rz = 0.f;
 
-double Gyro_Angle_x = 0, Gyro_Angle_y = 0, Gyro_Angle_z = 0;
-double tmp_angle_x = 0, tmp_angle_y = 0, tmp_angle_z = 0;
-double Pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
+float AvRx = 0.f;
+float AvRy = 0.f;
+int count = 0;
+
+float tx = 0.f;
+float ty = 0.f;
+int tcount = 0;
 
 SerialPort* _serialPort = nullptr;
 
@@ -69,7 +70,7 @@ void ADiveGameMode::BeginPlay()
         LOG_SCREEN("Serial");
     }
 
-   // 새로운 스레드를 생성해서 시리얼 포트 데이터를 비동기적으로 읽어옵니다.
+    // 새로운 스레드를 생성해서 시리얼 포트 데이터를 비동기적으로 읽어옵니다.
     std::thread readThread(&ADiveGameMode::ReadSerialData, this);
     readThread.detach();
 
@@ -161,7 +162,22 @@ void ADiveGameMode::ReadSerialData()
                 gy = std::get<1>(gyroValues);
                 gz = std::get<2>(gyroValues);
 
-                //LOG_SCREEN("%d, %d, %d, %d, %d, %d", buttonA, buttonB, buttonC, buttonD, ax, ay);
+                if (count == 21)
+                {
+                }
+                else if (count == 20)
+                {
+                    float Tx = AvRx, Ty = AvRy;
+                    AvRx = Tx / 20;
+                    AvRy = Ty / 20;
+                    count++;
+                }
+                else if (count < 20)
+                {
+                    AvRx += (float)ax;
+                    AvRy += (float)ay;
+                    count++;
+                }
             }
         }
         catch (const std::exception& e)

@@ -21,11 +21,6 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Net/UnrealNetwork.h"
 
-int i = 0;
-float standardRX = 0;
-float standardRY = 0;
-float standardRZ = 0;
-
 // Sets default values
 ADiveCharacter::ADiveCharacter()
 {
@@ -476,6 +471,17 @@ void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GetCharacterMovement()->IsSwimming())
+	{
+		if (GetVelocity().Size() > 0)
+		{
+			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.01f));
+		}
+		else
+		{
+			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.01f));
+		}
+	}
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;
 	else
@@ -488,26 +494,55 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (buttonA == 0)
 	{
-		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
+		FVector forwardVector = GetActorForwardVector();
+		AddMovementInput(forwardVector, 1.f);
+
 		buttonA = 1;
 	}
 
 	if (buttonB == 0)
 	{
-		AddControllerYawInput(1.f);
+		FVector leftVector = -GetActorRightVector();
+		AddMovementInput(leftVector, 1.f);
+
 		buttonB = 1;
 	}
 
 	if (buttonC == 0)
 	{
-		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
+		FVector backwardVector = -GetActorForwardVector();
+		AddMovementInput(backwardVector, 1.f);
+
 		buttonC = 1;
 	}
 
 	if (buttonD == 0)
 	{
-		AddControllerYawInput(-1.f);
+		FVector rightVector = GetActorRightVector();
+		AddMovementInput(rightVector, 1.f);
+
 		buttonD = 1;
+	}
+
+	if (count == 21)
+	{
+		if (ax > AvRx)
+		{
+			AddControllerYawInput(-0.1f);
+		}
+		else if (ax < AvRx)
+		{
+			AddControllerYawInput(0.1f);
+		}
+
+		if (ay > AvRy)
+		{
+			AddControllerPitchInput(0.1f);
+		}
+		else if (ay < AvRy)
+		{
+			AddControllerPitchInput(-0.1f);
+		}
 	}
 }
 
