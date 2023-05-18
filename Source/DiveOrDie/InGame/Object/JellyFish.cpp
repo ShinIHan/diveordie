@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "JellyFish.h"
+#include "Math/RandomStream.h"
 #include "DiveOrDie/InGame/Character/DiveCharacter.h"
 
 // Sets default values
@@ -35,8 +36,19 @@ AJellyFish::AJellyFish()
 // Called when the game starts or when spawned
 void AJellyFish::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
+
+	FRandomStream RandomStream(FMath::Rand());
+	int32 RandomIndex = RandomStream.RandRange(0, 1);
+
+	InitialLocation = GetActorLocation();
+
+	if (RandomIndex == 0)
+		bMovingUp = true;
+	else
+		bMovingUp = false;
+
+	MaxVerticalOffset = 300.0f;
 }
 
 void AJellyFish::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -55,5 +67,30 @@ void AJellyFish::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// 위아래로 움직이기
+	FVector CurrentLocation = GetActorLocation();
+	FVector NewLocation = CurrentLocation;
+
+	FRandomStream RandomStream(FMath::Rand());
+	float RandomZ = RandomStream.RandRange(10, 15);
+
+	if (bMovingUp)
+	{
+		NewLocation.Z += RandomZ;
+		if (NewLocation.Z >= InitialLocation.Z + MaxVerticalOffset)
+		{
+			bMovingUp = false;
+		}
+	}
+	else
+	{
+		NewLocation.Z -= RandomZ;
+		if (NewLocation.Z <= InitialLocation.Z - MaxVerticalOffset)
+		{
+			bMovingUp = true;
+		}
+	}
+
+	SetActorLocation(NewLocation);
 }
 

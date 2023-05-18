@@ -471,7 +471,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetCharacterMovement()->IsSwimming())
+	/*if (GetCharacterMovement()->IsSwimming())
 	{
 		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W)
 			|| buttonA == 0 || buttonB == 0 || buttonC == 0 || buttonD == 0)
@@ -488,7 +488,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
 		}
-	}
+	}*/
+
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;
 	else
@@ -499,7 +500,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
 		_bOnJump = false;
 
-	if (buttonA == 0)
+	/*if (buttonA == 0)
 	{
 		FVector forwardVector = GetActorForwardVector();
 		AddMovementInput(forwardVector, 1.f);
@@ -550,7 +551,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			AddControllerPitchInput(-0.1f);
 		}
-	}
+	}*/
 }
 
 // Called to bind functionality to input

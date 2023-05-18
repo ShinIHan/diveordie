@@ -64,7 +64,7 @@ void ADiveGameMode::BeginPlay()
         StageManagerActor->OnEndCheck.AddUObject(this, &ADiveGameMode::GameClear);
     }
 
-    if (_serialPort == nullptr)
+    /*if (_serialPort == nullptr)
     {
         _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
         LOG_SCREEN("Serial");
@@ -74,7 +74,7 @@ void ADiveGameMode::BeginPlay()
     std::thread readThread(&ADiveGameMode::ReadSerialData, this);
     readThread.detach();
 
-    LOG_SCREEN("Start");
+    LOG_SCREEN("Start");*/
 }
 
 void ADiveGameMode::Tick(float DeltaTime)
