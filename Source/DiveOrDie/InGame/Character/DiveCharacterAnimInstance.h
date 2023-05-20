@@ -43,6 +43,9 @@ public:
 	bool bOnDie;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnFish;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	float direction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)

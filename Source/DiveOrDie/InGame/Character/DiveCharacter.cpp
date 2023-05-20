@@ -13,6 +13,7 @@
 #include "DiveOrDie/Core/DiveGameMode.h"
 #include "DiveOrDie/Core/DiveGameInstance.h"
 #include "DiveOrDie/Core/DiveGameState.h"
+#include "DiveOrDie/InGame/Character/DiveCharacterAnimInstance.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -285,6 +286,12 @@ void ADiveCharacter::UpdateScore(int Points)
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
+
+	if(damage == 25.f)
+	{
+		SetOnFishTrue();
+	}
+
 	if (DiveGameInstance)
 	{
 		if (DiveGameInstance->GetDifficulty() == 0) damage *= 0.8f;
@@ -410,6 +417,20 @@ void ADiveCharacter::PostInitializeComponents()
 	{
 		DiveCharacterAnim->OnDieCheck.AddUObject(this, &ADiveCharacter::DieEnd);
 	}
+}
+
+void ADiveCharacter::SetOnFishTrue()
+{
+	FTimerHandle TimerHandle;
+
+	DiveCharacterAnim->bOnFish = true;
+
+	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.6f, false);
+}
+
+void ADiveCharacter::SetOnFishFalse()
+{
+	DiveCharacterAnim->bOnFish = false;
 }
 
 void ADiveCharacter::MoveForward(float Value)

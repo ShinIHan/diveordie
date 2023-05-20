@@ -189,6 +189,10 @@ protected:
 
 	virtual void PostInitializeComponents() override;
 
+	void SetOnFishTrue();
+
+	void SetOnFishFalse();
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
