@@ -44,7 +44,11 @@ void AGoldRing::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	if (character)
 	{
 		character->UpdateScore(PointValue);
-		UGameplayStatics::PlaySound2D(this, Sound, 1, 1, 0);
+
+		USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/MP_Ding.MP_Ding"));
+		FVector SoundLocation = GetActorLocation();
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+		//UGameplayStatics::PlaySound2D(this, Sound, 1, 1, 0);
 		Destroy();
 	}
 }

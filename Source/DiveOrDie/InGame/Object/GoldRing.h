@@ -20,8 +20,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int PointValue = 10;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USoundBase* Sound;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundBase* Sound;*/
 
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent* capsule;

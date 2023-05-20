@@ -79,12 +79,12 @@ public:
 	    }
 	}
 	
-	/*void Write(unsigned char* buffer, int offset, int count) {
+	void Write(unsigned char* buffer, int offset, int number) {
 	    DWORD bytesWritten;
-	    if (!WriteFile(_serialPort, &buffer[offset], count, &bytesWritten, NULL)) {
+	    if (!WriteFile(_serialPort, &buffer[offset], number, &bytesWritten, NULL)) {
 	        throw TCHAR_TO_UTF8(*FString("Error occurred while writing to port " + FString(_portName.c_str())));
 	    }
-	}*/
+	}
 	
 	FString ReadLine() {
 	    FString result;

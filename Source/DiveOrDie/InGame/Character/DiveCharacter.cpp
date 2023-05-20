@@ -78,6 +78,16 @@ ADiveCharacter::ADiveCharacter()
 	{
 		PauseMenu_WGBP = PAUSEMENU_WG.Class;
 	}	
+
+	/*static ConstructorHelpers::FObjectFinder<USoundCue> SwimAsset(TEXT("/Game/Sounds/Swimming_Cue.Swimming_Cue"));
+	if (SwimAsset.Succeeded())
+	{
+		SwimCue = SwimAsset.Object;
+	}
+
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	AudioComponent->bAutoActivate = false;
+	AudioComponent->SetupAttachment(GetMesh());*/
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -239,6 +249,9 @@ void ADiveCharacter::OxygenConsume()
 void ADiveCharacter::StartSwim(FVector waterBodyPos)
 {
 	_WaterBodyPos = waterBodyPos;
+	
+	/*AudioComponent->SetSound(SwimCue);
+	AudioComponent->Play();*/
 
 	GetWorld()->GetTimerManager().SetTimer(OxygenTimer, this, &ADiveCharacter::OxygenConsume, 1.0f, true);
 
@@ -247,6 +260,8 @@ void ADiveCharacter::StartSwim(FVector waterBodyPos)
 
 void ADiveCharacter::StopSwim()
 {
+	/*AudioComponent->Stop();*/
+
 	GetWorld()->GetTimerManager().ClearTimer(OxygenTimer);
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);
 	SetActorRotation(FRotator(0.0f, GetActorRotation().Yaw, 0.0f));
@@ -266,6 +281,7 @@ void ADiveCharacter::UpdateScore(int Points)
 	GameState->iScore += Points;
 }
 
+
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
@@ -282,6 +298,9 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	else
 	{
 		_fCurrentHp -= damage;
+		USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Damage_Cue.Damage_Cue"));
+		FVector SoundLocation = GetActorLocation();
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 	}
 
 	if (_fCurrentHp <= 0.0f)
@@ -328,6 +347,9 @@ void ADiveCharacter::Stern(float time)
 
 	//LOG_SCREEN("Stern!");
 	_bOnStern = true;
+	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Electric_Cue.Electric_Cue"));
+	FVector SoundLocation = GetActorLocation();
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 
 	GetMovementComponent()->StopMovementImmediately();
 
@@ -457,6 +479,11 @@ void ADiveCharacter::Die()
 {
 	SetEnableInput(false, false);
 	GetCharacterMovement()->Buoyancy = 0.0f;
+
+	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/MP_Blood_Squirts.MP_Blood_Squirts"));
+	FVector SoundLocation = GetActorLocation();
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+
 	DiveCharacterAnim->bOnDie = true;
 }
 
