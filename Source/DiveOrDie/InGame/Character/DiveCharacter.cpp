@@ -354,6 +354,8 @@ void ADiveCharacter::Stern(float time)
 
 	//LOG_SCREEN("Stern!");
 	_bOnStern = true;
+	DiveCharacterAnim->bOnJelly = true;
+
 	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Electric_Cue.Electric_Cue"));
 	FVector SoundLocation = GetActorLocation();
 	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
@@ -368,6 +370,7 @@ void ADiveCharacter::Stern(float time)
 void ADiveCharacter::SternEnd()
 {
 	_bOnStern = false;
+	DiveCharacterAnim->bOnJelly = false;
 
 	//LOG_SCREEN("Stern End!");
 
