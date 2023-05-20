@@ -291,6 +291,10 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	{
 		SetOnFishTrue();
 	}
+	else if (damage == 200.f)
+	{
+		SetOnBulletTrue();
+	}
 
 	if (DiveGameInstance)
 	{
@@ -426,16 +430,30 @@ void ADiveCharacter::PostInitializeComponents()
 
 void ADiveCharacter::SetOnFishTrue()
 {
-	FTimerHandle TimerHandle;
+	FTimerHandle FishTimerHandle;
 
 	DiveCharacterAnim->bOnFish = true;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.6f, false);
+	GetWorldTimerManager().SetTimer(FishTimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.65f, false);
 }
 
 void ADiveCharacter::SetOnFishFalse()
 {
 	DiveCharacterAnim->bOnFish = false;
+}
+
+void ADiveCharacter::SetOnBulletTrue()
+{
+	FTimerHandle BulletTimerHandle;
+
+	DiveCharacterAnim->bOnBullet = true;
+
+	GetWorldTimerManager().SetTimer(BulletTimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.5f, false);
+}
+
+void ADiveCharacter::SetOnBulletFalse()
+{
+	DiveCharacterAnim->bOnBullet = false;
 }
 
 void ADiveCharacter::MoveForward(float Value)

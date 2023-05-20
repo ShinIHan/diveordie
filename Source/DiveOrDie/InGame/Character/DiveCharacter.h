@@ -193,6 +193,10 @@ protected:
 
 	void SetOnFishFalse();
 
+	void SetOnBulletTrue();
+
+	void SetOnBulletFalse();
+
 	void MoveForward(float Value);
 
 	void MoveRight(float Value);
