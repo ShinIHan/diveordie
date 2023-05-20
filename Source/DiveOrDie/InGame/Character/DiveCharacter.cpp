@@ -80,7 +80,7 @@ ADiveCharacter::ADiveCharacter()
 		PauseMenu_WGBP = PAUSEMENU_WG.Class;
 	}	
 
-	/*static ConstructorHelpers::FObjectFinder<USoundCue> SwimAsset(TEXT("/Game/Sounds/Swimming_Cue.Swimming_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> SwimAsset(TEXT("/Game/Sounds/Swimming_Cue.Swimming_Cue"));
 	if (SwimAsset.Succeeded())
 	{
 		SwimCue = SwimAsset.Object;
@@ -88,7 +88,7 @@ ADiveCharacter::ADiveCharacter()
 
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
-	AudioComponent->SetupAttachment(GetMesh());*/
+	AudioComponent->SetupAttachment(GetMesh());
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -251,8 +251,8 @@ void ADiveCharacter::StartSwim(FVector waterBodyPos)
 {
 	_WaterBodyPos = waterBodyPos;
 	
-	/*AudioComponent->SetSound(SwimCue);
-	AudioComponent->Play();*/
+	AudioComponent->SetSound(SwimCue);
+	AudioComponent->Play();
 
 	GetWorld()->GetTimerManager().SetTimer(OxygenTimer, this, &ADiveCharacter::OxygenConsume, 1.0f, true);
 
@@ -261,7 +261,7 @@ void ADiveCharacter::StartSwim(FVector waterBodyPos)
 
 void ADiveCharacter::StopSwim()
 {
-	/*AudioComponent->Stop();*/
+	AudioComponent->Stop();
 
 	GetWorld()->GetTimerManager().ClearTimer(OxygenTimer);
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 360.0f, 0.0f);
@@ -290,6 +290,10 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	if(damage == 25.f)
 	{
 		SetOnFishTrue();
+	}
+	else if (damage == 200.f)
+	{
+		SetOnBulletTrue();
 	}
 
 	if (DiveGameInstance)
@@ -426,16 +430,30 @@ void ADiveCharacter::PostInitializeComponents()
 
 void ADiveCharacter::SetOnFishTrue()
 {
-	FTimerHandle TimerHandle;
+	FTimerHandle FishTimerHandle;
 
 	DiveCharacterAnim->bOnFish = true;
 
-	GetWorldTimerManager().SetTimer(TimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.6f, false);
+	GetWorldTimerManager().SetTimer(FishTimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.65f, false);
 }
 
 void ADiveCharacter::SetOnFishFalse()
 {
 	DiveCharacterAnim->bOnFish = false;
+}
+
+void ADiveCharacter::SetOnBulletTrue()
+{
+	FTimerHandle BulletTimerHandle;
+
+	DiveCharacterAnim->bOnBullet = true;
+
+	GetWorldTimerManager().SetTimer(BulletTimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.5f, false);
+}
+
+void ADiveCharacter::SetOnBulletFalse()
+{
+	DiveCharacterAnim->bOnBullet = false;
 }
 
 void ADiveCharacter::MoveForward(float Value)

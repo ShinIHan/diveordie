@@ -13,6 +13,7 @@ UDiveCharacterAnimInstance::UDiveCharacterAnimInstance()
 	bOnFish = false;
 	bOnJelly = false;
 	bOnNet = false;
+	bOnBullet = false;
 }
 
 void UDiveCharacterAnimInstance::AnimNotify_Die()
