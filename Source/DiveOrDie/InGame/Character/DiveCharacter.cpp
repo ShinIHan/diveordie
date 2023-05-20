@@ -322,6 +322,7 @@ void ADiveCharacter::Restraint(float time)
 
 	//LOG_SCREEN("Restraint!");
 	_bOnRestraint = true;
+	DiveCharacterAnim->bOnNet = true;
 
 	GetMovementComponent()->StopMovementImmediately();
 	
@@ -333,6 +334,7 @@ void ADiveCharacter::Restraint(float time)
 void ADiveCharacter::RestraintEnd()
 {
 	_bOnRestraint = false;
+	DiveCharacterAnim->bOnNet = false;
 	GetWorld()->GetTimerManager().ClearTimer(RestraintTimer);
 	//LOG_SCREEN("Restraint End!");
 	SetEnableInput();
