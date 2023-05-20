@@ -448,7 +448,7 @@ void ADiveCharacter::SetOnBulletTrue()
 
 	DiveCharacterAnim->bOnBullet = true;
 
-	GetWorldTimerManager().SetTimer(BulletTimerHandle, this, &ADiveCharacter::SetOnFishFalse, 0.5f, false);
+	GetWorldTimerManager().SetTimer(BulletTimerHandle, this, &ADiveCharacter::SetOnBulletFalse, 0.5f, false);
 }
 
 void ADiveCharacter::SetOnBulletFalse()
