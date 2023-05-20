@@ -55,6 +55,7 @@ void ADiveGameMode::BeginPlay()
 
     TArray<AActor*> Actors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStageManagerActor::StaticClass(), Actors);
+
     for (auto Actor : Actors)
     {
         StageManagerActor = Cast<AStageManagerActor>(Actor);

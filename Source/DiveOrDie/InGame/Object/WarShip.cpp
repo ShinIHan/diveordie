@@ -71,6 +71,10 @@ void AWarShip::Shoot(ADiveCharacter* Target)
 	bCanShoot = false;
 	AWarShip_Projectile* WarshipProjectile;
 
+	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Cannon_Cue.Cannon_Cue"));
+	FVector SoundLocation = GetActorLocation();
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+
 	FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target->GetActorLocation());
 	WarshipProjectile = GetWorld()->SpawnActor<AWarShip_Projectile>(AWarShip_Projectile::StaticClass(), GetActorLocation(), targetRotation);
 	WarshipProjectile->SetBulletStat(200.0f, 10000.0f);
