@@ -102,11 +102,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	TSubclassOf<UDiveCharacterWidget> DiveCharacter_WGBP = nullptr;
 	
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	USoundCue* SwimCue;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UAudioComponent* AudioComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	UAudioComponent* AudioComponent;*/
+	USoundCue* SwimCue;
 
 public:
 	UFUNCTION(BlueprintCallable)
