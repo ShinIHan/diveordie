@@ -18,7 +18,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* mesh;
 	UPROPERTY(EditAnywhere)
-	UCapsuleComponent* capsule;
+	UBoxComponent* box;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Damage;

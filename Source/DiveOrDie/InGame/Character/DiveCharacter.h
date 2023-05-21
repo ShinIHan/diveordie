@@ -123,6 +123,7 @@ public:
 	
 	void ReceiveAnyDamage(float damage);
 
+	void Heal(float amount);
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FVector _WaterBodyPos; 

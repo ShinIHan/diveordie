@@ -11,24 +11,24 @@ AFishingNet::AFishingNet()
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
-	RootComponent = capsule;
-	capsule->SetCapsuleHalfHeight(110);
-	capsule->SetCapsuleRadius(80);
+	box = CreateDefaultSubobject<UBoxComponent>(TEXT("Capsule"));
+	RootComponent = box;
+	box->SetBoxExtent(FVector(300.0f, 160.0f, 32.0f));
+	//box->SetCapsuleRadius(80);
 
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	
 	mesh->SetCollisionProfileName("Object");
-	capsule->SetCollisionProfileName("OverlapAllDynamic");
+	box->SetCollisionProfileName("OverlapAllDynamic");
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> FISHINGNET_MESH(TEXT("/Game/Meshes/FishingNet.FishingNet"));
     if (FISHINGNET_MESH.Succeeded())
     {
 	    mesh->SetStaticMesh(FISHINGNET_MESH.Object);
     }
-	
-	capsule->OnComponentBeginOverlap.AddDynamic(this, &AFishingNet::OnOverlapBegin);
+
+	box->OnComponentBeginOverlap.AddDynamic(this, &AFishingNet::OnOverlapBegin);
 }
 
 void AFishingNet::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,

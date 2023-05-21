@@ -320,6 +320,18 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	}
 }
 
+void ADiveCharacter::Heal(float amount)
+{
+	if (_fCurrentHp >= 400.f)
+	{
+		_fCurrentHp = 400.f;
+	}
+	else
+	{
+		_fCurrentHp += amount;
+	}
+}
+
 void ADiveCharacter::Restraint(float time)
 {
 	if (_bOnRestraint) return;
