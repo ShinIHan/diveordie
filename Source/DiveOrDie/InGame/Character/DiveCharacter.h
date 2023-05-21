@@ -28,6 +28,8 @@ public:
 
 	FPlayerDelegte OnPlayerDieCheck;
 
+	bool depthMove = false;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
@@ -124,6 +126,7 @@ public:
 	void ReceiveAnyDamage(float damage);
 
 	void Heal(float amount);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FVector _WaterBodyPos; 

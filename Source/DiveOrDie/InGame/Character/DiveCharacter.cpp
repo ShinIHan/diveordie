@@ -554,10 +554,19 @@ void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	/*if (GetCharacterMovement()->IsSwimming())
+	if (GetVelocity().Size() > 0)
+		_bOnMove = true;
+	else
+		_bOnMove = false;
+
+	if (!_bOnJump && GetCharacterMovement()->IsFalling())
+		_bOnJump = true;
+	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
+		_bOnJump = false;
+
+	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W)
-			|| buttonA == 0 || buttonB == 0 || buttonC == 0 || buttonD == 0)
+		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 		{
 			if (GetCharacterMovement()->IsMovingOnGround())
 			{
@@ -571,70 +580,90 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
 		}
-	}*/
 
-	if (GetVelocity().Size() > 0)
-		_bOnMove = true;
-	else
-		_bOnMove = false;
-
-	if (!_bOnJump && GetCharacterMovement()->IsFalling())
-		_bOnJump = true;
-	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
-		_bOnJump = false;
-
-	/*if (buttonA == 0)
-	{
-		FVector forwardVector = GetActorForwardVector();
-		AddMovementInput(forwardVector, 1.f);
-
-		buttonA = 1;
+		depthMove = true;
 	}
 
-	if (buttonB == 0)
-	{
-		FVector leftVector = -GetActorRightVector();
-		AddMovementInput(leftVector, 1.f);
 
-		buttonB = 1;
+	/*if (count == 31 && Bx != NULL && By != NULL)
+	{
+		if (Ba == 0)
+		{
+			LOG_SCREEN("buttonA", Ba);
+			FVector forwardVector = GetActorForwardVector();
+			AddMovementInput(forwardVector, 1.f);
+		}
+
+		if (Bb == 0)
+		{
+			LOG_SCREEN("buttonB");
+			FVector leftVector = -GetActorRightVector();
+			AddMovementInput(leftVector, 1.f);
+		}
+
+		if (Bc == 0)
+		{
+			LOG_SCREEN("buttonC");
+			FVector backwardVector = -GetActorForwardVector();
+			AddMovementInput(backwardVector, 1.f);
+		}
+
+		if (Bd == 0)
+		{
+			LOG_SCREEN("buttonD", buttonD);
+			FVector rightVector = GetActorRightVector();
+			AddMovementInput(rightVector, 1.f);
+		}
+
+		if ((float)Bx > AvRx)
+		{
+			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			//AddControllerYawInput(-0.1f);
+		}
+		else if ((float)Bx < AvRx)
+		{
+			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			//AddControllerYawInput(0.1f);
+		}
+
+		if ((float)By > AvRy)
+		{
+			LOG_SCREEN("ay : %d, AvRy : %f", By, AvRy);
+			//AddControllerPitchInput(0.1f);
+		}
+		else if ((float)By < AvRy)
+		{
+			LOG_SCREEN("ay : %d, AvRy : %lf", By, AvRy);
+			//AddControllerPitchInput(-0.1f);
+		}
+
+		if (GetCharacterMovement()->IsSwimming())
+		{
+			if (depthMove == false)
+			{
+				if (Ba == 0 || Bb == 0 || Bc == 0 || Bd == 0)
+				{
+					if (GetCharacterMovement()->IsMovingOnGround())
+					{
+
+					}
+					else
+					{
+						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
+						depthMove = true;
+					}
+				}
+				else
+				{
+					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+					depthMove = true;
+				}
+			}			
+		}
 	}
 
-	if (buttonC == 0)
-	{
-		FVector backwardVector = -GetActorForwardVector();
-		AddMovementInput(backwardVector, 1.f);
-
-		buttonC = 1;
-	}
-
-	if (buttonD == 0)
-	{
-		FVector rightVector = GetActorRightVector();
-		AddMovementInput(rightVector, 1.f);
-
-		buttonD = 1;
-	}
-
-	if (count == 21)
-	{
-		if (ax > AvRx)
-		{
-			AddControllerYawInput(-0.1f);
-		}
-		else if (ax < AvRx)
-		{
-			AddControllerYawInput(0.1f);
-		}
-
-		if (ay > AvRy)
-		{
-			AddControllerPitchInput(0.1f);
-		}
-		else if (ay < AvRy)
-		{
-			AddControllerPitchInput(-0.1f);
-		}
-	}*/
+	Bx = NULL, By = NULL;
+	depthMove = false;*/
 }
 
 // Called to bind functionality to input

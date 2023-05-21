@@ -18,11 +18,17 @@ extern int az;
 extern int gx;
 extern int gy;
 extern int gz;
+extern int SumRX;
+extern int SumRY;
 extern float AvRx;
 extern float AvRy;
 extern int count;
-extern float tx;
-extern float ty;
+extern int Ba;
+extern int Bb;
+extern int Bc;
+extern int Bd;
+extern int Bx;
+extern int By;
 
 /**
  *
