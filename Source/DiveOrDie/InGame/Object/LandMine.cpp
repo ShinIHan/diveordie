@@ -46,7 +46,7 @@ void ALandMine::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
-		character->ReceiveAnyDamage(200.0f);
+		character->ReceiveAnyDamage(150.0f);
 		Destroy();
 	}
 }

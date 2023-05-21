@@ -4,6 +4,8 @@
 
 #include "../game.h"
 #include "GameFramework/Character.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "DiveCharacter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FPlayerDelegte);
@@ -95,6 +97,13 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	UParticleSystem* particles;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Particles", meta = (AllowPrivateAccess = true))
+	UNiagaraComponent* NiagaraSystem1;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Particles", meta = (AllowPrivateAccess = true))
+	UNiagaraComponent* NiagaraSystem2;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 	class UDiveCharacterWidget* DiveCharacter_WG = nullptr;

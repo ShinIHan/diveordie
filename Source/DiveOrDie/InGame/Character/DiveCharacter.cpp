@@ -22,6 +22,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "Net/UnrealNetwork.h"
 
+
 // Sets default values
 ADiveCharacter::ADiveCharacter()
 {
@@ -291,9 +292,28 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	{
 		SetOnFishTrue();
 	}
+	else if (damage == 150.f)
+	{
+		UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/explosion.explosion")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+		if (NiagaraSystemAsset)
+		{
+			NiagaraSystem2 = NewObject<UNiagaraComponent>(this);
+			NiagaraSystem2->SetAsset(NiagaraSystemAsset);
+			NiagaraSystem2->RegisterComponent();
+			NiagaraSystem2->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		}
+	}
 	else if (damage == 200.f)
 	{
 		SetOnBulletTrue();
+		UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/explosion.explosion")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+		if (NiagaraSystemAsset)
+		{
+			NiagaraSystem2 = NewObject<UNiagaraComponent>(this);
+			NiagaraSystem2->SetAsset(NiagaraSystemAsset);
+			NiagaraSystem2->RegisterComponent();
+			NiagaraSystem2->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		}
 	}
 
 	if (DiveGameInstance)
@@ -377,7 +397,16 @@ void ADiveCharacter::Stern(float time)
 	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Electric_Cue.Electric_Cue"));
 	FVector SoundLocation = GetActorLocation();
 	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
-
+	
+	UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/lighting.lighting")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+	if (NiagaraSystemAsset)
+	{
+		NiagaraSystem1 = NewObject<UNiagaraComponent>(this);
+		NiagaraSystem1->SetAsset(NiagaraSystemAsset);
+		NiagaraSystem1->RegisterComponent();
+		NiagaraSystem1->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	
 	GetMovementComponent()->StopMovementImmediately();
 
 	SetEnableInput(false, false);

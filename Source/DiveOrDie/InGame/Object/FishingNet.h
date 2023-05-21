@@ -17,8 +17,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* mesh;
+
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* box;
+
+	UPROPERTY(EditAnywhere)
+	UTextRenderComponent* KeyText;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float Damage;
