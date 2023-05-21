@@ -20,14 +20,17 @@ int az = 0;
 int gx = 0;
 int gy = 0;
 int gz = 0;
-
+int SumRX = 0;
+int SumRY = 0;
 float AvRx = 0.f;
 float AvRy = 0.f;
 int count = 0;
-
-float tx = 0.f;
-float ty = 0.f;
-int tcount = 0;
+int Ba = 0;
+int Bb = 0;
+int Bc = 0;
+int Bd = 0;
+int Bx = 0;
+int By = 0;
 
 SerialPort* _serialPort = nullptr;
 
@@ -65,17 +68,17 @@ void ADiveGameMode::BeginPlay()
         StageManagerActor->OnEndCheck.AddUObject(this, &ADiveGameMode::GameClear);
     }
 
+    LOG_SCREEN("Start");
+
     /*if (_serialPort == nullptr)
     {
         _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
         LOG_SCREEN("Serial");
-    }
 
-    // 새로운 스레드를 생성해서 시리얼 포트 데이터를 비동기적으로 읽어옵니다.
-    std::thread readThread(&ADiveGameMode::ReadSerialData, this);
-    readThread.detach();
-
-    LOG_SCREEN("Start");*/
+        // 새로운 스레드를 생성해서 시리얼 포트 데이터를 비동기적으로 읽어옵니다.
+        std::thread readThread(&ADiveGameMode::ReadSerialData, this);
+        readThread.detach();
+    }*/
 }
 
 void ADiveGameMode::Tick(float DeltaTime)
@@ -135,19 +138,19 @@ void ADiveGameMode::ReadSerialData()
                         return std::make_tuple(accelerometerX, accelerometerY, accelerometerZ);
                     });
 
-                auto getGyroValues = std::async(std::launch::async, [&words]()
+                /*auto getGyroValues = std::async(std::launch::async, [&words]()
                     {
                         int gyroX = FCString::Atoi(*words[7]);
                         int gyroY = FCString::Atoi(*words[8]);
                         int gyroZ = FCString::Atoi(*words[9]);
 
                         return std::make_tuple(gyroX, gyroY, gyroZ);
-                    });
+                    });*/
 
                 // 작업이 완료될 때까지 대기
                 std::tuple<int, int, int, int> buttonValues = getButtonValues.get();
                 std::tuple<int, int, int> accelerometerValues = getAccelerometerValues.get();
-                std::tuple<int, int, int> gyroValues = getGyroValues.get();
+                /*std::tuple<int, int, int> gyroValues = getGyroValues.get();*/
 
                 // 결과를 변수에 저장
                 buttonA = std::get<0>(buttonValues);
@@ -159,24 +162,30 @@ void ADiveGameMode::ReadSerialData()
                 ay = std::get<1>(accelerometerValues);
                 az = std::get<2>(accelerometerValues);
 
-                gx = std::get<0>(gyroValues);
+                /*gx = std::get<0>(gyroValues);
                 gy = std::get<1>(gyroValues);
-                gz = std::get<2>(gyroValues);
+                gz = std::get<2>(gyroValues);*/
+                Ba = buttonA, Bb = buttonB, Bc = buttonC, Bd = buttonD;
+                Bx = ax, By = ay;
 
-                if (count == 21)
+                if (count == 31)
                 {
+
                 }
-                else if (count == 20)
+                else if (count == 30)
                 {
-                    float Tx = AvRx, Ty = AvRy;
-                    AvRx = Tx / 20;
-                    AvRy = Ty / 20;
+                    AvRx = SumRX / 20;
+                    AvRy = SumRY / 20;
                     count++;
                 }
-                else if (count < 20)
+                else if (count < 30 && count >= 10)
                 {
-                    AvRx += (float)ax;
-                    AvRy += (float)ay;
+                    SumRX += ax;
+                    SumRY += ay;
+                    count++;
+                }
+                else if (count < 10)
+                {
                     count++;
                 }
             }
