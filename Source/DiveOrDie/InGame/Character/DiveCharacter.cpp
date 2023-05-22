@@ -607,14 +607,17 @@ void ADiveCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+			if(DiveCharacterAnim->bOnNet == false && DiveCharacterAnim->bOnJelly == false)
+			{
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+			}	
 		}
 
 		depthMove = true;
 	}
 
 
-	/*if (count == 31 && Bx != NULL && By != NULL)
+	/*if (count == 21 && Bx != NULL && By != NULL)
 	{
 		if (Ba == 0)
 		{
@@ -691,8 +694,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 		}
 	}
 
-	Bx = NULL, By = NULL;
-	depthMove = false;*/
+	Bx = NULL, By = NULL;*/
+	depthMove = false;
 }
 
 // Called to bind functionality to input
