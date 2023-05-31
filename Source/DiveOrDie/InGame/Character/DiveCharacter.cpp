@@ -87,6 +87,42 @@ ADiveCharacter::ADiveCharacter()
 		SwimCue = SwimAsset.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<USoundCue> ElectronicAsset(TEXT("/Game/Sounds/Electric_Cue.Electric_Cue"));
+	if (ElectronicAsset.Succeeded())
+	{
+		ElectronicCue = ElectronicAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> DamageAsset(TEXT("/Game/Sounds/Damage_Cue.Damage_Cue"));
+	if (DamageAsset.Succeeded())
+	{
+		DamageCue = DamageAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> GoldRingAsset(TEXT("/Game/Sounds/MP_Ding.MP_Ding"));
+	if (GoldRingAsset.Succeeded())
+	{
+		GoldRingWave = GoldRingAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundWave> DieCharcterAsset(TEXT("/Game/Sounds/MP_Blood_Squirts.MP_Blood_Squirts"));
+	if (DieCharcterAsset.Succeeded())
+	{
+		DieCharcterWave = DieCharcterAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionSystemAsset(TEXT("/Game/VFX/explosion.explosion"));
+	if (ExplosionSystemAsset.Succeeded())
+	{
+		ExplosionSystem = ExplosionSystemAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> LightingSystemAsset(TEXT("/Game/VFX/lighting.lighting"));
+	if (LightingSystemAsset.Succeeded())
+	{
+		LightingSystem = LightingSystemAsset.Object;
+	}
+
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
 	AudioComponent->SetupAttachment(GetMesh());
@@ -281,6 +317,14 @@ void ADiveCharacter::UpdateScore(int Points)
 	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
 
 	GameState->iScore += Points;
+
+	if (Points > 0)
+	{
+		USoundWave* Sound = GoldRingWave;
+		FVector SoundLocation = GetActorLocation();
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+		Points = 0;
+	}
 }
 
 
@@ -294,7 +338,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	}
 	else if (damage == 150.f)
 	{
-		UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/explosion.explosion")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+		UNiagaraSystem* NiagaraSystemAsset = ExplosionSystem; // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
 		if (NiagaraSystemAsset)
 		{
 			NiagaraSystem2 = NewObject<UNiagaraComponent>(this);
@@ -306,7 +350,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	else if (damage == 200.f)
 	{
 		SetOnBulletTrue();
-		UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/explosion.explosion")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+		UNiagaraSystem* NiagaraSystemAsset = ExplosionSystem;
 		if (NiagaraSystemAsset)
 		{
 			NiagaraSystem2 = NewObject<UNiagaraComponent>(this);
@@ -329,7 +373,8 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	else
 	{
 		_fCurrentHp -= damage;
-		USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Damage_Cue.Damage_Cue"));
+		USoundCue* Sound = DamageCue;
+
 		FVector SoundLocation = GetActorLocation();
 		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 	}
@@ -394,11 +439,12 @@ void ADiveCharacter::Stern(float time)
 	_bOnStern = true;
 	DiveCharacterAnim->bOnJelly = true;
 
-	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/Electric_Cue.Electric_Cue"));
+	USoundCue* Sound = ElectronicCue;
+
 	FVector SoundLocation = GetActorLocation();
 	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 	
-	UNiagaraSystem* NiagaraSystemAsset = LoadObject<UNiagaraSystem>(nullptr, TEXT("/Game/VFX/lighting.lighting")); // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+	UNiagaraSystem* NiagaraSystemAsset = LightingSystem; 
 	if (NiagaraSystemAsset)
 	{
 		NiagaraSystem1 = NewObject<UNiagaraComponent>(this);
@@ -565,7 +611,8 @@ void ADiveCharacter::Die()
 	SetEnableInput(false, false);
 	GetCharacterMovement()->Buoyancy = 0.0f;
 
-	USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/MP_Blood_Squirts.MP_Blood_Squirts"));
+	USoundWave* Sound = DieCharcterWave;
+
 	FVector SoundLocation = GetActorLocation();
 	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 
@@ -595,7 +642,11 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
+		if (DiveCharacterAnim->bOnNet == true)
+		{
+
+		}
+		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 		{
 			if (GetCharacterMovement()->IsMovingOnGround())
 			{
@@ -614,20 +665,19 @@ void ADiveCharacter::Tick(float DeltaTime)
 	}
 
 
-	/*if (count == 31 && Bx != NULL && By != NULL)
+	if (count == 72 && Bx != NULL && By != NULL)
 	{
 		if (Ba == 0)
 		{
 			LOG_SCREEN("buttonA", Ba);
 			FVector forwardVector = GetActorForwardVector();
+
 			AddMovementInput(forwardVector, 1.f);
 		}
 
 		if (Bb == 0)
 		{
-			LOG_SCREEN("buttonB");
-			FVector leftVector = -GetActorRightVector();
-			AddMovementInput(leftVector, 1.f);
+			AddControllerPitchInput(1.f);
 		}
 
 		if (Bc == 0)
@@ -639,31 +689,18 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (Bd == 0)
 		{
-			LOG_SCREEN("buttonD", buttonD);
-			FVector rightVector = GetActorRightVector();
-			AddMovementInput(rightVector, 1.f);
+			AddControllerPitchInput(-1.f);
 		}
 
 		if ((float)Bx > AvRx)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
-			//AddControllerYawInput(-0.1f);
+			AddControllerYawInput(-0.5f);
 		}
 		else if ((float)Bx < AvRx)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
-			//AddControllerYawInput(0.1f);
-		}
-
-		if ((float)By > AvRy)
-		{
-			LOG_SCREEN("ay : %d, AvRy : %f", By, AvRy);
-			//AddControllerPitchInput(0.1f);
-		}
-		else if ((float)By < AvRy)
-		{
-			LOG_SCREEN("ay : %d, AvRy : %lf", By, AvRy);
-			//AddControllerPitchInput(-0.1f);
+			AddControllerYawInput(0.5f);
 		}
 
 		if (GetCharacterMovement()->IsSwimming())
@@ -687,12 +724,12 @@ void ADiveCharacter::Tick(float DeltaTime)
 					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
 					depthMove = true;
 				}
-			}			
+			}
 		}
 	}
 
 	Bx = NULL, By = NULL;
-	depthMove = false;*/
+	depthMove = false;
 }
 
 // Called to bind functionality to input

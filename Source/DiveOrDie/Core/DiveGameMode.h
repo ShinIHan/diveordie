@@ -29,6 +29,7 @@ extern int Bc;
 extern int Bd;
 extern int Bx;
 extern int By;
+extern std::atomic<bool> bIsReadingSerialData;
 
 /**
  *
@@ -56,6 +57,8 @@ protected:
 	UFUNCTION()
 	void GameOver();
 
+	UFUNCTION()
+	void DeleteSerial();
 
 	UPROPERTY(BlueprintReadWrite)
 	AStageManagerActor* StageManagerActor = nullptr;

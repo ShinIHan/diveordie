@@ -31,8 +31,10 @@ int Bc = 0;
 int Bd = 0;
 int Bx = 0;
 int By = 0;
+int recount = 1;
 
 SerialPort* _serialPort = nullptr;
+std::atomic<bool> bIsReadingSerialData(false);
 
 ADiveGameMode::ADiveGameMode()
 {
@@ -70,15 +72,51 @@ void ADiveGameMode::BeginPlay()
 
     LOG_SCREEN("Start");
 
-    /*if (_serialPort == nullptr)
+    if (_serialPort == nullptr || !_serialPort->IsOpen())
     {
-        _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
-        LOG_SCREEN("Serial");
+        if (_serialPort)
+        {
+            delete _serialPort;
+            _serialPort = nullptr;
+        }
 
-        // 새로운 스레드를 생성해서 시리얼 포트 데이터를 비동기적으로 읽어옵니다.
-        std::thread readThread(&ADiveGameMode::ReadSerialData, this);
-        readThread.detach();
-    }*/
+        _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
+
+        if (_serialPort && _serialPort->IsOpen())
+        {
+            LOG_SCREEN("Serial");
+
+            count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+
+            bIsReadingSerialData = true;
+
+            std::thread readThread(&ADiveGameMode::ReadSerialData, this);
+            readThread.detach();
+        }
+        else
+        {
+            delete _serialPort;
+            _serialPort = nullptr;
+            UE_LOG(LogTemp, Error, TEXT("Failed to open serial port."));
+        }
+    }
+    else
+    {
+        if (_serialPort)
+        {
+            delete _serialPort;
+            _serialPort = nullptr;
+
+            _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
+
+            count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+
+            bIsReadingSerialData = true;
+
+            std::thread readThread(&ADiveGameMode::ReadSerialData, this);
+            readThread.detach();
+        }
+    }
 }
 
 void ADiveGameMode::Tick(float DeltaTime)
@@ -102,97 +140,93 @@ void ADiveGameMode::PostLogin(APlayerController* NewPlayer)
 
 void ADiveGameMode::ReadSerialData()
 {
-    while (true)
+    while (bIsReadingSerialData)
     {
-        try
+        // 쉼표로 분리 결과를 저장할 배열
+        TArray<FString> words;
+
+        // 시리얼 포트에서 데이터를 읽어와서 문자열로 변환
+        FString data = _serialPort->ReadLine();
+
+        if (data.ParseIntoArray(words, TEXT(","), false) && words.Num() == 10)
         {
-            // 쉼표로 분리 결과를 저장할 배열
-            TArray<FString> words;
+            // 버튼 값을 가져오는 작업 생성
+            auto getButtonValues = std::async(std::launch::async, [&words]()
+                {
+                    int buttonQ = FCString::Atoi(*words[0]);
+                    int buttonW = FCString::Atoi(*words[1]);
+                    int buttonE = FCString::Atoi(*words[2]);
+                    int buttonR = FCString::Atoi(*words[3]);
 
-            // 시리얼 포트에서 데이터를 읽어와서 문자열로 변환
-            FString data = _serialPort->ReadLine();
+                    return std::make_tuple(buttonQ, buttonW, buttonE, buttonR);
+                });
 
-            // 마지막 단어 뒤에 쉼표가 없는 경우 false로 설정하여 초과 오류 방지
-            data.ParseIntoArray(words, TEXT(","), false);
+            // 가속도 값을 가져오는 작업 생성
+            auto getAccelerometerValues = std::async(std::launch::async, [&words]()
+                {
+                    int accelerometerX = FCString::Atoi(*words[4]);
+                    int accelerometerY = FCString::Atoi(*words[5]);
+                    int accelerometerZ = FCString::Atoi(*words[6]);
 
-            if (words.Num() == 10)
-            {
-                // 버튼 값을 가져오는 작업 생성
-                auto getButtonValues = std::async(std::launch::async, [&words]()
-                    {
-                        int buttonQ = FCString::Atoi(*words[0]);
-                        int buttonW = FCString::Atoi(*words[1]);
-                        int buttonE = FCString::Atoi(*words[2]);
-                        int buttonR = FCString::Atoi(*words[3]);
+                    return std::make_tuple(accelerometerX, accelerometerY, accelerometerZ);
+                });
 
-                        return std::make_tuple(buttonQ, buttonW, buttonE, buttonR);
-                    });
+            /*auto getGyroValues = std::async(std::launch::async, [&words]()
+                {
+                    int gyroX = FCString::Atoi(*words[7]);
+                    int gyroY = FCString::Atoi(*words[8]);
+                    int gyroZ = FCString::Atoi(*words[9]);
 
-                // 가속도 값을 가져오는 작업 생성
-                auto getAccelerometerValues = std::async(std::launch::async, [&words]()
-                    {
-                        int accelerometerX = FCString::Atoi(*words[4]);
-                        int accelerometerY = FCString::Atoi(*words[5]);
-                        int accelerometerZ = FCString::Atoi(*words[6]);
-
-                        return std::make_tuple(accelerometerX, accelerometerY, accelerometerZ);
-                    });
-
-                /*auto getGyroValues = std::async(std::launch::async, [&words]()
-                    {
-                        int gyroX = FCString::Atoi(*words[7]);
-                        int gyroY = FCString::Atoi(*words[8]);
-                        int gyroZ = FCString::Atoi(*words[9]);
-
-                        return std::make_tuple(gyroX, gyroY, gyroZ);
-                    });*/
+                    return std::make_tuple(gyroX, gyroY, gyroZ);
+                });*/
 
                 // 작업이 완료될 때까지 대기
-                std::tuple<int, int, int, int> buttonValues = getButtonValues.get();
-                std::tuple<int, int, int> accelerometerValues = getAccelerometerValues.get();
-                /*std::tuple<int, int, int> gyroValues = getGyroValues.get();*/
+            std::tuple<int, int, int, int> buttonValues = getButtonValues.get();
+            std::tuple<int, int, int> accelerometerValues = getAccelerometerValues.get();
+            /*std::tuple<int, int, int> gyroValues = getGyroValues.get();*/
 
-                // 결과를 변수에 저장
-                buttonA = std::get<0>(buttonValues);
-                buttonB = std::get<1>(buttonValues);
-                buttonC = std::get<2>(buttonValues);
-                buttonD = std::get<3>(buttonValues);
+            // 결과를 변수에 저장
+            buttonA = std::get<0>(buttonValues);
+            buttonB = std::get<1>(buttonValues);
+            buttonC = std::get<2>(buttonValues);
+            buttonD = std::get<3>(buttonValues);
 
-                ax = std::get<0>(accelerometerValues);
-                ay = std::get<1>(accelerometerValues);
-                az = std::get<2>(accelerometerValues);
+            ax = std::get<0>(accelerometerValues);
+            ay = std::get<1>(accelerometerValues);
+            az = std::get<2>(accelerometerValues);
 
-                /*gx = std::get<0>(gyroValues);
-                gy = std::get<1>(gyroValues);
-                gz = std::get<2>(gyroValues);*/
-                Ba = buttonA, Bb = buttonB, Bc = buttonC, Bd = buttonD;
-                Bx = ax, By = ay;
+            /*gx = std::get<0>(gyroValues);
+            gy = std::get<1>(gyroValues);
+            gz = std::get<2>(gyroValues);*/
+            Ba = buttonA, Bb = buttonB, Bc = buttonC, Bd = buttonD;
+            Bx = ax, By = ay;
 
-                if (count == 31)
-                {
-
-                }
-                else if (count == 30)
-                {
-                    AvRx = SumRX / 20;
-                    AvRy = SumRY / 20;
-                    count++;
-                }
-                else if (count < 30 && count >= 10)
-                {
-                    SumRX += ax;
-                    SumRY += ay;
-                    count++;
-                }
-                else if (count < 10)
-                {
-                    count++;
-                }
+            if (count < 50)
+            {
+                count++;
+            }
+            else if (count < 70)
+            {
+                SumRX += ax;
+                SumRY += ay;
+                count++;
+            }
+            else if (count == 70)
+            {
+                AvRx = SumRX / 20;
+                AvRy = SumRY / 20;
+                count++;
+            }
+            else if (count == 71)
+            {
+                LOG_SCREEN("Set");
+                count++;
             }
         }
-        catch (const std::exception& e)
+        else
         {
-            UE_LOG(LogTemp, Error, TEXT("Failed, %s"), e.what());
+            // Handle error condition
+            UE_LOG(LogTemp, Error, TEXT("Failed to parse data or incorrect number of words."));
         }
     }
 }
@@ -200,16 +234,33 @@ void ADiveGameMode::ReadSerialData()
 void ADiveGameMode::GameClear()
 {
     LOG_SCREEN("GameClear");
+
     GetWorld()->ServerTravel("/Game/Maps/GameClear?listen");
+
+    DeleteSerial();
 }
 
 void ADiveGameMode::GameOver()
 {
     LOG_SCREEN("GameOver");
+
     if (StageManagerActor->bIsOnline)
     {
         GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
+
+        DeleteSerial();
+
         return;
     }
+
+    DeleteSerial();
+
     UGameplayStatics::OpenLevel(GetWorld(), "GameOver");
+}
+
+void ADiveGameMode::DeleteSerial()
+{
+    bIsReadingSerialData = false;
+
+    count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 }

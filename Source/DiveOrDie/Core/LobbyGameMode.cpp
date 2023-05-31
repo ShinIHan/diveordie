@@ -4,6 +4,7 @@
 #include "LobbyGameMode.h"
 
 #include "DiveGameInstance.h"
+#include "DiveOrDie/Core/DiveGameMode.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
@@ -14,7 +15,12 @@ void ALobbyGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+	bIsReadingSerialData = false;
+
+	count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, Bx = NULL, By = NULL;
+
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
+
 	if (DiveGameInstance)
 	{
 		iStage = DiveGameInstance->iStageNum;
