@@ -5,6 +5,7 @@
 
 #include "WarShip_Projectile.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DiveOrDie/InGame/Character/DiveCharacter.h"
 
 // Sets default values
 AWarShip::AWarShip()

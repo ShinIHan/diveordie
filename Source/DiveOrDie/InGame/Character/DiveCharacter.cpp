@@ -15,6 +15,7 @@
 #include "DiveOrDie/Core/DiveGameState.h"
 #include "DiveOrDie/InGame/Character/DiveCharacterAnimInstance.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
+#include "DiveOrDie/InGame/Object/WarShip.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -97,6 +98,12 @@ ADiveCharacter::ADiveCharacter()
 	if (DamageAsset.Succeeded())
 	{
 		DamageCue = DamageAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue> ShootAsset(TEXT("/Game/Sounds/Cannon_Cue.Cannon_Cue"));
+	if (ShootAsset.Succeeded())
+	{
+		ShootCue = ShootAsset.Object;
 	}
 
 	static ConstructorHelpers::FObjectFinder<USoundWave> GoldRingAsset(TEXT("/Game/Sounds/MP_Ding.MP_Ding"));
