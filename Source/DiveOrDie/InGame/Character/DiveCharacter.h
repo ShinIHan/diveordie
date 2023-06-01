@@ -32,6 +32,9 @@ public:
 
 	bool depthMove = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Swimming)
+	bool bIsUnderwater;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;

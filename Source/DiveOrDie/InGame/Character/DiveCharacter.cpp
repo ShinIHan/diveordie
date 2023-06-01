@@ -602,6 +602,11 @@ void ADiveCharacter::LookUpAtRate(float Rate)
 void ADiveCharacter::Jump()
 {
 	if (!_bOnMove) return;
+
+	if (bIsUnderwater)
+	{
+		return;
+	}
 	
 	Super::Jump();
 }
@@ -609,6 +614,11 @@ void ADiveCharacter::Jump()
 void ADiveCharacter::StopJumping()
 {
 	if (!_bOnMove) return;
+
+	if (bIsUnderwater)
+	{
+		return;
+	}
 	
 	Super::StopJumping();
 }
