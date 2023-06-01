@@ -33,11 +33,12 @@ void AGameOverMode::RetryGame()
 	if (_iRetrying >= _iPlayerCount)
 	{
 		//LOG_SCREEN("ReStart Game");	
-		UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
+		UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetGameInstance());
 		if (DiveGameInstance)
 		{
 			int iStage = DiveGameInstance->iStageNum;
 
+			LOG_SCREEN("Stage : %d", iStage);
 			if (DiveGameInstance->bIsOnline)
 			{
 				if (iStage == 1) GetWorld()->ServerTravel("/Game/Maps/Stage_1?listen");
@@ -47,7 +48,7 @@ void AGameOverMode::RetryGame()
 			}
 			if (iStage == 1) GetWorld()->ServerTravel("Stage_1");
 			else if (iStage == 2) GetWorld()->ServerTravel("Stage_2");
-			else if (iStage == 3) UGameplayStatics::OpenLevel(GetWorld(), "Stage_3");;
+			else if (iStage == 3) GetWorld()->ServerTravel("Stage_3");
 		}
 	}
 }

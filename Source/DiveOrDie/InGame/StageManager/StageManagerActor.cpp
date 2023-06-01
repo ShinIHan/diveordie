@@ -35,6 +35,7 @@ void AStageManagerActor::BeginPlay()
 	if (GameInstance)
 	{
 		bIsOnline = GameInstance->bIsOnline;
+		iStage = GameInstance->iStageNum;
 	}
 	
 }
