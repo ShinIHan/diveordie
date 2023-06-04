@@ -17,7 +17,7 @@ void ALobbyGameMode::BeginPlay()
 
 	bIsReadingSerialData = false;
 
-	count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, Bx = NULL, By = NULL;
+	AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, Bx = NULL, By = NULL;
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 

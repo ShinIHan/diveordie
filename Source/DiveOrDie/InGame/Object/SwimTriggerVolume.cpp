@@ -3,21 +3,24 @@
 
 #include "DiveOrDie/InGame/Object/SwimTriggerVolume.h"
 #include "DiveOrDie/InGame/Character/DiveCharacter.h"
+#include "Components/PrimitiveComponent.h"
 
 void ASwimTriggerVolume::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	ADiveCharacter* SwimCharacter = Cast<ADiveCharacter>(OtherActor);
-    if (SwimCharacter)
+    ADiveCharacter* Character = Cast<ADiveCharacter>(OtherActor);
+    if (Character)
     {
-        SwimCharacter->bIsUnderwater = true;
+        Character->bIsUnderwater = true;
+        LOG_SCREEN("Input");
     }
 }
 
 void ASwimTriggerVolume::NotifyActorEndOverlap(AActor* OtherActor)
 {
-    ADiveCharacter* SwimCharacter = Cast<ADiveCharacter>(OtherActor);
-    if (SwimCharacter)
+    ADiveCharacter* Character = Cast<ADiveCharacter>(OtherActor);
+    if (Character)
     {
-        SwimCharacter->bIsUnderwater = false;
+        Character->bIsUnderwater = false;
+        LOG_SCREEN("Output");
     }
 }

@@ -16,6 +16,7 @@
 #include "DiveOrDie/InGame/Character/DiveCharacterAnimInstance.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
 #include "DiveOrDie/InGame/Object/WarShip.h"
+#include "DiveOrDie/InGame/Object/SwimTriggerVolume.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -133,6 +134,9 @@ ADiveCharacter::ADiveCharacter()
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
 	AudioComponent->SetupAttachment(GetMesh());
+
+	bIsUnderwater = false;
+	_bOnShield = false;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -230,26 +234,6 @@ void ADiveCharacter::Interaction()
 		FCollisionShape::MakeSphere(50.0f),
 		Params);
 
-// #if ENABLE_DRAW_DEBUG
-//
-// 	FVector TraceVec = GetActorForwardVector() * 500.0f;
-// 	FVector Center = GetActorLocation() + TraceVec * 0.5f;
-// 	float HalfHeight = 500.0f * 0.5f + 50.0f;
-// 	FQuat CapsuleRot = FRotationMatrix::MakeFromZ(TraceVec).ToQuat();
-// 	FColor DrawColor = bResult ? FColor::Green :FColor::Red;
-// 	float DebugLifeTime = 5.0f;
-//
-// 	DrawDebugCapsule(GetWorld(),
-// 		Center,
-// 		HalfHeight,
-// 		50.0f,
-// 		CapsuleRot,
-// 		DrawColor,
-// 		false,
-// 		DebugLifeTime);
-//
-// #endif
-
 	if (bResult)
 	{
 		for (auto Hit : HitResults)
@@ -275,6 +259,8 @@ void ADiveCharacter::OxygenConsume()
 		_fCurrentOxygen = FMath::Clamp(_fCurrentOxygen + 50.0f, 0.0f, _fMaxOxygen);
 		return;
 	}
+
+	if (_bOnShield) return;
 
 	if (_fCurrentOxygen - 10.f <= 0.f)
 	{
@@ -337,6 +323,8 @@ void ADiveCharacter::UpdateScore(int Points)
 
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
+	if (_bOnShield) return;
+
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 
 	if(damage == 25.f)
@@ -404,11 +392,24 @@ void ADiveCharacter::Heal(float amount)
 	}
 }
 
+void ADiveCharacter::Unbeatable()
+{
+	_bOnShield = true;
+
+	GetWorld()->GetTimerManager().SetTimer(ShieldTimer, this, &ADiveCharacter::beatable, 10, false);
+}
+
+void ADiveCharacter::beatable()
+{
+	_bOnShield = false;
+}
+
 void ADiveCharacter::Restraint(float time)
 {
+	if (_bOnShield) return;
+
 	if (_bOnRestraint) return;
 
-	//LOG_SCREEN("Restraint!");
 	_bOnRestraint = true;
 	DiveCharacterAnim->bOnNet = true;
 
@@ -424,7 +425,6 @@ void ADiveCharacter::RestraintEnd()
 	_bOnRestraint = false;
 	DiveCharacterAnim->bOnNet = false;
 	GetWorld()->GetTimerManager().ClearTimer(RestraintTimer);
-	//LOG_SCREEN("Restraint End!");
 	SetEnableInput();
 }
 
@@ -440,6 +440,8 @@ bool ADiveCharacter::GetRestraint()
 
 void ADiveCharacter::Stern(float time)
 {
+	if (_bOnShield) return;
+
 	if (_bOnStern) return;
 
 	//LOG_SCREEN("Stern!");
@@ -479,6 +481,8 @@ void ADiveCharacter::SternEnd()
 
 void ADiveCharacter::SlowDown(float time)
 {
+	if (_bOnShield) return;
+
 	if (_bOnSlowDown) return;
 
 	//LOG_SCREEN("SlowDown!");
@@ -601,24 +605,18 @@ void ADiveCharacter::LookUpAtRate(float Rate)
 
 void ADiveCharacter::Jump()
 {
-	if (!_bOnMove) return;
+	if (bIsUnderwater)	return;
 
-	if (bIsUnderwater)
-	{
-		return;
-	}
+	if (!_bOnMove) return;
 	
 	Super::Jump();
 }
 
 void ADiveCharacter::StopJumping()
 {
-	if (!_bOnMove) return;
+	if (bIsUnderwater)	return;
 
-	if (bIsUnderwater)
-	{
-		return;
-	}
+	if (!_bOnMove) return;
 	
 	Super::StopJumping();
 }
@@ -682,7 +680,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 	}
 
 
-	if (count == 72 && Bx != NULL && By != NULL)
+	if (AVcount == 72 && Bx != NULL && By != NULL)
 	{
 		if (Ba == 0)
 		{

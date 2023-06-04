@@ -3,35 +3,28 @@
 #pragma once
 
 #include "../game.h"
+#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GameFramework/RotatingMovementComponent.h"
-#include "GoldRing.generated.h"
+#include "Shield.generated.h"
 
 UCLASS()
-class GAME_API AGoldRing : public AActor
+class GAME_API AShield : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AGoldRing();
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int PointValue = 10;
+	AShield();
 
 	UPROPERTY(EditAnywhere)
-	UCapsuleComponent* capsule;
+	UCapsuleComponent* shieldcapsule;
 
 	UPROPERTY(EditAnywhere)
-	URotatingMovementComponent* movement;
+	UStaticMeshComponent* shieldmesh;
 
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* mesh;
-	
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,5 +32,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };

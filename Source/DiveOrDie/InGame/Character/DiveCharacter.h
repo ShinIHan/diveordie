@@ -32,8 +32,8 @@ public:
 
 	bool depthMove = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Swimming)
-	bool bIsUnderwater;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bIsUnderwater = false;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
@@ -159,6 +159,10 @@ public:
 
 	void Heal(float amount);
 
+	void Unbeatable();
+
+	void beatable();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FVector _WaterBodyPos; 
@@ -202,6 +206,12 @@ private:
 	bool _bOnStern = false;
 
 	FTimerHandle SternTimer;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	bool _bOnShield = false;
+
+	FTimerHandle ShieldTimer;
 
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))

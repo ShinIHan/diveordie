@@ -22,7 +22,7 @@ extern int SumRX;
 extern int SumRY;
 extern float AvRx;
 extern float AvRy;
-extern int count;
+extern int AVcount;
 extern int Ba;
 extern int Bb;
 extern int Bc;

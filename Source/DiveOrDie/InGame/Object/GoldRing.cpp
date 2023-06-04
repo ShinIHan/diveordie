@@ -32,8 +32,7 @@ AGoldRing::AGoldRing()
 	    mesh->SetStaticMesh(GOLDENRING_MESH.Object);
     }
 
-	capsule->OnComponentBeginOverlap.AddDynamic(this, &AGoldRing::OnOverlapBegin);
-	
+	capsule->OnComponentBeginOverlap.AddDynamic(this, &AGoldRing::OnOverlapBegin);	
 }
 
 void AGoldRing::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -45,14 +44,9 @@ void AGoldRing::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 	{
 		character->Heal(PointValue);
 		character->UpdateScore(PointValue);
-		//USoundBase* Sound = LoadObject<USoundBase>(nullptr, TEXT("/Game/Sounds/MP_Ding.MP_Ding"));
-		//FVector SoundLocation = GetActorLocation();
-		//UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
-		//UGameplayStatics::PlaySound2D(this, Sound, 1, 1, 0);
 		Destroy();
 	}
 }
-
 
 // Called when the game starts or when spawned
 void AGoldRing::BeginPlay()
@@ -65,6 +59,5 @@ void AGoldRing::BeginPlay()
 void AGoldRing::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 

@@ -24,7 +24,7 @@ int SumRX = 0;
 int SumRY = 0;
 float AvRx = 0.f;
 float AvRy = 0.f;
-int count = 0;
+int AVcount = 0;
 int Ba = 0;
 int Bb = 0;
 int Bc = 0;
@@ -86,7 +86,7 @@ void ADiveGameMode::BeginPlay()
         {
             LOG_SCREEN("Serial");
 
-            count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+            AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 
             bIsReadingSerialData = true;
 
@@ -109,7 +109,7 @@ void ADiveGameMode::BeginPlay()
 
             _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
 
-            count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+            AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 
             bIsReadingSerialData = true;
 
@@ -201,26 +201,26 @@ void ADiveGameMode::ReadSerialData()
             Ba = buttonA, Bb = buttonB, Bc = buttonC, Bd = buttonD;
             Bx = ax, By = ay;
 
-            if (count < 50)
+            if (AVcount < 50)
             {
-                count++;
+                AVcount++;
             }
-            else if (count < 70)
+            else if (AVcount < 70)
             {
                 SumRX += ax;
                 SumRY += ay;
-                count++;
+                AVcount++;
             }
-            else if (count == 70)
+            else if (AVcount == 70)
             {
                 AvRx = SumRX / 20;
                 AvRy = SumRY / 20;
-                count++;
+                AVcount++;
             }
-            else if (count == 71)
+            else if (AVcount == 71)
             {
                 LOG_SCREEN("Set");
-                count++;
+                AVcount++;
             }
         }
         else
@@ -262,5 +262,5 @@ void ADiveGameMode::DeleteSerial()
 {
     bIsReadingSerialData = false;
 
-    count = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+    AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 }
