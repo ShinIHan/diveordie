@@ -12,8 +12,8 @@ AShield::AShield()
 
 	shieldcapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ShieldCapsule"));
 	RootComponent = shieldcapsule;
-	shieldcapsule->SetCapsuleHalfHeight(110);
-	shieldcapsule->SetCapsuleRadius(80);
+	shieldcapsule->SetCapsuleHalfHeight(130);
+	shieldcapsule->SetCapsuleRadius(100);
 
 	shieldmesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldStaticMesh"));
 	shieldmesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -23,7 +23,7 @@ AShield::AShield()
 
 	shieldmesh->OnComponentHit.Add(shielddele);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> SHIELD_MESH(TEXT("/Game/Meshes/goldring.goldring"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SHIELD_MESH(TEXT("/Game/Meshes/Shield.Shield"));
 	if (SHIELD_MESH.Succeeded())
 	{
 		shieldmesh->SetStaticMesh(SHIELD_MESH.Object);
