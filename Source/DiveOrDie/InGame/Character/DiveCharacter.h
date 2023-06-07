@@ -140,7 +140,13 @@ private:
 	USoundWave* GoldRingWave;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	USoundWave* DieCharcterWave;
+	USoundWave* DieCharcterWave;;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UStaticMeshComponent* ShieldMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UMaterialInstanceDynamic* ShieldInstance;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -162,6 +168,8 @@ public:
 	void Unbeatable();
 
 	void beatable();
+
+	void UpdateShieldPos();
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))

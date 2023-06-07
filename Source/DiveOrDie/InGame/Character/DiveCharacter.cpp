@@ -23,6 +23,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 // Sets default values
@@ -57,6 +58,9 @@ ADiveCharacter::ADiveCharacter()
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
 	GetCharacterMovement()->JumpOutOfWaterPitch = -1.0f;
+
+	ShieldMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldMeshComponent"));
+	ShieldMeshComponent->SetupAttachment(GetMesh());
 	
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SOLDIER_SK(TEXT("/Game/Meshes/Soldier/Soldier_T_Pose_.Soldier_T_Pose_"));
     if (SOLDIER_SK.Succeeded())
@@ -129,6 +133,16 @@ ADiveCharacter::ADiveCharacter()
 	if (LightingSystemAsset.Succeeded())
 	{
 		LightingSystem = LightingSystemAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UMaterialInstance> ShieldInstanceAsset(TEXT("/Game/VFX/MT_EnergeyShield_Inst.MT_EnergeyShield_Inst"));
+	if (ShieldInstanceAsset.Succeeded())
+	{
+		ShieldInstance = UMaterialInstanceDynamic::Create(ShieldInstanceAsset.Object, nullptr);
+		if (ShieldMeshComponent)
+		{
+			ShieldMeshComponent->SetMaterial(0, ShieldInstance);
+		}
 	}
 
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
@@ -404,6 +418,12 @@ void ADiveCharacter::beatable()
 	_bOnShield = false;
 }
 
+void ADiveCharacter::UpdateShieldPos()
+{
+	FVector CharacterLocation = GetActorLocation();
+	ShieldMeshComponent->SetWorldLocation(CharacterLocation);
+}
+
 void ADiveCharacter::Restraint(float time)
 {
 	if (_bOnShield) return;
@@ -644,6 +664,18 @@ void ADiveCharacter::DieEnd()
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (_bOnShield == true)
+	{
+		UpdateShieldPos();
+	}
+	else
+	{
+		if (ShieldMeshComponent && ShieldInstance)
+		{
+			ShieldMeshComponent->SetMaterial(0, nullptr);
+		}
+	}
 
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;

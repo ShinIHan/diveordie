@@ -12,8 +12,8 @@ AShield::AShield()
 
 	shieldcapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ShieldCapsule"));
 	RootComponent = shieldcapsule;
-	shieldcapsule->SetCapsuleHalfHeight(130);
-	shieldcapsule->SetCapsuleRadius(100);
+	shieldcapsule->SetCapsuleHalfHeight(260);
+	shieldcapsule->SetCapsuleRadius(200);
 
 	shieldmesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldStaticMesh"));
 	shieldmesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
