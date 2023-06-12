@@ -42,12 +42,15 @@ void UDiveCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if (Character->GetCharacterMovement()->IsSwimming())
 			bOnSwim = true;
 		else
-			bOnSwim = false;
-		
+		{
+			if (Character->bIsUnderwater == true)	{	}
+			else
+				bOnSwim = false;
+		}
+	
 		bOnJump = Character->GetMovementComponent()->IsFalling();
 
 		direction = CalculateDirection(Character->GetVelocity(), Character->GetActorRotation());
-		speed = Character->GetVelocity().Size();
-		
+		speed = Character->GetVelocity().Size();		
 	}
 }
