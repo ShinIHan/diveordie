@@ -277,6 +277,9 @@ void ADiveCharacter::OxygenConsume()
 
 void ADiveCharacter::StartSwim(FVector waterBodyPos)
 {
+	bIsUnderwater = true;
+	bCanJump = false;
+
 	_WaterBodyPos = waterBodyPos;
 	
 	AudioComponent->SetSound(SwimCue);
