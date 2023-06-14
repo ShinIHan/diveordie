@@ -23,12 +23,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 
 // Sets default values
 ADiveCharacter::ADiveCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, -90.0f), FRotator(0.0f, -90.0f, 0.0f));
@@ -137,6 +137,7 @@ ADiveCharacter::ADiveCharacter()
 
 	bIsUnderwater = false;
 	_bOnShield = false;
+	bCanJump = true;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -148,8 +149,7 @@ void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 
 void ADiveCharacter::PossessedBy(AController* NewController)
 {
-	Super::PossessedBy(NewController);
-	
+	Super::PossessedBy(NewController);	
 }
 
 void ADiveCharacter::UnPossessed()
@@ -200,7 +200,6 @@ void ADiveCharacter::GamePause()
 	{
 		if (!GameInstance->bIsOnline)
 		{
-			//LOG_SCREEN("Pause Game");
 			if (PauseMenu_WGBP) PauseMenu_WG = CreateWidget(GetWorld(), PauseMenu_WGBP);
 			
 			if (PauseMenu_WG)
@@ -243,7 +242,6 @@ void ADiveCharacter::Interaction()
 				FDamageEvent DamageEvent;
 				ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(Hit.GetActor());
 				if (!DiveCharacter) continue;
-				//LOG_SCREEN("Trace Character : %s", *DiveCharacter->GetName());
 
 				ServerRestraintEnd(DiveCharacter);
 			}
@@ -279,6 +277,9 @@ void ADiveCharacter::OxygenConsume()
 
 void ADiveCharacter::StartSwim(FVector waterBodyPos)
 {
+	bIsUnderwater = true;
+	bCanJump = false;
+
 	_WaterBodyPos = waterBodyPos;
 	
 	AudioComponent->SetSound(SwimCue);
@@ -319,7 +320,6 @@ void ADiveCharacter::UpdateScore(int Points)
 		Points = 0;
 	}
 }
-
 
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
@@ -474,8 +474,6 @@ void ADiveCharacter::SternEnd()
 	_bOnStern = false;
 	DiveCharacterAnim->bOnJelly = false;
 
-	//LOG_SCREEN("Stern End!");
-
 	SetEnableInput();
 }
 
@@ -485,7 +483,6 @@ void ADiveCharacter::SlowDown(float time)
 
 	if (_bOnSlowDown) return;
 
-	//LOG_SCREEN("SlowDown!");
 	_bOnSlowDown = true;
 
 	GetCharacterMovement()->MaxSwimSpeed *= 0.5f;
@@ -497,8 +494,6 @@ void ADiveCharacter::SlowDown(float time)
 void ADiveCharacter::SlowDownEnd()
 {
 	_bOnSlowDown = false;
-
-	//LOG_SCREEN("SlowDown End!");
 	
 	GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 	GetCharacterMovement()->MaxWalkSpeed *= 2.0f;
@@ -509,7 +504,6 @@ void ADiveCharacter::OnRep_Restraint()
 	RestraintEnd();
 }
 
-// Called when the game starts or when spawned
 void ADiveCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -605,17 +599,16 @@ void ADiveCharacter::LookUpAtRate(float Rate)
 
 void ADiveCharacter::Jump()
 {
-	if (bIsUnderwater)	return;
-
-	if (!_bOnMove) return;
+	if (!_bOnMove || !bCanJump) return;
 	
-	Super::Jump();
+	if (bIsUnderwater == false)
+	{
+		Super::Jump();
+	}
 }
 
 void ADiveCharacter::StopJumping()
 {
-	if (bIsUnderwater)	return;
-
 	if (!_bOnMove) return;
 	
 	Super::StopJumping();
@@ -640,7 +633,6 @@ void ADiveCharacter::DieEnd()
 	Destroy();
 }
 
-// Called every frame
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -657,15 +649,10 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (DiveCharacterAnim->bOnNet == true)
-		{
-
-		}
+		if (DiveCharacterAnim->bOnNet == true)	{	}
 		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 		{
-			if (GetCharacterMovement()->IsMovingOnGround())
-			{
-			}
+			if (GetCharacterMovement()->IsMovingOnGround())	{	}
 			else
 			{
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
@@ -673,12 +660,18 @@ void ADiveCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+			if (GetCharacterMovement()->IsMovingOnGround())	{	}
+			else
+			{
+				if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
+				{
+					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+				}
+			}		
 		}
 
 		depthMove = true;
 	}
-
 
 	if (AVcount == 72 && Bx != NULL && By != NULL)
 	{
@@ -724,10 +717,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			{
 				if (Ba == 0 || Bb == 0 || Bc == 0 || Bd == 0)
 				{
-					if (GetCharacterMovement()->IsMovingOnGround())
-					{
-
-					}
+					if (GetCharacterMovement()->IsMovingOnGround())	{	}
 					else
 					{
 						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
@@ -736,8 +726,15 @@ void ADiveCharacter::Tick(float DeltaTime)
 				}
 				else
 				{
-					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
-					depthMove = true;
+					if (GetCharacterMovement()->IsMovingOnGround())	{	}
+					else
+					{
+						if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
+						{
+							GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+							depthMove = true;
+						}
+					}
 				}
 			}
 		}
@@ -747,7 +744,6 @@ void ADiveCharacter::Tick(float DeltaTime)
 	depthMove = false;
 }
 
-// Called to bind functionality to input
 void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);

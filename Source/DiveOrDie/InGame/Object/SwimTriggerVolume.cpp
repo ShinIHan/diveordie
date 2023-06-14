@@ -11,7 +11,9 @@ void ASwimTriggerVolume::NotifyActorBeginOverlap(AActor* OtherActor)
     if (Character)
     {
         Character->bIsUnderwater = true;
-        LOG_SCREEN("Input");
+        Character->GetCharacterMovement()->StopMovementImmediately();
+        Character->bCanJump = false;
+        //LOG_SCREEN("Input");
     }
 }
 
@@ -21,6 +23,7 @@ void ASwimTriggerVolume::NotifyActorEndOverlap(AActor* OtherActor)
     if (Character)
     {
         Character->bIsUnderwater = false;
-        LOG_SCREEN("Output");
+        Character->bCanJump = true;
+        //LOG_SCREEN("Output");
     }
 }

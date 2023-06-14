@@ -12,8 +12,8 @@ AShield::AShield()
 
 	shieldcapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("ShieldCapsule"));
 	RootComponent = shieldcapsule;
-	shieldcapsule->SetCapsuleHalfHeight(130);
-	shieldcapsule->SetCapsuleRadius(100);
+	shieldcapsule->SetCapsuleHalfHeight(260);
+	shieldcapsule->SetCapsuleRadius(200);
 
 	shieldmesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ShieldStaticMesh"));
 	shieldmesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
@@ -35,12 +35,12 @@ AShield::AShield()
 void AShield::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//LOG_SCREEN("Overlap Shield");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
-		Destroy();
+		LOG_SCREEN("Overlap Shield");
 		character->Unbeatable();
+		Destroy();	
 	}
 }
 

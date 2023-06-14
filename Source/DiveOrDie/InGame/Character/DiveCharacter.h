@@ -17,7 +17,6 @@ class GAME_API ADiveCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ADiveCharacter();
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -32,8 +31,11 @@ public:
 
 	bool depthMove = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bIsUnderwater = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bCanJump = true;
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
@@ -42,8 +44,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanTurn = true;
 	
+
 public:
-	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
 
@@ -63,6 +65,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	float GetCurrentOxygen();
+
 
 private:
 	void GamePause();
@@ -140,7 +143,8 @@ private:
 	USoundWave* GoldRingWave;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
-	USoundWave* DieCharcterWave;
+	USoundWave* DieCharcterWave;;
+
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -163,6 +167,7 @@ public:
 
 	void beatable();
 
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FVector _WaterBodyPos; 
@@ -171,9 +176,7 @@ private:
 	int _iDepth = 0;
 
 	
-	// ----------------------- CCÍ∏?----------------------- //
 public:
-	// ?çÎ∞ï
 	void Restraint(float time);
 	void RestraintEnd();
 
@@ -182,15 +185,12 @@ public:
 
 	bool GetRestraint();
 		
-	// Í∏∞Ï†à
 	void Stern(float time);
-
 	void SternEnd();
 
-	// ?îÌôî
 	void SlowDown(float time);
-
 	void SlowDownEnd();
+
 
 private:
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_Restraint, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
@@ -213,15 +213,17 @@ private:
 
 	FTimerHandle ShieldTimer;
 
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool _bOnSlowDown = false;
 
 	FTimerHandle SlowDownTimer;
 
+
 	UPROPERTY()
 	class UDiveCharacterAnimInstance* DiveCharacterAnim;
 	
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 	class USpringArmComponent* CameraBoom;
@@ -229,8 +231,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 	class UCameraComponent* FollowCamera;
 
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	virtual void PostInitializeComponents() override;
@@ -259,11 +261,9 @@ protected:
 
 	void DieEnd();
 
+
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
 };
