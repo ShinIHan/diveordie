@@ -5,10 +5,10 @@
 #include "SessionsManager.h"
 
 
-#define DB_ADDRESS      "root.cibcw33jkwvz.us-east-2.rds.amazonaws.com"
+#define DB_ADDRESS      "mygame.cvwu4vep08cv.us-east-2.rds.amazonaws.com"
 #define DB_PORT         3306
 #define DB_ID           "admin"
-#define DB_PW           "admin1092"
+#define DB_PW           "ohsoo0015$"
 
 enum EPacketType
 {
