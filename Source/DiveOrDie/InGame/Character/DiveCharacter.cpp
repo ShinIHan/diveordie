@@ -130,6 +130,25 @@ ADiveCharacter::ADiveCharacter()
 	{
 		LightingSystem = LightingSystemAsset.Object;
 	}
+	SphereMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMeshAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+	if (SphereMeshAsset.Succeeded())
+	{
+		SphereMeshComponent->SetStaticMesh(SphereMeshAsset.Object);
+	}
+	SphereMeshComponent->SetWorldScale3D(FVector(2.f, 2.f, 2.f));
+	SphereMeshComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
+	SphereMeshComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform);
+
+	static ConstructorHelpers::FObjectFinder<UMaterial> MAT(TEXT("/Game/VFX/MT_EnergeyShield.MT_EnergeyShield"));
+	if (MAT.Succeeded())
+	{
+		m_Dynamic = (UMaterial*)MAT.Object;
+	}
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
+	DissolveInterpFunction.BindUFunction(this, FName("DissolveInterpReturn"));
+	DissolveTimelineFinish.BindUFunction(this, FName("DissolveFinish"));
 
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
@@ -396,12 +415,44 @@ void ADiveCharacter::Unbeatable()
 {
 	_bOnShield = true;
 
+	if (MaterialInstance)
+	{
+		SphereMeshComponent->SetMaterial(0, MaterialInstance);
+		DissolveTimeline->Play();
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(ShieldTimer, this, &ADiveCharacter::beatable, 10, false);
 }
 
 void ADiveCharacter::beatable()
 {
 	_bOnShield = false;
+}
+void ADiveCharacter::DissolveInterpReturn(float Value)
+{
+	if (MaterialInstance)
+	{
+		MaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), Value);
+
+		float DissolveAmountValue;
+		MaterialInstance->GetScalarParameterValue(TEXT("DissolveAmount"), DissolveAmountValue);
+		LOG_SCREEN("DissolveAmount: %f", DissolveAmountValue);
+
+	}
+}
+
+void ADiveCharacter::DissolveFinish()
+{
+}
+
+void ADiveCharacter::TimelineSetting()
+{
+	if (DissolveCurveFloat)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurveFloat, DissolveInterpFunction);
+		DissolveTimeline->SetTimelineFinishedFunc(DissolveTimelineFinish);
+		DissolveTimeline->SetLooping(false);
+	}
 }
 
 void ADiveCharacter::Restraint(float time)
@@ -507,6 +558,16 @@ void ADiveCharacter::OnRep_Restraint()
 void ADiveCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (m_Dynamic)
+	{
+		MaterialInstance = UMaterialInstanceDynamic::Create(m_Dynamic, this);
+	}
+	if (MaterialInstance)
+	{
+		SphereMeshComponent->SetMaterial(0, MaterialInstance);
+		MaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), 3.f);
+	}
+	TimelineSetting();
 }
 
 void ADiveCharacter::PostInitializeComponents()
