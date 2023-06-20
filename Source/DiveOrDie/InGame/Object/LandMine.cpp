@@ -23,7 +23,7 @@ ALandMine::ALandMine()
 
 	mesh->SetRelativeLocation(FVector(0.0f, 0.0f, -30.0f));
 	
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> MINE_MESH(TEXT("/Game/Meshes/landmine.landmine"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> MINE_MESH(TEXT("/Game/Meshes/LandMine.LandMine"));
 	if (MINE_MESH.Succeeded())
 	{
 		mesh->SetStaticMesh(MINE_MESH.Object);
