@@ -56,8 +56,24 @@ void AMegalodon::Tick(float DeltaTime)
 	FVector CurrentLocation = GetActorLocation();
 	FVector NewLocation = CurrentLocation;
 
-	NewLocation.Y += 50.f;
+    float ArcHeight = 20.f; 
+    float ArcDuration = 2.f; 
+
+    float TimeElapsed = GetWorld()->GetTimeSeconds(); 
+    float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight); 
+
+	NewLocation.Y += 25.f;
+    NewLocation.Z += ZOffset;
 
 	SetActorLocation(NewLocation);
+
+	FVector Direction = NewLocation - CurrentLocation;
+	FRotator NewRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
+	
+	NewRotation.Yaw -= 90.f;
+	NewRotation.Pitch = 0.f;
+	NewRotation.Roll = 0.f;
+	
+	SetActorRotation(NewRotation);
 }
 
