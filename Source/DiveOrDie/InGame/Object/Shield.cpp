@@ -54,5 +54,12 @@ void AShield::BeginPlay()
 void AShield::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	float RotationSpeed = 20.0f;
+
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator NewRotation = FRotator(CurrentRotation.Pitch, CurrentRotation.Yaw + RotationSpeed * DeltaTime, CurrentRotation.Roll);
+
+	SetActorRotation(NewRotation);
 }
 
