@@ -57,13 +57,14 @@ ADiveCharacter::ADiveCharacter()
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
 	GetCharacterMovement()->JumpOutOfWaterPitch = -1.0f;
-	
+
+	//Character Mesh File
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SOLDIER_SK(TEXT("/Game/Meshes/Soldier/Soldier_T_Pose_.Soldier_T_Pose_"));
     if (SOLDIER_SK.Succeeded())
     {
 	    GetMesh()->SetSkeletalMesh(SOLDIER_SK.Object);
     }
-
+	//Character Mesh Animation
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	static ConstructorHelpers::FClassFinder<UAnimInstance> SOLDIER_ANIM(TEXT("/Game/Blueprints/DiveCharacterAnimBP.DiveCharacterAnimBP_C"));
 	if (SOLDIER_ANIM.Succeeded())
@@ -71,6 +72,7 @@ ADiveCharacter::ADiveCharacter()
 		GetMesh()->SetAnimInstanceClass(SOLDIER_ANIM.Class);
 	}
 
+	//HUD
 	static ConstructorHelpers::FClassFinder<UDiveCharacterWidget> CHARACTER_WG(TEXT("/Game/Blueprints/HUD_Main.HUD_Main_C"));
     if (CHARACTER_WG.Succeeded())
     {
@@ -83,6 +85,7 @@ ADiveCharacter::ADiveCharacter()
 		PauseMenu_WGBP = PAUSEMENU_WG.Class;
 	}	
 
+	//Audio
 	static ConstructorHelpers::FObjectFinder<USoundCue> SwimAsset(TEXT("/Game/Sounds/Swimming_Cue.Swimming_Cue"));
 	if (SwimAsset.Succeeded())
 	{
@@ -100,7 +103,7 @@ ADiveCharacter::ADiveCharacter()
 	{
 		DamageCue = DamageAsset.Object;
 	}
-
+	
 	static ConstructorHelpers::FObjectFinder<USoundCue> ShootAsset(TEXT("/Game/Sounds/Cannon_Cue.Cannon_Cue"));
 	if (ShootAsset.Succeeded())
 	{
@@ -119,6 +122,7 @@ ADiveCharacter::ADiveCharacter()
 		DieCharcterWave = DieCharcterAsset.Object;
 	}
 
+	//VFX
 	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> ExplosionSystemAsset(TEXT("/Game/VFX/explosion.explosion"));
 	if (ExplosionSystemAsset.Succeeded())
 	{
@@ -130,6 +134,8 @@ ADiveCharacter::ADiveCharacter()
 	{
 		LightingSystem = LightingSystemAsset.Object;
 	}
+
+	//Shield Material Sphere
 	SphereMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMeshAsset(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
 	if (SphereMeshAsset.Succeeded())
@@ -140,16 +146,30 @@ ADiveCharacter::ADiveCharacter()
 	SphereMeshComponent->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	SphereMeshComponent->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform);
 
+	//Shield Material
 	static ConstructorHelpers::FObjectFinder<UMaterial> MAT(TEXT("/Game/VFX/MT_EnergeyShield.MT_EnergeyShield"));
 	if (MAT.Succeeded())
 	{
 		m_Dynamic = (UMaterial*)MAT.Object;
 	}
 
+	//Niagara System - Bubble Effect
+	CharacterNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("CharacterNiagaraComponent"));
+	CharacterNiagaraComponent->SetupAttachment(RootComponent);
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> NiagaraSystemAsset(TEXT("/Game/VFX/FX_Bubble_2.FX_Bubble_2"));
+	if (NiagaraSystemAsset.Succeeded())
+	{
+		UNiagaraSystem* FX_BubbleSystem = NiagaraSystemAsset.Object;
+		CharacterNiagaraComponent->SetAsset(FX_BubbleSystem);
+
+		CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsUnderwater);
+	}
+	//Shield Material Dissolve Amount Timeline
 	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
 	DissolveInterpFunction.BindUFunction(this, FName("DissolveInterpReturn"));
 	DissolveTimelineFinish.BindUFunction(this, FName("DissolveFinish"));
 
+	//AudioComponent
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	AudioComponent->bAutoActivate = false;
 	AudioComponent->SetupAttachment(GetMesh());
@@ -352,7 +372,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	}
 	else if (damage == 150.f)
 	{
-		UNiagaraSystem* NiagaraSystemAsset = ExplosionSystem; // 액터1에 대한 파티클 시스템의 경로와 파일명을 지정해야 합니다.
+		UNiagaraSystem* NiagaraSystemAsset = ExplosionSystem; 
 		if (NiagaraSystemAsset)
 		{
 			NiagaraSystem2 = NewObject<UNiagaraComponent>(this);
@@ -436,8 +456,6 @@ void ADiveCharacter::DissolveInterpReturn(float Value)
 
 		float DissolveAmountValue;
 		MaterialInstance->GetScalarParameterValue(TEXT("DissolveAmount"), DissolveAmountValue);
-		LOG_SCREEN("DissolveAmount: %f", DissolveAmountValue);
-
 	}
 }
 
@@ -803,6 +821,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	Bx = NULL, By = NULL;
 	depthMove = false;
+
+	CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsUnderwater);
 }
 
 void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
