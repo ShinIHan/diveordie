@@ -366,7 +366,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 
-	if(damage == 25.f)
+	if(damage == 25.f || damage == 10.f)
 	{
 		SetOnFishTrue();
 	}

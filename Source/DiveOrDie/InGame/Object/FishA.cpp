@@ -25,8 +25,8 @@ AFishA::AFishA()
 			UStaticMeshComponent* Fish_A = FishAMesh[i];
 			
 			Fish_A->SetStaticMesh(FISHA_MESH.Object);
-			Fish_A->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  
-			Fish_A->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block); 
+			Fish_A->SetCollisionProfileName("OverlapAllDynamic");
+			Fish_A->SetRelativeScale3D(FVector(0.3f, 0.3f, 0.3f));
 
 			if (Fish_A == RootComponent)
 			{
@@ -45,6 +45,14 @@ void AFishA::BeginPlay()
 	Super::BeginPlay();	
 
 	FishAInitialLocation = GetActorLocation();
+
+	for (auto& MeshComponent : FishAMesh)
+	{
+		MeshComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		MeshComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+		MeshComponent->SetGenerateOverlapEvents(true);
+		MeshComponent->OnComponentBeginOverlap.AddDynamic(this, &AFishA::OnOverlapBegin);
+	}
 }
 
 void AFishA::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -64,7 +72,24 @@ void AFishA::Tick(float DeltaTime)
 	FVector CurrentLocation = GetActorLocation();
 	FVector NewLocation = CurrentLocation;
 
-	NewLocation.Y += 10.f;
+	float DeltaX = FMath::Sin(GetGameTimeSinceCreation()) * 400.f;
+	float DeltaZ = FMath::Sin(GetGameTimeSinceCreation() * 2.f) * 100.f;
+
+	NewLocation.X = FMath::Lerp(CurrentLocation.X, FishAInitialLocation.X + DeltaX, DeltaTime * 2.f); 
+	NewLocation.Y += 20.f;
+	NewLocation.Z = FishAInitialLocation.Z + DeltaZ;
 
 	SetActorLocation(NewLocation);
+
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator NewRotation = CurrentRotation;
+
+	FVector Direction = NewLocation - CurrentLocation;
+	Direction.Normalize();
+
+	FRotator TargetRotation = Direction.Rotation();
+	NewRotation.Yaw = FMath::Lerp(CurrentRotation.Yaw, TargetRotation.Yaw - 90.f, DeltaTime * 2.f); 
+	NewRotation.Roll = FMath::Lerp(CurrentRotation.Roll, TargetRotation.Roll, DeltaTime * 2.f);
+
+	SetActorRotation(NewRotation);
 }
