@@ -38,7 +38,6 @@ void AShield::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
-		LOG_SCREEN("Overlap Shield");
 		character->Unbeatable();
 		Destroy();	
 	}
