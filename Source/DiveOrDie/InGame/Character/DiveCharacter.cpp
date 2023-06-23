@@ -310,7 +310,8 @@ void ADiveCharacter::OxygenConsume()
 
 	if (_fCurrentOxygen <= 0.0f)
 	{
-		ReceiveAnyDamage(300.0f);
+		_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+		Die();
 	}
 }
 
@@ -357,6 +358,26 @@ void ADiveCharacter::UpdateScore(int Points)
 		FVector SoundLocation = GetActorLocation();
 		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 		Points = 0;
+	}
+}
+
+void ADiveCharacter::ReceiveOxygenDamage(float damage)
+{
+	if (_bOnShield) return;
+
+	if (_fCurrentOxygen - damage <= 0.f)
+	{
+		_fCurrentOxygen = 0;
+	}
+	else
+	{
+		_fCurrentOxygen -= damage;
+	}
+
+	if (_fCurrentOxygen <= 0.0f)
+	{
+		_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+		Die();
 	}
 }
 
@@ -415,6 +436,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 	if (_fCurrentHp <= 0.0f)
 	{
+		_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
 		Die();
 	}
 }

@@ -149,22 +149,22 @@ private:
 	USoundWave* DieCharcterWave;;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Energy Shield", meta = (AllowPrivateAccess = true))
-		UStaticMeshComponent* SphereMeshComponent;
+	UStaticMeshComponent* SphereMeshComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Energy Shield", meta = (AllowPrivateAccess = true))
-		UMaterialInterface* m_Dynamic;
+	UMaterialInterface* m_Dynamic;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Energy Shield", meta = (AllowPrivateAccess = true))
-		UMaterialInstanceDynamic* MaterialInstance;
+	UMaterialInstanceDynamic* MaterialInstance;
 
 	FOnTimelineFloat DissolveInterpFunction;
 	FOnTimelineEvent DissolveTimelineFinish;
 
 	UPROPERTY()
-		UTimelineComponent* DissolveTimeline;
+	UTimelineComponent* DissolveTimeline;
 
 	UPROPERTY(EditAnywhere, Category = "Timeline")
-		UCurveFloat* DissolveCurveFloat;
+	UCurveFloat* DissolveCurveFloat;
 
 public:
 	UFUNCTION(BlueprintCallable)
@@ -178,6 +178,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void UpdateScore(int Points);
+
+	void ReceiveOxygenDamage(float damage);
 	
 	void ReceiveAnyDamage(float damage);
 
@@ -188,13 +190,14 @@ public:
 	void beatable();
 
 	UFUNCTION()
-		void DissolveInterpReturn(float Value);
+	void DissolveInterpReturn(float Value);
 
 	UFUNCTION()
-		void DissolveFinish();
+	void DissolveFinish();
 
 	UFUNCTION()
-		void TimelineSetting();
+	void TimelineSetting();
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	FVector _WaterBodyPos; 
