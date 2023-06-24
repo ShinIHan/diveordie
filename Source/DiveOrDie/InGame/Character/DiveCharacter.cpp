@@ -365,6 +365,8 @@ void ADiveCharacter::ReceiveOxygenDamage(float damage)
 {
 	if (_bOnShield) return;
 
+	SetOnFishTrue();
+
 	if (_fCurrentOxygen - damage <= 0.f)
 	{
 		_fCurrentOxygen = 0;
@@ -372,6 +374,11 @@ void ADiveCharacter::ReceiveOxygenDamage(float damage)
 	else
 	{
 		_fCurrentOxygen -= damage;
+
+		USoundCue* Sound = DamageCue;
+
+		FVector SoundLocation = GetActorLocation();
+		UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
 	}
 
 	if (_fCurrentOxygen <= 0.0f)
