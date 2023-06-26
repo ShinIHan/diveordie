@@ -28,4 +28,6 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int iSeconds = 0;
 	
+	UPROPERTY(BlueprintReadWrite)
+	int iTrash = 0;
 };

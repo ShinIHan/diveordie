@@ -361,6 +361,17 @@ void ADiveCharacter::UpdateScore(int Points)
 	}
 }
 
+void ADiveCharacter::UpdateTrashCount()
+{
+	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
+
+	GameState->iTrash += 1;
+
+	USoundWave* Sound = GoldRingWave;
+	FVector SoundLocation = GetActorLocation();
+	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+}
+
 void ADiveCharacter::ReceiveOxygenDamage(float damage)
 {
 	if (_bOnShield) return;

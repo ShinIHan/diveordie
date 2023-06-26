@@ -179,6 +179,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateScore(int Points);
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateTrashCount();
+
 	void ReceiveOxygenDamage(float damage);
 	
 	void ReceiveAnyDamage(float damage);
