@@ -45,6 +45,20 @@ void AMegalodon::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 	if (Character)
 	{
 		Character->ReceiveAnyDamage(50.0f);
+
+		FVector CharacterLocation = Character->GetActorLocation();
+		FVector WhaleLocation = GetActorLocation();
+		FVector Direction = CharacterLocation - WhaleLocation;
+		Direction.Normalize();
+
+		float DistanceFromWhale = FVector::Distance(CharacterLocation, WhaleLocation);
+		float BlockingDistance = 5.0f;
+
+		if (DistanceFromWhale < BlockingDistance)
+		{
+			FVector BlockedLocation = WhaleLocation + Direction * BlockingDistance;
+			Character->SetActorLocation(BlockedLocation);
+		}
 	}
 }
 

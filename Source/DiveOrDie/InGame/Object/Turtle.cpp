@@ -48,6 +48,20 @@ void ATurtle::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	if (character)
 	{
 		character->ReceiveOxygenDamage(10.f);
+
+		FVector CharacterLocation = character->GetActorLocation();
+		FVector WhaleLocation = GetActorLocation();
+		FVector Direction = CharacterLocation - WhaleLocation;
+		Direction.Normalize();
+
+		float DistanceFromWhale = FVector::Distance(CharacterLocation, WhaleLocation);
+		float BlockingDistance = 5.0f;
+
+		if (DistanceFromWhale < BlockingDistance)
+		{
+			FVector BlockedLocation = WhaleLocation + Direction * BlockingDistance;
+			character->SetActorLocation(BlockedLocation);
+		}
 	}
 }
 
