@@ -153,6 +153,11 @@ ADiveCharacter::ADiveCharacter()
 		m_Dynamic = (UMaterial*)MAT.Object;
 	}
 
+	//Shield Material Dissolve Amount Timeline
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
+	DissolveInterpFunction.BindUFunction(this, FName("DissolveInterpReturn"));
+	DissolveTimelineFinish.BindUFunction(this, FName("DissolveFinish"));
+
 	//Niagara System - Bubble Effect
 	CharacterNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("CharacterNiagaraComponent"));
 	CharacterNiagaraComponent->SetupAttachment(RootComponent);
@@ -164,10 +169,6 @@ ADiveCharacter::ADiveCharacter()
 
 		CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsUnderwater);
 	}
-	//Shield Material Dissolve Amount Timeline
-	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineFront"));
-	DissolveInterpFunction.BindUFunction(this, FName("DissolveInterpReturn"));
-	DissolveTimelineFinish.BindUFunction(this, FName("DissolveFinish"));
 
 	//AudioComponent
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
@@ -478,6 +479,9 @@ void ADiveCharacter::Unbeatable()
 	if (MaterialInstance)
 	{
 		SphereMeshComponent->SetMaterial(0, MaterialInstance);
+
+		DissolveTimeline->Stop();
+		DissolveTimeline->SetNewTime(0.f);
 		DissolveTimeline->Play();
 	}
 
@@ -501,6 +505,7 @@ void ADiveCharacter::DissolveInterpReturn(float Value)
 
 void ADiveCharacter::DissolveFinish()
 {
+	MaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), 4.f);
 }
 
 void ADiveCharacter::TimelineSetting()
