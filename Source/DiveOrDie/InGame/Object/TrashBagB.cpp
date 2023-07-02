@@ -36,18 +36,17 @@ ATrashBagB::ATrashBagB()
 // Called when the game starts or when spawned
 void ATrashBagB::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 void ATrashBagB::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ADiveCharacter* Character = Cast<ADiveCharacter>(OtherActor);
-	if (Character)
-	{
-		Character->UpdateTrashCount();
-		Destroy();
-	}
+	
+}
+
+void ATrashBagB::TrashBagBDestroy()
+{
+	Destroy();
 }
 
 // Called every frame

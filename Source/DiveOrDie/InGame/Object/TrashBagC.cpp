@@ -41,14 +41,13 @@ void ATrashBagC::BeginPlay()
 
 void ATrashBagC::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ADiveCharacter* Character = Cast<ADiveCharacter>(OtherActor);
-	if (Character)
-	{
-		Character->UpdateTrashCount();
-		Destroy();
-	}
+
 }
 
+void ATrashBagC::TrashBagCDestroy()
+{
+	Destroy();
+}
 
 // Called every frame
 void ATrashBagC::Tick(float DeltaTime)

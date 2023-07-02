@@ -18,6 +18,9 @@
 #include "DiveOrDie/InGame/Object/WarShip.h"
 #include "DiveOrDie/InGame/Object/Can.h"
 #include "DiveOrDie/InGame/Object/Canned.h"
+#include "DiveOrDie/InGame/Object/TrashBagA.h"
+#include "DiveOrDie/InGame/Object/TrashBagB.h"
+#include "DiveOrDie/InGame/Object/TrashBagC.h"
 #include "DiveOrDie/InGame/Object/SwimTriggerVolume.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -777,32 +780,66 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 200.f * 200.f;
+	float MaxTriggerDistanceSquared = 170.f * 170.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
 		AActor* Actor = *It;
+		OverlappingActors.Add(Actor);
+	}
 
-		if (Actor->IsA<ACanned>() || Actor->IsA<ACan>())
+	OverlappingActors.Sort([CharacterLocation](const AActor& ActorA, const AActor& ActorB)
 		{
-			FVector ActorLocation = Actor->GetActorLocation();
-			float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
+			FVector LocationA = ActorA.GetActorLocation();
+			FVector LocationB = ActorB.GetActorLocation();
+			float DistanceSquaredA = FVector::DistSquared(CharacterLocation, LocationA);
+			float DistanceSquaredB = FVector::DistSquared(CharacterLocation, LocationB);
+			return DistanceSquaredA < DistanceSquaredB;
+		});
 
-			if (DistanceSquared <= MaxTriggerDistanceSquared)
-			{
-				if (ACanned* CannedActor = Cast<ACanned>(Actor))
-				{
-					CannedActor->CannedDestroy();
-				}
-
-				if (ACan* CanActor = Cast<ACan>(Actor))
-				{
-					CanActor->CanDestroy();
-				}
-
-				UpdateTrashCount();
-			}
+	bool bDestroyedNearbyActor = false;
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (bDestroyedNearbyActor)
+		{
+			break;
 		}
+
+		if (Actor->IsA<ACanned>())
+		{
+			ACanned* CannedActor = Cast<ACanned>(Actor);
+			CannedActor->CannedDestroy();
+			bDestroyedNearbyActor = true;
+		}
+		else if (Actor->IsA<ACan>())
+		{
+			ACan* CanActor = Cast<ACan>(Actor);
+			CanActor->CanDestroy();
+			bDestroyedNearbyActor = true;
+		}
+		else if (Actor->IsA<ATrashBagA>())
+		{
+			ATrashBagA* TrashBagAActor = Cast<ATrashBagA>(Actor);
+			TrashBagAActor->TrashBagADestroy();
+			bDestroyedNearbyActor = true;
+		}
+		else if (Actor->IsA<ATrashBagB>())
+		{
+			ATrashBagB* TrashBagBActor = Cast<ATrashBagB>(Actor);
+			TrashBagBActor->TrashBagBDestroy();
+			bDestroyedNearbyActor = true;
+		}
+		else if (Actor->IsA<ATrashBagC>())
+		{
+			ATrashBagC* TrashBagCActor = Cast<ATrashBagC>(Actor);
+			TrashBagCActor->TrashBagCDestroy();
+			bDestroyedNearbyActor = true;
+		}
+	}
+
+	if (bDestroyedNearbyActor)
+	{
+		UpdateTrashCount();
 	}
 }
 
