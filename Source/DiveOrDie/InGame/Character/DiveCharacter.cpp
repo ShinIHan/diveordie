@@ -18,6 +18,7 @@
 #include "DiveOrDie/InGame/Object/WarShip.h"
 #include "DiveOrDie/InGame/Object/Can.h"
 #include "DiveOrDie/InGame/Object/Canned.h"
+#include "DiveOrDie/InGame/Object/Cup.h"
 #include "DiveOrDie/InGame/Object/TrashBagA.h"
 #include "DiveOrDie/InGame/Object/TrashBagB.h"
 #include "DiveOrDie/InGame/Object/TrashBagC.h"
@@ -815,6 +816,12 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 		{
 			ACan* CanActor = Cast<ACan>(Actor);
 			CanActor->CanDestroy();
+			bDestroyedNearbyActor = true;
+		}
+		else if (Actor->IsA<ACup>())
+		{
+			ACup* CupActor = Cast<ACup>(Actor);
+			CupActor->CupDestroy();
 			bDestroyedNearbyActor = true;
 		}
 		else if (Actor->IsA<ATrashBagA>())
