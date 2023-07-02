@@ -37,6 +37,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bCanJump = true;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsZKey = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsZKeyTime = 0.0f;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
@@ -294,6 +300,11 @@ protected:
 
 	void DieEnd();
 
+	void StartZKeyPress();
+
+	void EndZKeyPress();
+	
+	void DestroyNearbyCannedActors();
 
 public:	
 	virtual void Tick(float DeltaTime) override;

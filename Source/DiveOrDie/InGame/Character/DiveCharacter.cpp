@@ -16,6 +16,8 @@
 #include "DiveOrDie/InGame/Character/DiveCharacterAnimInstance.h"
 #include "DiveOrDie/InGame/UI/DiveCharacterWidget.h"
 #include "DiveOrDie/InGame/Object/WarShip.h"
+#include "DiveOrDie/InGame/Object/Can.h"
+#include "DiveOrDie/InGame/Object/Canned.h"
 #include "DiveOrDie/InGame/Object/SwimTriggerVolume.h"
 #include "Engine/DamageEvents.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -178,6 +180,8 @@ ADiveCharacter::ADiveCharacter()
 	bIsUnderwater = false;
 	_bOnShield = false;
 	bCanJump = true;
+	bIsZKey = false;
+	bIsZKeyTime = 0.0f;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -757,6 +761,51 @@ void ADiveCharacter::DieEnd()
 	Destroy();
 }
 
+void ADiveCharacter::StartZKeyPress()
+{
+	bIsZKey = true;
+	LOG_SCREEN("true");
+}
+
+void ADiveCharacter::EndZKeyPress()
+{
+	bIsZKey = false;
+	LOG_SCREEN("false");
+}
+
+void ADiveCharacter::DestroyNearbyCannedActors()
+{
+	TArray<AActor*> OverlappingActors;
+	FVector CharacterLocation = GetActorLocation();
+	float MaxTriggerDistanceSquared = 200.f * 200.f;
+
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+
+		if (Actor->IsA<ACanned>() || Actor->IsA<ACan>())
+		{
+			FVector ActorLocation = Actor->GetActorLocation();
+			float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
+
+			if (DistanceSquared <= MaxTriggerDistanceSquared)
+			{
+				if (ACanned* CannedActor = Cast<ACanned>(Actor))
+				{
+					CannedActor->CannedDestroy();
+				}
+
+				if (ACan* CanActor = Cast<ACan>(Actor))
+				{
+					CanActor->CanDestroy();
+				}
+
+				UpdateTrashCount();
+			}
+		}
+	}
+}
+
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -770,6 +819,23 @@ void ADiveCharacter::Tick(float DeltaTime)
 		_bOnJump = true;
 	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
 		_bOnJump = false;
+
+	if (bIsZKey == true)
+	{
+		bIsZKeyTime += DeltaTime;
+
+		if (bIsZKeyTime >= 2.0f)
+		{
+			DestroyNearbyCannedActors();
+			bIsZKey = false;
+			bIsZKeyTime = 0.0f;
+		}
+	}
+	else
+	{
+		bIsZKeyTime = 0.0f;
+		bIsZKey = false;
+	}
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
@@ -884,4 +950,7 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	InputComponent->BindAction("Pause", IE_Pressed, this, &ADiveCharacter::GamePause);
 	InputComponent->BindAction("Interaction", IE_Pressed, this, &ADiveCharacter::Interaction);
+
+	InputComponent->BindAction("ZKey", IE_Pressed, this, &ADiveCharacter::StartZKeyPress);
+	InputComponent->BindAction("ZKey", IE_Released, this, &ADiveCharacter::EndZKeyPress);
 }
