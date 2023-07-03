@@ -17,8 +17,6 @@ class GAME_API ADiveGameState : public AGameStateBase
 public:
 	ADiveGameState();
 
-	
-	
 	UPROPERTY(BlueprintReadWrite)
 	int iScore = 0;
 
@@ -30,4 +28,7 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite)
 	int iTrash = 0;
+
+	UPROPERTY(BlueprintReadWrite)
+	int iTotalTrash = 0;
 };
