@@ -55,6 +55,9 @@ public:
 	bool bOnBullet;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnTrash;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	float direction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
