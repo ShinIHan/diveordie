@@ -444,8 +444,10 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 	if (DiveGameInstance)
 	{
-		if (DiveGameInstance->GetDifficulty() == 0) damage *= 0.8f;
-		else if (DiveGameInstance->GetDifficulty() == 2) damage *= 1.2f; 
+		if (DiveGameInstance->GetDifficulty() == 0) 
+			damage *= 0.8f;
+		else if (DiveGameInstance->GetDifficulty() == 2)
+			damage *= 1.2f; 
 	}
 
 	if (_fCurrentHp - damage <= 0.f)
@@ -455,6 +457,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 	else
 	{
 		_fCurrentHp -= damage;
+
 		USoundCue* Sound = DamageCue;
 
 		FVector SoundLocation = GetActorLocation();
@@ -546,6 +549,7 @@ void ADiveCharacter::RestraintEnd()
 {
 	_bOnRestraint = false;
 	DiveCharacterAnim->bOnNet = false;
+
 	GetWorld()->GetTimerManager().ClearTimer(RestraintTimer);
 	SetEnableInput();
 }
@@ -629,15 +633,18 @@ void ADiveCharacter::OnRep_Restraint()
 void ADiveCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
 	if (m_Dynamic)
 	{
 		MaterialInstance = UMaterialInstanceDynamic::Create(m_Dynamic, this);
 	}
+
 	if (MaterialInstance)
 	{
 		SphereMeshComponent->SetMaterial(0, MaterialInstance);
 		MaterialInstance->SetScalarParameterValue(TEXT("DissolveAmount"), 3.f);
 	}
+
 	TimelineSetting();
 }
 
@@ -682,7 +689,7 @@ void ADiveCharacter::SetOnBulletFalse()
 
 void ADiveCharacter::MoveForward(float Value)
 {
-	if (!_bCanMove) return;
+	if (!_bCanMove || DiveCharacterAnim->bOnTrash == true) return;
 	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
@@ -703,7 +710,7 @@ void ADiveCharacter::MoveForward(float Value)
 
 void ADiveCharacter::MoveRight(float Value)
 {
-	if (!_bCanMove || GetCharacterMovement()->IsSwimming()) return;
+	if (!_bCanMove || GetCharacterMovement()->IsSwimming() || DiveCharacterAnim->bOnTrash == true) return;
 	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
@@ -731,7 +738,7 @@ void ADiveCharacter::LookUpAtRate(float Rate)
 
 void ADiveCharacter::Jump()
 {
-	if (!_bOnMove || !bCanJump) return;
+	if (!_bOnMove || !bCanJump || DiveCharacterAnim->bOnTrash == true) return;
 	
 	if (bIsUnderwater == false)
 	{
@@ -781,7 +788,7 @@ void ADiveCharacter::TurnNearTrash()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 10.f * 10.f;
+	float MaxTriggerDistanceSquared = 250.f * 250.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -800,12 +807,15 @@ void ADiveCharacter::TurnNearTrash()
 
 	for (AActor* Actor : OverlappingActors)
 	{
-		if (Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>())
+		FVector ActorLocation = Actor->GetActorLocation();
+		float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
+
+		if (DistanceSquared <= MaxTriggerDistanceSquared &&
+			(Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>()))
 		{
-			FVector ActorLocation = Actor->GetActorLocation();
 			FRotator NewRotation = (ActorLocation - CharacterLocation).Rotation();
 			SetActorRotation(NewRotation);
-			
+
 			DiveCharacterAnim->bOnTrash = true;
 
 			break; 
@@ -817,7 +827,7 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 10.f * 10.f;
+	float MaxTriggerDistanceSquared = 250.f * 250.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -842,42 +852,48 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 			break;
 		}
 
-		if (Actor->IsA<ACanned>())
+		FVector ActorLocation = Actor->GetActorLocation();
+		float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
+		
+		if (DistanceSquared <= MaxTriggerDistanceSquared)
 		{
-			ACanned* CannedActor = Cast<ACanned>(Actor);
-			CannedActor->CannedDestroy();
-			bDestroyedNearbyActor = true;
-		}
-		else if (Actor->IsA<ACan>())
-		{
-			ACan* CanActor = Cast<ACan>(Actor);
-			CanActor->CanDestroy();
-			bDestroyedNearbyActor = true;
-		}
-		else if (Actor->IsA<ACup>())
-		{
-			ACup* CupActor = Cast<ACup>(Actor);
-			CupActor->CupDestroy();
-			bDestroyedNearbyActor = true;
-		}
-		else if (Actor->IsA<ATrashBagA>())
-		{
-			ATrashBagA* TrashBagAActor = Cast<ATrashBagA>(Actor);
-			TrashBagAActor->TrashBagADestroy();
-			bDestroyedNearbyActor = true;
-		}
-		else if (Actor->IsA<ATrashBagB>())
-		{
-			ATrashBagB* TrashBagBActor = Cast<ATrashBagB>(Actor);
-			TrashBagBActor->TrashBagBDestroy();
-			bDestroyedNearbyActor = true;
-		}
-		else if (Actor->IsA<ATrashBagC>())
-		{
-			ATrashBagC* TrashBagCActor = Cast<ATrashBagC>(Actor);
-			TrashBagCActor->TrashBagCDestroy();
-			bDestroyedNearbyActor = true;
-		}
+			if (Actor->IsA<ACanned>())
+			{
+				ACanned* CannedActor = Cast<ACanned>(Actor);
+				CannedActor->CannedDestroy();
+				bDestroyedNearbyActor = true;
+			}
+			else if (Actor->IsA<ACan>())
+			{
+				ACan* CanActor = Cast<ACan>(Actor);
+				CanActor->CanDestroy();
+				bDestroyedNearbyActor = true;
+			}
+			else if (Actor->IsA<ACup>())
+			{
+				ACup* CupActor = Cast<ACup>(Actor);
+				CupActor->CupDestroy();
+				bDestroyedNearbyActor = true;
+			}
+			else if (Actor->IsA<ATrashBagA>())
+			{
+				ATrashBagA* TrashBagAActor = Cast<ATrashBagA>(Actor);
+				TrashBagAActor->TrashBagADestroy();
+				bDestroyedNearbyActor = true;
+			}
+			else if (Actor->IsA<ATrashBagB>())
+			{
+				ATrashBagB* TrashBagBActor = Cast<ATrashBagB>(Actor);
+				TrashBagBActor->TrashBagBDestroy();
+				bDestroyedNearbyActor = true;
+			}
+			else if (Actor->IsA<ATrashBagC>())
+			{
+				ATrashBagC* TrashBagCActor = Cast<ATrashBagC>(Actor);
+				TrashBagCActor->TrashBagCDestroy();
+				bDestroyedNearbyActor = true;
+			}
+		}		
 	}
 
 	if (bDestroyedNearbyActor)
@@ -909,7 +925,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		if (bIsZKeyTime >= 2.0f)
 		{
 			DestroyNearbyCannedActors();
-			bIsZKey = false;
+			//bIsZKey = false;
 			bIsZKeyTime = 0.0f;
 			DiveCharacterAnim->bOnTrash = false;
 		}
@@ -923,13 +939,18 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (DiveCharacterAnim->bOnNet == true || DiveCharacterAnim->bOnTrash == true)	{	}
+		if (DiveCharacterAnim->bOnNet == true || bIsZKey == true)	{	}
+		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
+		{
+
+		}
 		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 		{
 			if (GetCharacterMovement()->IsMovingOnGround())	{	}
 			else
 			{
-				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
+				if(bIsZKey == false)
+					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
 			}
 		}
 		else
@@ -939,7 +960,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 			{
 				if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
 				{
-					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+					if (bIsZKey == false)
+						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
 				}
 			}		
 		}
