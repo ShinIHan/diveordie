@@ -777,11 +777,47 @@ void ADiveCharacter::EndZKeyPress()
 	LOG_SCREEN("false");
 }
 
+void ADiveCharacter::TurnNearTrash()
+{
+	TArray<AActor*> OverlappingActors;
+	FVector CharacterLocation = GetActorLocation();
+	float MaxTriggerDistanceSquared = 10.f * 10.f;
+
+	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+	{
+		AActor* Actor = *It;
+		OverlappingActors.Add(Actor);
+	}
+
+	OverlappingActors.Sort([CharacterLocation](const AActor& ActorA, const AActor& ActorB)
+		{
+			FVector LocationA = ActorA.GetActorLocation();
+			FVector LocationB = ActorB.GetActorLocation();
+			float DistanceSquaredA = FVector::DistSquared(CharacterLocation, LocationA);
+			float DistanceSquaredB = FVector::DistSquared(CharacterLocation, LocationB);
+			return DistanceSquaredA < DistanceSquaredB;
+		});
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>())
+		{
+			FVector ActorLocation = Actor->GetActorLocation();
+			FRotator NewRotation = (ActorLocation - CharacterLocation).Rotation();
+			SetActorRotation(NewRotation);
+			
+			DiveCharacterAnim->bOnTrash = true;
+
+			break; 
+		}
+	}
+}
+
 void ADiveCharacter::DestroyNearbyCannedActors()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 170.f * 170.f;
+	float MaxTriggerDistanceSquared = 10.f * 10.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -866,6 +902,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (bIsZKey == true)
 	{
+		TurnNearTrash();
+
 		bIsZKeyTime += DeltaTime;
 
 		if (bIsZKeyTime >= 2.0f)
@@ -873,17 +911,19 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DestroyNearbyCannedActors();
 			bIsZKey = false;
 			bIsZKeyTime = 0.0f;
+			DiveCharacterAnim->bOnTrash = false;
 		}
 	}
 	else
 	{
 		bIsZKeyTime = 0.0f;
 		bIsZKey = false;
+		DiveCharacterAnim->bOnTrash = false;
 	}
 
 	if (GetCharacterMovement()->IsSwimming())
 	{
-		if (DiveCharacterAnim->bOnNet == true)	{	}
+		if (DiveCharacterAnim->bOnNet == true || DiveCharacterAnim->bOnTrash == true)	{	}
 		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
 		{
 			if (GetCharacterMovement()->IsMovingOnGround())	{	}

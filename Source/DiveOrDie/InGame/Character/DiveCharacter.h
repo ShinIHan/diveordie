@@ -303,6 +303,8 @@ protected:
 	void StartZKeyPress();
 
 	void EndZKeyPress();
+
+	void TurnNearTrash();
 	
 	void DestroyNearbyCannedActors();
 
