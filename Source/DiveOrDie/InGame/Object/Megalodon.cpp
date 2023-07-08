@@ -29,6 +29,7 @@ AMegalodon::AMegalodon()
 	}
 
 	box->OnComponentBeginOverlap.AddDynamic(this, &AMegalodon::OnOverlapBegin);
+	CalculateLocationTask = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -67,27 +68,74 @@ void AMegalodon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector CurrentLocation = GetActorLocation();
-	FVector NewLocation = CurrentLocation;
-
-    float ArcHeight = 20.f; 
-    float ArcDuration = 2.f; 
-
-    float TimeElapsed = GetWorld()->GetTimeSeconds(); 
-    float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight); 
-
-	NewLocation.Y += 25.f;
-    NewLocation.Z += ZOffset;
-
-	SetActorLocation(NewLocation);
-
-	FVector Direction = NewLocation - CurrentLocation;
-	FRotator NewRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
-	
-	NewRotation.Yaw -= 90.f;
-	NewRotation.Pitch = 0.f;
-	NewRotation.Roll = 0.f;
-	
-	SetActorRotation(NewRotation);
+	CalculateLocationAsync(DeltaTime);
 }
 
+void AMegalodon::CalculateLocationAsync(float DeltaTime)
+{
+	if (!CalculateLocationTask)
+	{
+		CalculateLocationTask = new FAsyncCalculateLocationTask(this, DeltaTime);
+		FRunnableThread::Create(CalculateLocationTask, TEXT("CalculateLocationTask"));
+	}
+}
+
+FAsyncCalculateLocationTask::FAsyncCalculateLocationTask(AMegalodon* InMegalodon, float InDeltaTime)
+	: Megalodon(InMegalodon)
+	, DeltaTime(InDeltaTime)
+	, bIsRunning(false)
+{
+}
+
+bool FAsyncCalculateLocationTask::Init()
+{
+	bIsRunning = true;
+	return true;
+}
+
+uint32 FAsyncCalculateLocationTask::Run()
+{
+	while (bIsRunning)
+	{
+		if (Megalodon && Megalodon->GetWorld() && Megalodon->GetWorld()->IsGameWorld())
+		{
+			FVector CurrentLocation = Megalodon->GetActorLocation();
+
+			float ArcHeight = 20.f;
+			float ArcDuration = 2.f;
+
+			float TimeElapsed = Megalodon->GetWorld()->GetTimeSeconds();
+			float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
+
+			FVector NewLocation = CurrentLocation;
+			NewLocation.Y += 25.f;
+			NewLocation.Z += ZOffset;
+
+			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
+				{
+					if (Megalodon && Megalodon->IsValidLowLevel())
+					{
+						Megalodon->SetActorLocation(NewLocation);
+					}
+				});
+
+			FPlatformProcess::Sleep(0.05f); 
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void FAsyncCalculateLocationTask::Stop()
+{
+	bIsRunning = false;
+}
+
+void FAsyncCalculateLocationTask::Exit()
+{
+
+}

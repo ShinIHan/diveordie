@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Whale.generated.h"
 
+class WhaleCalLocationTask;
+
 UCLASS()
 class GAME_API AWhale : public AActor
 {
@@ -26,8 +28,27 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UStaticMeshComponent*> Whalerr;
 
+	WhaleCalLocationTask* CalculateLocationTask;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void WhaleCalLocationAsync(float DeltaTime);
+};
+
+class WhaleCalLocationTask : public FRunnable
+{
+public:
+	WhaleCalLocationTask(AWhale* InWhale, float InDeltaTime);
+
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+private:
+	AWhale* Whale;
+	float DeltaTime;
+	FThreadSafeBool bIsRunning;
 };

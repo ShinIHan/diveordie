@@ -6,21 +6,25 @@
 #include "GameFramework/Actor.h"
 #include "Megalodon.generated.h"
 
+class FAsyncCalculateLocationTask;
+
 UCLASS()
 class GAME_API AMegalodon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	AMegalodon();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+public:
+	virtual void Tick(float DeltaTime) override;
+	void CalculateLocationAsync(float DeltaTime);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -29,9 +33,23 @@ private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* box;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	FVector MegalodonInitialLocation;
+
+	FAsyncCalculateLocationTask* CalculateLocationTask;
+};
+
+class FAsyncCalculateLocationTask : public FRunnable
+{
+public:
+	FAsyncCalculateLocationTask(AMegalodon* InMegalodon, float InDeltaTime);
+
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+private:
+	AMegalodon* Megalodon;
+	float DeltaTime;
+	FThreadSafeBool bIsRunning;
 };

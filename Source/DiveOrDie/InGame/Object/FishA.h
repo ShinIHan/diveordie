@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "FishA.generated.h"
 
+class FishACalLocationTask;
+
 UCLASS()
 class GAME_API AFishA : public AActor
 {
@@ -26,9 +28,29 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UStaticMeshComponent*> FishAMesh;
 
+	FishACalLocationTask* CalculateLocationTask;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void FishACalLocationAsync(float DeltaTime);
+
 	FVector FishAInitialLocation;
+};
+
+class FishACalLocationTask : public FRunnable
+{
+public:
+	FishACalLocationTask(AFishA* InFishA, float InDeltaTime);
+
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+private:
+	AFishA* FishA;
+	float DeltaTime;
+	FThreadSafeBool bIsRunning;
 };

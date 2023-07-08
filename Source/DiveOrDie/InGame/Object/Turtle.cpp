@@ -31,18 +31,17 @@ ATurtle::ATurtle()
 	}
 
 	TurtleBox->OnComponentBeginOverlap.AddDynamic(this, &ATurtle::OnOverlapBegin);
+	TurtleCalculateLocationTask = nullptr;
 }
 
-// Called when the game starts or when spawned
 void ATurtle::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
 
 	TurtleInitialLocation = GetActorLocation();
 }
 
-void ATurtle::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ATurtle::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
@@ -65,15 +64,70 @@ void ATurtle::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	}
 }
 
-// Called every frame
 void ATurtle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector CurrentLocation = GetActorLocation();
-	FVector NewLocation = CurrentLocation;
+	TurtleCalLocationAsync(DeltaTime);
+}
 
-	NewLocation.Y -= 15.f;
+void ATurtle::TurtleCalLocationAsync(float DeltaTime)
+{
+	if (!TurtleCalculateLocationTask)
+	{
+		TurtleCalculateLocationTask = new TurtleCalLocationTask(this, DeltaTime);
+		FRunnableThread::Create(TurtleCalculateLocationTask, TEXT("TurtleCalculateLocationTask"));
+	}
+}
 
-	SetActorLocation(NewLocation);
+TurtleCalLocationTask::TurtleCalLocationTask(ATurtle* InTurtle, float InTurtleDeltaTime)
+	: Turtle(InTurtle)
+	, DeltaTime(InTurtleDeltaTime)
+	, bIsRunning(false)
+{
+}
+
+bool TurtleCalLocationTask::Init()
+{
+	bIsRunning = true;
+	return true;
+}
+
+uint32 TurtleCalLocationTask::Run()
+{
+	while (bIsRunning)
+	{
+		if (Turtle && Turtle->GetWorld() && Turtle->GetWorld()->IsGameWorld())
+		{
+			FVector CurrentLocation = Turtle->GetActorLocation();
+			FVector NewLocation = CurrentLocation;
+
+			NewLocation.Y -= 15.f;
+
+			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
+				{
+					if (Turtle && Turtle->IsValidLowLevel())
+					{
+						Turtle->SetActorLocation(NewLocation);
+					}
+				});
+
+			FPlatformProcess::Sleep(0.1f);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void TurtleCalLocationTask::Stop()
+{
+	bIsRunning = false;
+}
+
+void TurtleCalLocationTask::Exit()
+{
 }

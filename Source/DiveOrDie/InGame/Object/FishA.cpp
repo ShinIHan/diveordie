@@ -37,6 +37,8 @@ AFishA::AFishA()
 			Fish_A->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		}
 	}
+
+	CalculateLocationTask = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -68,28 +70,87 @@ void AFishA::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAc
 void AFishA::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	//FishACalLocationAsync(DeltaTime);
+}
 
-	FVector CurrentLocation = GetActorLocation();
-	FVector NewLocation = CurrentLocation;
+void AFishA::FishACalLocationAsync(float DeltaTime)
+{
+	if (!CalculateLocationTask)
+	{
+		CalculateLocationTask = new FishACalLocationTask(this, DeltaTime);
+		FRunnableThread::Create(CalculateLocationTask, TEXT("CalculateLocationTask"));
+	}
+}
 
-	float DeltaX = FMath::Sin(GetGameTimeSinceCreation()) * 400.f;
-	float DeltaZ = FMath::Sin(GetGameTimeSinceCreation() * 2.f) * 100.f;
+FishACalLocationTask::FishACalLocationTask(AFishA* InFishA, float InDeltaTime)
+	: FishA(InFishA)
+	, DeltaTime(InDeltaTime)
+	, bIsRunning(false)
+{
+}
 
-	NewLocation.X = FMath::Lerp(CurrentLocation.X, FishAInitialLocation.X + DeltaX, DeltaTime * 2.f); 
-	NewLocation.Y += 20.f;
-	NewLocation.Z = FishAInitialLocation.Z + DeltaZ;
+bool FishACalLocationTask::Init()
+{
+	bIsRunning = true;
+	return true;
+}
 
-	SetActorLocation(NewLocation);
+uint32 FishACalLocationTask::Run()
+{
+	const float UpdateInterval = 0.1f; 
+	float TimerElapsed = 0.0f;
 
-	FRotator CurrentRotation = GetActorRotation();
-	FRotator NewRotation = CurrentRotation;
+	FVector CurrentLocation = FishA->GetActorLocation();
+	FRotator CurrentRotation = FishA->GetActorRotation();
 
-	FVector Direction = NewLocation - CurrentLocation;
-	Direction.Normalize();
+	while (bIsRunning)
+	{
+		if (FishA && FishA->GetWorld() && FishA->GetWorld()->IsGameWorld())
+		{
+			float DeltaX = FMath::Sin(FishA->GetGameTimeSinceCreation()) * 400.f;
+			float DeltaZ = FMath::Sin(FishA->GetGameTimeSinceCreation() * 2.f) * 100.f;
 
-	FRotator TargetRotation = Direction.Rotation();
-	NewRotation.Yaw = FMath::Lerp(CurrentRotation.Yaw, TargetRotation.Yaw - 90.f, DeltaTime * 2.f); 
-	NewRotation.Roll = FMath::Lerp(CurrentRotation.Roll, TargetRotation.Roll, DeltaTime * 2.f);
+			FVector NewLocation = FishA->FishAInitialLocation;
+			NewLocation.X += DeltaX;
+			NewLocation.Y = CurrentLocation.Y + 20.f;
+			NewLocation.Z += DeltaZ;
 
-	SetActorRotation(NewRotation);
+			FRotator DirectionRotation = (NewLocation - CurrentLocation).Rotation();
+			FRotator TargetRotation = FRotator(DirectionRotation.Pitch, DirectionRotation.Yaw - 90.f, DirectionRotation.Roll);
+
+			TimerElapsed += UpdateInterval;
+
+			if (TimerElapsed >= UpdateInterval)
+			{
+				AsyncTask(ENamedThreads::GameThread, [this, NewLocation, TargetRotation]()
+					{
+						if (FishA && FishA->IsValidLowLevelFast())
+						{
+							FishA->SetActorLocation(NewLocation);
+							FishA->SetActorRotation(TargetRotation);
+						}
+					});
+
+				TimerElapsed = 0.0f;
+			}
+
+			FPlatformProcess::Sleep(0.1f);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void FishACalLocationTask::Stop()
+{
+	bIsRunning = false;
+}
+
+void FishACalLocationTask::Exit()
+{
 }
