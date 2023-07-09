@@ -35,6 +35,8 @@ AWhale::AWhale()
 			Whale->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		}
 	}
+
+	CalculateLocationTask = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -71,10 +73,66 @@ void AWhale::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector CurrentLocation = GetActorLocation();
-	FVector NewLocation = CurrentLocation;
+	WhaleCalLocationAsync(DeltaTime);
+}
 
-	NewLocation.Y += 25.f;
+void AWhale::WhaleCalLocationAsync(float DeltaTime)
+{
+	if (!CalculateLocationTask)
+	{
+		CalculateLocationTask = new WhaleCalLocationTask(this, DeltaTime);
+		FRunnableThread::Create(CalculateLocationTask, TEXT("CalculateLocationTask"));
+	}
+}
 
-	SetActorLocation(NewLocation);
+WhaleCalLocationTask::WhaleCalLocationTask(AWhale* InWhale, float InDeltaTime)
+	: Whale(InWhale)
+	, DeltaTime(InDeltaTime)
+	, bIsRunning(false)
+{
+}
+
+bool WhaleCalLocationTask::Init()
+{
+	bIsRunning = true;
+	return true;
+}
+
+uint32 WhaleCalLocationTask::Run()
+{
+	while (bIsRunning)
+	{
+		if (Whale && Whale->GetWorld() && Whale->GetWorld()->IsGameWorld())
+		{
+			FVector CurrentLocation =Whale->GetActorLocation();
+			FVector NewLocation = CurrentLocation;
+
+			NewLocation.X -= 25.f;
+
+			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
+				{
+					if (Whale && Whale->IsValidLowLevelFast())
+					{
+						Whale->SetActorLocation(NewLocation);
+					}
+				});
+
+			FPlatformProcess::Sleep(0.05f);
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return 0;
+}
+
+void WhaleCalLocationTask::Stop()
+{
+	bIsRunning = false;
+}
+
+void WhaleCalLocationTask::Exit()
+{
 }

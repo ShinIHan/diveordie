@@ -6,31 +6,51 @@
 #include "GameFramework/Actor.h"
 #include "Turtle.generated.h"
 
+class TurtleCalLocationTask;
+
 UCLASS()
 class GAME_API ATurtle : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ATurtle();
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* TurtleBox;
+		UBoxComponent* TurtleBox;
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* Turtlemesh;
+		UStaticMeshComponent* Turtlemesh;
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:
 	virtual void Tick(float DeltaTime) override;
 
+	void TurtleCalLocationAsync(float DeltaTime);
+
 	FVector TurtleInitialLocation;
+
+private:
+	TurtleCalLocationTask* TurtleCalculateLocationTask;
+};
+
+class TurtleCalLocationTask : public FRunnable
+{
+public:
+	TurtleCalLocationTask(ATurtle* InTurtle, float InTurtleDeltaTime);
+
+	virtual bool Init() override;
+	virtual uint32 Run() override;
+	virtual void Stop() override;
+	virtual void Exit() override;
+
+private:
+	ATurtle* Turtle;
+	float DeltaTime;
+	FThreadSafeBool bIsRunning;
 };
