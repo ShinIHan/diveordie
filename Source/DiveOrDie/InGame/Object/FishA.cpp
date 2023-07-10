@@ -98,12 +98,6 @@ bool FishACalLocationTask::Init()
 
 uint32 FishACalLocationTask::Run()
 {
-	const float UpdateInterval = 0.1f; 
-	float TimerElapsed = 0.0f;
-
-	FVector CurrentLocation = FishA->GetActorLocation();
-	FRotator CurrentRotation = FishA->GetActorRotation();
-
 	while (bIsRunning)
 	{
 		if (FishA && FishA->GetWorld() && FishA->GetWorld()->IsGameWorld())
@@ -111,29 +105,28 @@ uint32 FishACalLocationTask::Run()
 			float DeltaX = FMath::Sin(FishA->GetGameTimeSinceCreation()) * 400.f;
 			float DeltaZ = FMath::Sin(FishA->GetGameTimeSinceCreation() * 2.f) * 100.f;
 
+			FVector CurrentLocation = FishA->GetActorLocation();
 			FVector NewLocation = FishA->FishAInitialLocation;
 			NewLocation.X += DeltaX;
-			NewLocation.Y = CurrentLocation.Y + 20.f;
+
+			FVector ForwardDirection = FishA->GetActorForwardVector();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
+			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+
+			NewLocation += ForwardDirection * 20.f;
 			NewLocation.Z += DeltaZ;
 
 			FRotator DirectionRotation = (NewLocation - CurrentLocation).Rotation();
 			FRotator TargetRotation = FRotator(DirectionRotation.Pitch, DirectionRotation.Yaw - 90.f, DirectionRotation.Roll);
 
-			TimerElapsed += UpdateInterval;
-
-			if (TimerElapsed >= UpdateInterval)
-			{
-				AsyncTask(ENamedThreads::GameThread, [this, NewLocation, TargetRotation]()
+			AsyncTask(ENamedThreads::GameThread, [this, NewLocation, TargetRotation]()
+				{
+					if (FishA && FishA->IsValidLowLevelFast())
 					{
-						if (FishA && FishA->IsValidLowLevelFast())
-						{
-							FishA->SetActorLocation(NewLocation);
-							FishA->SetActorRotation(TargetRotation);
-						}
-					});
-
-				TimerElapsed = 0.0f;
-			}
+						FishA->SetActorLocation(NewLocation);
+						FishA->SetActorRotation(TargetRotation);
+					}
+				});
 
 			FPlatformProcess::Sleep(0.1f);
 		}

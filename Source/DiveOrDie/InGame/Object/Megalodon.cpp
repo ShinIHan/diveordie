@@ -108,7 +108,12 @@ uint32 FAsyncCalculateLocationTask::Run()
 			float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
 
 			FVector NewLocation = CurrentLocation;
-			NewLocation.Y += 25.f;
+			FVector ForwardDirection = Megalodon->GetActorForwardVector();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
+
+			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+
+			NewLocation += ForwardDirection * 25.f;
 			NewLocation.Z += ZOffset;
 
 			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()

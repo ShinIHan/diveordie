@@ -106,8 +106,12 @@ uint32 WhaleCalLocationTask::Run()
 		{
 			FVector CurrentLocation =Whale->GetActorLocation();
 			FVector NewLocation = CurrentLocation;
-
-			NewLocation.X -= 25.f;
+			FVector ForwardDirection = Whale->GetActorForwardVector();
+			
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
+			
+			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+			NewLocation += ForwardDirection * 25.f;
 
 			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
 				{

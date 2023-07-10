@@ -101,8 +101,11 @@ uint32 TurtleCalLocationTask::Run()
 		{
 			FVector CurrentLocation = Turtle->GetActorLocation();
 			FVector NewLocation = CurrentLocation;
+			FVector ForwardDirection = Turtle->GetActorForwardVector();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
 
-			NewLocation.Y -= 15.f;
+			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+			NewLocation -= ForwardDirection * 15.f;
 
 			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
 				{
