@@ -37,8 +37,6 @@ ATurtle::ATurtle()
 void ATurtle::BeginPlay()
 {
 	Super::BeginPlay();
-
-	TurtleInitialLocation = GetActorLocation();
 }
 
 void ATurtle::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -97,21 +95,25 @@ uint32 TurtleCalLocationTask::Run()
 {
 	while (bIsRunning)
 	{
-		if (Turtle && Turtle->GetWorld() && Turtle->GetWorld()->IsGameWorld())
+		if (Turtle && Turtle->IsValidLowLevel() && Turtle->GetWorld() && Turtle->GetWorld()->IsGameWorld())
 		{
 			FVector CurrentLocation = Turtle->GetActorLocation();
 			FVector NewLocation = CurrentLocation;
-			FVector ForwardDirection = Turtle->GetActorForwardVector();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
 
-			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+			FRotator CurrentRotation = Turtle->GetActorRotation();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+			FRotator NewRotation = CurrentRotation + RotationToAdd;
+			FVector ForwardDirection = NewRotation.Vector();
+
 			NewLocation -= ForwardDirection * 15.f;
 
-			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
+			TWeakObjectPtr<ATurtle> TurtlePtr = Turtle;
+
+			AsyncTask(ENamedThreads::GameThread, [TurtlePtr, NewLocation]()
 				{
-					if (Turtle && Turtle->IsValidLowLevel())
+					if (TurtlePtr.IsValid())
 					{
-						Turtle->SetActorLocation(NewLocation);
+						TurtlePtr->SetActorLocation(NewLocation);
 					}
 				});
 

@@ -33,8 +33,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* box;
 
-	FVector MegalodonInitialLocation;
-
 	FAsyncCalculateLocationTask* CalculateLocationTask;
 };
 

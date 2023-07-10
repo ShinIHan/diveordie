@@ -4,6 +4,14 @@
 #include "DiveOrDie/InGame/Object/FishA.h"
 #include "DiveOrDie/InGame/Character/DiveCharacter.h"
 
+enum class MovementState
+{
+	Ascending,
+	Descending
+};
+
+MovementState State = MovementState::Ascending;
+
 // Sets default values
 AFishA::AFishA()
 {
@@ -39,14 +47,15 @@ AFishA::AFishA()
 	}
 
 	CalculateLocationTask = nullptr;
+	FishMaxHeight = 20.f;
+	FishMinHeight = -20.f;
+	FishSpeed = 5.f;
 }
 
 // Called when the game starts or when spawned
 void AFishA::BeginPlay()
 {
 	Super::BeginPlay();	
-
-	FishAInitialLocation = GetActorLocation();
 
 	for (auto& MeshComponent : FishAMesh)
 	{
@@ -102,33 +111,44 @@ uint32 FishACalLocationTask::Run()
 	{
 		if (FishA && FishA->GetWorld() && FishA->GetWorld()->IsGameWorld())
 		{
-			float DeltaX = FMath::Sin(FishA->GetGameTimeSinceCreation()) * 400.f;
-			float DeltaZ = FMath::Sin(FishA->GetGameTimeSinceCreation() * 2.f) * 100.f;
-
 			FVector CurrentLocation = FishA->GetActorLocation();
-			FVector NewLocation = FishA->FishAInitialLocation;
-			NewLocation.X += DeltaX;
 
-			FVector ForwardDirection = FishA->GetActorForwardVector();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
-			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+			FRotator CurrentRotation = FishA->GetActorRotation();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+			FRotator NewRotation = CurrentRotation + RotationToAdd;
+			FVector ForwardDirection = NewRotation.Vector();
+
+			FVector NewLocation = CurrentLocation;
 
 			NewLocation += ForwardDirection * 20.f;
-			NewLocation.Z += DeltaZ;
 
-			FRotator DirectionRotation = (NewLocation - CurrentLocation).Rotation();
-			FRotator TargetRotation = FRotator(DirectionRotation.Pitch, DirectionRotation.Yaw - 90.f, DirectionRotation.Roll);
-
-			AsyncTask(ENamedThreads::GameThread, [this, NewLocation, TargetRotation]()
+			switch (State)
+			{
+			case MovementState::Ascending:
+				NewLocation.Z += FishA->FishSpeed;
+				if (NewLocation.Z >= FishA->FishMaxHeight)
 				{
-					if (FishA && FishA->IsValidLowLevelFast())
+					State = MovementState::Descending;
+				}
+				break;
+			case MovementState::Descending:
+				NewLocation.Z -= FishA->FishSpeed;
+				if (NewLocation.Z <= FishA->FishMinHeight)
+				{
+					State = MovementState::Ascending;
+				}
+				break;
+			}
+
+			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
+				{
+					if (FishA && FishA->IsValidLowLevel())
 					{
 						FishA->SetActorLocation(NewLocation);
-						FishA->SetActorRotation(TargetRotation);
 					}
 				});
 
-			FPlatformProcess::Sleep(0.1f);
+			FPlatformProcess::Sleep(0.05f);
 		}
 		else
 		{

@@ -36,7 +36,9 @@ public:
 
 	void FishACalLocationAsync(float DeltaTime);
 
-	FVector FishAInitialLocation;
+	float FishMaxHeight = 20.f;
+	float FishMinHeight = -20.f;
+	float FishSpeed = 5.f;
 };
 
 class FishACalLocationTask : public FRunnable

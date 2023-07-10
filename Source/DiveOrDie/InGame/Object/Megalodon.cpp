@@ -36,8 +36,6 @@ AMegalodon::AMegalodon()
 void AMegalodon::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	MegalodonInitialLocation = GetActorLocation();
 }
 
 void AMegalodon::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -108,10 +106,11 @@ uint32 FAsyncCalculateLocationTask::Run()
 			float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
 
 			FVector NewLocation = CurrentLocation;
-			FVector ForwardDirection = Megalodon->GetActorForwardVector();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f); 
 
-			ForwardDirection = ForwardDirection.RotateAngleAxis(RotationToAdd.Yaw, FVector::UpVector);
+			FRotator CurrentRotation = Megalodon->GetActorRotation();
+			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+			FRotator NewRotation = CurrentRotation + RotationToAdd;
+			FVector ForwardDirection = NewRotation.Vector();
 
 			NewLocation += ForwardDirection * 25.f;
 			NewLocation.Z += ZOffset;
@@ -124,7 +123,7 @@ uint32 FAsyncCalculateLocationTask::Run()
 					}
 				});
 
-			FPlatformProcess::Sleep(0.05f); 
+			FPlatformProcess::Sleep(0.05f);
 		}
 		else
 		{
