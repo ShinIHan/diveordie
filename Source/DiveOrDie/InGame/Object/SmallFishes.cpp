@@ -55,7 +55,7 @@ void ASmallFishes::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	}
 	else if (OtherComp->GetCollisionObjectType() == ECC_WorldStatic)
 	{
-		Destroy();
+		//Destroy();
 	}
 }
 
@@ -110,7 +110,7 @@ uint32 SmallFishesCalLocationTask::Run()
 
 			FVector NewLocation = CurrentLocation;
 
-			NewLocation += ForwardDirection * 20.f;
+			NewLocation += ForwardDirection * 10.f;
 			NewLocation.Z += ZOffset;
 
 			AsyncTask(ENamedThreads::GameThread, [this, NewLocation, ZOffset]()
@@ -121,7 +121,7 @@ uint32 SmallFishesCalLocationTask::Run()
 					}
 				});
 
-			FPlatformProcess::Sleep(0.05f);
+			FPlatformProcess::Sleep(0.04f);
 		}
 		else
 		{
