@@ -43,6 +43,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	float bIsZKeyTime = 0.0f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	int GetTrashCount = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float DamageHP = 0.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float NaturallyDecreaseOxygen = 10.f;
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
@@ -188,6 +197,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateTrashCount();
 
+	UFUNCTION(BlueprintCallable)
+	void UpdateTrashItem();
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreMaxSwimSpeed();
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreDecreaseOxygen();
+
 	void ReceiveOxygenDamage(float damage);
 	
 	void ReceiveAnyDamage(float damage);
@@ -262,6 +280,9 @@ private:
 	UPROPERTY()
 	class UDiveCharacterAnimInstance* DiveCharacterAnim;
 	
+	FTimerHandle MaxSwimSpeedTimerHandle;
+	
+	FTimerHandle DecreaseOxygenTimerHandle;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)

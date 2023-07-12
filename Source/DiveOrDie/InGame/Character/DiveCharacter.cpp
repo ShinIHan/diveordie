@@ -186,6 +186,8 @@ ADiveCharacter::ADiveCharacter()
 	bCanJump = true;
 	bIsZKey = false;
 	bIsZKeyTime = 0.0f;
+	GetTrashCount = 0;
+	NaturallyDecreaseOxygen = 10.f;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -308,13 +310,13 @@ void ADiveCharacter::OxygenConsume()
 
 	if (_bOnShield) return;
 
-	if (_fCurrentOxygen - 10.f <= 0.f)
+	if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 	{
 		_fCurrentOxygen = 0;
 	}
 	else
 	{
-		_fCurrentOxygen -= 10.f;
+		_fCurrentOxygen -= NaturallyDecreaseOxygen;
 	}
 
 	if (_fCurrentOxygen <= 0.0f)
@@ -375,10 +377,60 @@ void ADiveCharacter::UpdateTrashCount()
 	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
 
 	GameState->iTrash += 1;
+	GetTrashCount += 1;
 
 	USoundWave* Sound = GoldRingWave;
 	FVector SoundLocation = GetActorLocation();
 	UGameplayStatics::PlaySoundAtLocation(this, Sound, SoundLocation, FRotator::ZeroRotator, 1.f, 1.f, 0.f, nullptr, nullptr, this);
+
+	if (GameState->iTrash == GameState->iTotalTrash)
+	{
+		_fCurrentHp = _fMaxHp;
+		_fCurrentOxygen = _fMaxOxygen;
+		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
+	}
+	else if (GetTrashCount == 5)
+	{
+		UpdateTrashItem();
+	}
+}
+
+void ADiveCharacter::UpdateTrashItem()
+{
+	FRandomStream RandomStream(FMath::Rand());
+	int32 RandomItem = RandomStream.RandRange(1, 5);
+
+	if (RandomItem == 1)
+	{
+		_fCurrentHp = _fMaxHp;
+	}
+	else if (RandomItem == 2)
+	{
+		_fCurrentOxygen = _fMaxOxygen;
+	}
+	else if (RandomItem == 3)
+	{
+		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
+	}
+	else if (RandomItem == 4)
+	{
+		NaturallyDecreaseOxygen = 0.f;
+		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
+	}
+
+	GetTrashCount = 0;
+}
+
+void ADiveCharacter::RestoreMaxSwimSpeed()
+{
+	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
+}
+
+void ADiveCharacter::RestoreDecreaseOxygen()
+{
+	NaturallyDecreaseOxygen = 10.f;
 }
 
 void ADiveCharacter::ReceiveOxygenDamage(float damage)
@@ -922,7 +974,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		bIsZKeyTime += DeltaTime;
 
-		if (bIsZKeyTime >= 2.0f)
+		if (bIsZKeyTime >= 1.5f)
 		{
 			DestroyNearbyCannedActors();
 			//bIsZKey = false;
@@ -944,13 +996,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 
 		}
-		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W))
+		else if ((!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z)) && (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::A) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::S) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::D) || GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W)))
 		{
 			if (GetCharacterMovement()->IsMovingOnGround())	{	}
 			else
 			{
 				if(bIsZKey == false)
-					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
+					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.1f));
 			}
 		}
 		else
@@ -961,7 +1013,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
 				{
 					if (bIsZKey == false)
-						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
+						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.1f));
 				}
 			}		
 		}
@@ -1016,8 +1068,11 @@ void ADiveCharacter::Tick(float DeltaTime)
 					if (GetCharacterMovement()->IsMovingOnGround())	{	}
 					else
 					{
-						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.2f));
-						depthMove = true;
+						if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
+						{
+							GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.1f));
+							depthMove = true;
+						}						
 					}
 				}
 				else
@@ -1027,8 +1082,11 @@ void ADiveCharacter::Tick(float DeltaTime)
 					{
 						if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
 						{
-							GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.2f));
-							depthMove = true;
+							if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
+							{
+								GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.1f));
+								depthMove = true;
+							}
 						}
 					}
 				}
