@@ -54,11 +54,10 @@ void AJellyFish::BeginPlay()
 void AJellyFish::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//LOG_SCREEN("Overlap JellyFish");
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
-		character->Stern(3.0f);
+		character->Stern(2.5f);
 	}
 }
 
@@ -67,7 +66,6 @@ void AJellyFish::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// 위아래로 움직이기
 	FVector CurrentLocation = GetActorLocation();
 	FVector NewLocation = CurrentLocation;
 
