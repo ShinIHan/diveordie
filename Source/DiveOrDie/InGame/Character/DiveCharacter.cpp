@@ -840,7 +840,7 @@ void ADiveCharacter::TurnNearTrash()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 250.f * 250.f;
+	float MaxTriggerDistanceSquared = 275.f * 275.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -879,7 +879,7 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 {
 	TArray<AActor*> OverlappingActors;
 	FVector CharacterLocation = GetActorLocation();
-	float MaxTriggerDistanceSquared = 250.f * 250.f;
+	float MaxTriggerDistanceSquared = 275.f * 275.f;
 
 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
 	{
@@ -974,7 +974,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		bIsZKeyTime += DeltaTime;
 
-		if (bIsZKeyTime >= 1.5f)
+		if (bIsZKeyTime >= 1.f)
 		{
 			DestroyNearbyCannedActors();
 			//bIsZKey = false;
@@ -1002,7 +1002,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			else
 			{
 				if(bIsZKey == false)
-					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.1f));
+					GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
 			}
 		}
 		else
@@ -1013,7 +1013,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				if ((FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z)) > 2.f))
 				{
 					if (bIsZKey == false)
-						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.1f));
+						GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.075f));
 				}
 			}		
 		}
@@ -1070,7 +1070,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 					{
 						if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
 						{
-							GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.1f));
+							GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
 							depthMove = true;
 						}						
 					}
@@ -1084,7 +1084,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 						{
 							if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
 							{
-								GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.1f));
+								GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 0.075f));
 								depthMove = true;
 							}
 						}
