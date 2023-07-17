@@ -188,6 +188,9 @@ ADiveCharacter::ADiveCharacter()
 	bIsZKeyTime = 0.0f;
 	GetTrashCount = 0;
 	NaturallyDecreaseOxygen = 10.f;
+
+	bIsSerialButtonBD = false;
+	bIsSerialButtonBDTime = 0.0f;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -1163,6 +1166,25 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (AVcount == 72 && Bx != NULL && By != NULL)
 	{
+		if (Bb == 0 && Bd == 0)
+		{
+			TurnNearTrash();
+
+			bIsSerialButtonBDTime += DeltaTime;
+
+			if (bIsSerialButtonBDTime >= 1.f)
+			{
+				DestroyNearbyCannedActors();
+				bIsSerialButtonBDTime = 0.0f;
+				DiveCharacterAnim->bOnTrash = false;
+			}
+		}
+		else
+		{
+			bIsSerialButtonBDTime = 0.0f;
+			DiveCharacterAnim->bOnTrash = false;
+		}
+
 		if (Ba == 0)
 		{
 			LOG_SCREEN("buttonA", Ba);
@@ -1171,9 +1193,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 			AddMovementInput(forwardVector, 1.f);
 		}
 
-		if (Bb == 0)
+		if (Bb == 0 && Bd == 1)
 		{
-			AddControllerPitchInput(1.f);
+			if (bIsUnderwater == true)
+			{
+				LOG_SCREEN("buttonB", Bb);
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
+			}	
 		}
 
 		if (Bc == 0)
@@ -1183,9 +1209,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 			AddMovementInput(backwardVector, 1.f);
 		}
 
-		if (Bd == 0)
+		if (Bd == 0 && Bb == 1)
 		{
-			AddControllerPitchInput(-1.f);
+			if (bIsUnderwater == true)
+			{
+				LOG_SCREEN("buttond", Bd);
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
+			}
 		}
 
 		if ((float)Bx > AvRx)

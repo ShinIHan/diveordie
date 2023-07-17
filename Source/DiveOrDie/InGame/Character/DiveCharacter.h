@@ -52,6 +52,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	float NaturallyDecreaseOxygen = 10.f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsSerialButtonBD = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsSerialButtonBDTime = 0.0f;
+
 	//WarningMessage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Message, meta = (AllowPrivateAccess = true))
 	FString WarningMessage;
