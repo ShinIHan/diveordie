@@ -30,18 +30,51 @@ ATrashBagC::ATrashBagC()
 		TrashBagCMesh->SetStaticMesh(TRASHBAGC_MESH.Object);
 	}
 
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(TrashBagCMesh);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	static ConstructorHelpers::FClassFinder<UUserWidget> Interaction_UI(TEXT("/Game/VFX/WGBP_Interaction.WGBP_Interaction_C"));
+
+	if (Interaction_UI.Succeeded())
+	{
+		WidgetComponent->SetWidgetClass(Interaction_UI.Class);
+		WidgetComponent->SetDrawSize(FVector2D(150.f, 150.f));
+	}
+
 	TrashBagCBox->OnComponentBeginOverlap.AddDynamic(this, &ATrashBagC::OnOverlapBegin);
+	TrashBagCBox->OnComponentEndOverlap.AddDynamic(this, &ATrashBagC::OnOverlapEnd);
 }
 
 // Called when the game starts or when spawned
 void ATrashBagC::BeginPlay()
 {
 	Super::BeginPlay();	
+	WidgetComponent->SetVisibility(false);
 }
 
 void ATrashBagC::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(OtherActor);
+	if (DiveCharacter)
+	{
+		FVector CharacterLocation = DiveCharacter->GetActorLocation();
+		FVector ActorLocation = GetActorLocation();
+		float InteractionDistanceSquared = 500.f * 500.f;
 
+		if (FVector::DistSquared(CharacterLocation, ActorLocation) <= InteractionDistanceSquared)
+		{
+			WidgetComponent->SetVisibility(true);
+		}
+	}
+}
+
+void ATrashBagC::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
+	if (character)
+	{
+		WidgetComponent->SetVisibility(false);
+	}
 }
 
 void ATrashBagC::TrashBagCDestroy()

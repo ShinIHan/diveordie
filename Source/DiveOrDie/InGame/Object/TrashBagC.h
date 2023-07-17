@@ -4,6 +4,7 @@
 
 #include "../game.h"
 #include "GameFramework/Actor.h"
+#include "Components/WidgetComponent.h"
 #include "TrashBagC.generated.h"
 
 UCLASS()
@@ -24,6 +25,9 @@ protected:
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* TrashBagCMesh;
@@ -31,6 +35,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* TrashBagCBox;
 
+	UPROPERTY(EditAnywhere)
+		UWidgetComponent* WidgetComponent;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

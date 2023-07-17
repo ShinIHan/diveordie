@@ -218,6 +218,44 @@ void ADiveCharacter::SetEnableInput(bool canMove, bool canTurn)
 	_bCanTurn = canTurn;
 }
 
+void ADiveCharacter::SetMessage(const FString& Message)
+{
+	WarningMessage = Message;
+	GetWorldTimerManager().SetTimer(MessageTimerHandle, this, &ADiveCharacter::ClearMessage, 3.0f, false);
+}
+
+void ADiveCharacter::ClearMessage()
+{
+	WarningMessage.Empty();
+}
+
+void ADiveCharacter::UpdateCurrentSelectedActor(AActor* NewSelectedActor)
+{
+	if (CurrentSelectedActor)
+	{
+		TArray<UStaticMeshComponent*> MeshComponents;
+		CurrentSelectedActor->GetComponents<UStaticMeshComponent>(MeshComponents);
+		for (UStaticMeshComponent* MeshComponent : MeshComponents)
+		{
+			MeshComponent->SetRenderCustomDepth(false);
+		}
+	}
+
+	// 새로운 선택된 액터 업데이트
+	CurrentSelectedActor = NewSelectedActor;
+
+	// 새로운 선택된 액터의 외곽선 보이기
+	if (CurrentSelectedActor)
+	{
+		TArray<UStaticMeshComponent*> MeshComponents;
+		CurrentSelectedActor->GetComponents<UStaticMeshComponent>(MeshComponents);
+		for (UStaticMeshComponent* MeshComponent : MeshComponents)
+		{
+			MeshComponent->SetRenderCustomDepth(true);
+		}
+	}
+}
+
 bool ADiveCharacter::OnMove()
 {
 	return _bOnMove;
@@ -404,19 +442,23 @@ void ADiveCharacter::UpdateTrashItem()
 	if (RandomItem == 1)
 	{
 		_fCurrentHp = _fMaxHp;
+		SetMessage("Trash collect1 : Max HP");
 	}
 	else if (RandomItem == 2)
 	{
 		_fCurrentOxygen = _fMaxOxygen;
+		SetMessage("Trash collect2 : Max Oxygen");
 	}
 	else if (RandomItem == 3)
 	{
 		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		SetMessage("Trash collect1 : Swim Speed * 1.5");
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
 	else if (RandomItem == 4)
 	{
 		NaturallyDecreaseOxygen = 0.f;
+		SetMessage("Trash collect1 : No Decrease Oxygen");
 		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
 	}
 
@@ -622,7 +664,8 @@ void ADiveCharacter::Stern(float time)
 
 	if (_bOnStern) return;
 
-	//LOG_SCREEN("Stern!");
+
+	SetMessage("Stern (2.5 sec)");
 	_bOnStern = true;
 	DiveCharacterAnim->bOnJelly = true;
 
@@ -663,6 +706,7 @@ void ADiveCharacter::SlowDown(float time)
 
 	_bOnSlowDown = true;
 
+	SetMessage("Slow (10 sec)");
 	GetCharacterMovement()->MaxSwimSpeed *= 0.5f;
 	GetCharacterMovement()->MaxWalkSpeed *= 0.5f;
 
@@ -836,6 +880,58 @@ void ADiveCharacter::EndZKeyPress()
 	LOG_SCREEN("false");
 }
 
+void ADiveCharacter::TurnOnNearObjectOutline()
+{
+	TArray<AActor*> OverlappingActors;
+	GetOverlappingActors(OverlappingActors);
+
+	float ClosestDistanceSquared = 275.f * 275.f;
+	AActor* SelectorActor = nullptr;
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (!IsValid(Actor))
+			continue;
+
+		// 오버랩된 액터가 조건을 만족하는 경우에만 처리
+		if (Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>())
+		{
+			FVector CharacterLocation = GetActorLocation();
+			FVector ActorLocation = Actor->GetActorLocation();
+			float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
+
+			// 가장 가까운 액터를 선택
+			if (DistanceSquared < ClosestDistanceSquared)
+			{
+				ClosestDistanceSquared = DistanceSquared;
+				SelectorActor = Actor;
+			}
+		}
+	}
+
+	if (CurrentSelectedActor && CurrentSelectedActor != SelectorActor)
+	{
+		TArray<UStaticMeshComponent*> MeshComponents;
+		CurrentSelectedActor->GetComponents<UStaticMeshComponent>(MeshComponents);
+		for (UStaticMeshComponent* MeshComponent : MeshComponents)
+		{
+			MeshComponent->SetRenderCustomDepth(false);
+		}
+	}
+
+	// 가장 가까운 액터를 SelectorActor에 할당
+	if (SelectorActor)
+	{
+		CurrentSelectedActor = SelectorActor;
+		TArray<UStaticMeshComponent*> MeshComponents;
+		SelectorActor->GetComponents<UStaticMeshComponent>(MeshComponents);
+		for (UStaticMeshComponent* MeshComponent : MeshComponents)
+		{
+			MeshComponent->SetRenderCustomDepth(true);
+		}
+	}
+}
+
 void ADiveCharacter::TurnNearTrash()
 {
 	TArray<AActor*> OverlappingActors;
@@ -865,6 +961,23 @@ void ADiveCharacter::TurnNearTrash()
 		if (DistanceSquared <= MaxTriggerDistanceSquared &&
 			(Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>()))
 		{
+			
+			SetMessage("Press \"Z\" Button to Destroy Trash");
+
+			//외곽선 표시를 위한 CustomDepth 활성화
+			TArray<UStaticMeshComponent*> MeshComponents;
+			Actor->GetComponents<UStaticMeshComponent>(MeshComponents);
+			for (UStaticMeshComponent* MeshComponent : MeshComponents)
+			{
+				MeshComponent->SetRenderCustomDepth(true);
+
+				/*UMaterialInstanceDynamic* DynMaterial = MeshComponent->CreateDynamicMaterialInstance(0);
+				if (DynMaterial)
+				{
+					DynMaterial->SetScalarParameterValue(TEXT("CustomDepthStencilValue"), 1.0f);
+				}*/
+			}
+
 			FRotator NewRotation = (ActorLocation - CharacterLocation).Rotation();
 			SetActorRotation(NewRotation);
 
@@ -872,7 +985,18 @@ void ADiveCharacter::TurnNearTrash()
 
 			break; 
 		}
+		else if (DistanceSquared >= MaxTriggerDistanceSquared &&
+			(Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>()))
+		{
+			TArray<UStaticMeshComponent*> MeshComponents;
+			Actor->GetComponents<UStaticMeshComponent>(MeshComponents);
+			for (UStaticMeshComponent* MeshComponent : MeshComponents)
+			{
+				MeshComponent->SetRenderCustomDepth(false);
+			}
+		}
 	}
+
 }
 
 void ADiveCharacter::DestroyNearbyCannedActors()
@@ -968,12 +1092,14 @@ void ADiveCharacter::Tick(float DeltaTime)
 	else if (_bOnJump && !GetCharacterMovement()->IsFalling())
 		_bOnJump = false;
 
+	TurnOnNearObjectOutline();
+
 	if (bIsZKey == true)
 	{
 		TurnNearTrash();
 
 		bIsZKeyTime += DeltaTime;
-
+		
 		if (bIsZKeyTime >= 1.f)
 		{
 			DestroyNearbyCannedActors();
@@ -982,6 +1108,20 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnTrash = false;
 		}
 	}
+	/*if (bIsZKey == true)
+	{
+		TurnNearTrash();
+
+		bIsZKeyTime += DeltaTime;
+
+		if (bIsZKeyTime >= 1.f)
+		{
+			DestroyNearbyCannedActors();
+			bIsZKey = false;
+			bIsZKeyTime = 0.0f;
+			DiveCharacterAnim->bOnTrash = false;
+		}
+	}*/
 	else
 	{
 		bIsZKeyTime = 0.0f;

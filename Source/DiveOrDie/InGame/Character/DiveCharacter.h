@@ -52,6 +52,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	float NaturallyDecreaseOxygen = 10.f;
 
+	//WarningMessage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Message, meta = (AllowPrivateAccess = true))
+	FString WarningMessage;
+
+	UFUNCTION(BlueprintCallable)
+	void SetMessage(const FString& Message);
+
+	UFUNCTION(BlueprintCallable)
+	void ClearMessage();
+
+	FTimerHandle MessageTimerHandle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Interaction")
+	AActor* CurrentSelectedActor;
+
+	UFUNCTION()
+	void UpdateCurrentSelectedActor(AActor* NewSelectedActor);
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
@@ -324,6 +341,8 @@ protected:
 	void StartZKeyPress();
 
 	void EndZKeyPress();
+
+	void TurnOnNearObjectOutline();
 
 	void TurnNearTrash();
 	

@@ -29,20 +29,52 @@ ACanned::ACanned()
 	{
 		CannedMesh->SetStaticMesh(CANNED_MESH.Object);
 	}
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	WidgetComponent->SetupAttachment(CannedMesh);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	static ConstructorHelpers::FClassFinder<UUserWidget> Interaction_UI(TEXT("/Game/VFX/WGBP_Interaction.WGBP_Interaction_C"));
+
+	if (Interaction_UI.Succeeded())
+	{
+		WidgetComponent->SetWidgetClass(Interaction_UI.Class);
+		WidgetComponent->SetDrawSize(FVector2D(150.f, 150.f));
+	}
 
 	CannedBox->OnComponentBeginOverlap.AddDynamic(this, &ACanned::OnOverlapBegin);
+	CannedBox->OnComponentEndOverlap.AddDynamic(this, &ACanned::OnOverlapEnd);
+
 }
 
 // Called when the game starts or when spawned
 void ACanned::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	WidgetComponent->SetVisibility(false);
 }
 
 void ACanned::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	ADiveCharacter* DiveCharacter = Cast<ADiveCharacter>(OtherActor);
+	if (DiveCharacter)
+	{
+		FVector CharacterLocation = DiveCharacter->GetActorLocation();
+		FVector ActorLocation = GetActorLocation();
+		float InteractionDistanceSquared = 500.f * 500.f;
+
+		if (FVector::DistSquared(CharacterLocation, ActorLocation) <= InteractionDistanceSquared)
+		{
+			WidgetComponent->SetVisibility(true);
+		}
+	}
+}
+
+void ACanned::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
+	if (character)
+	{
+		WidgetComponent->SetVisibility(false);
+	}
 }
 
 void ACanned::CannedDestroy()

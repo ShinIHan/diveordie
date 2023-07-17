@@ -4,6 +4,7 @@
 
 #include "../game.h"
 #include "GameFramework/Actor.h"
+#include "Components/WidgetComponent.h"
 #include "Can.generated.h"
 
 UCLASS()
@@ -24,12 +25,18 @@ protected:
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* CanMesh;
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* CanBox;
+
+	UPROPERTY(EditAnywhere)
+	UWidgetComponent* WidgetComponent;
 
 public:	
 	// Called every frame
