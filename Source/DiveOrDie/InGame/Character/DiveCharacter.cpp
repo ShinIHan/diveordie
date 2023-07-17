@@ -1164,7 +1164,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		depthMove = true;
 	}
 
-	if (AVcount == 72 && Bx != NULL && By != NULL)
+	if (AVcount == 62 && Bx != NULL && By != NULL)
 	{
 		if (Bb == 0 && Bd == 0)
 		{
@@ -1195,7 +1195,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (Bb == 0 && Bd == 1)
 		{
-			if (bIsUnderwater == true)
+			if (GetCharacterMovement()->IsSwimming())
 			{
 				LOG_SCREEN("buttonB", Bb);
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
@@ -1211,7 +1211,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (Bd == 0 && Bb == 1)
 		{
-			if (bIsUnderwater == true)
+			if (GetCharacterMovement()->IsSwimming())
 			{
 				LOG_SCREEN("buttond", Bd);
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));

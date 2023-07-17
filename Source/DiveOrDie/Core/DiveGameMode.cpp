@@ -201,23 +201,23 @@ void ADiveGameMode::ReadSerialData()
             Ba = buttonA, Bb = buttonB, Bc = buttonC, Bd = buttonD;
             Bx = ax, By = ay;
 
-            if (AVcount < 50)
+            if (AVcount < 40)
             {
                 AVcount++;
             }
-            else if (AVcount < 70)
+            else if (AVcount < 60)
             {
                 SumRX += ax;
                 SumRY += ay;
                 AVcount++;
             }
-            else if (AVcount == 70)
+            else if (AVcount == 60)
             {
                 AvRx = SumRX / 20;
                 AvRy = SumRY / 20;
                 AVcount++;
             }
-            else if (AVcount == 71)
+            else if (AVcount == 61)
             {
                 LOG_SCREEN("Set");
                 AVcount++;
