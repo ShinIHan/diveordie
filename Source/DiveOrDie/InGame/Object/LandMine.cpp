@@ -54,6 +54,4 @@ void ALandMine::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Othe
 void ALandMine::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
-

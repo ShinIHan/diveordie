@@ -1185,7 +1185,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnTrash = false;
 		}
 
-		if (Ba == 0)
+		if (Ba == 0 && Bc == 1)
 		{
 			LOG_SCREEN("buttonA", Ba);
 			FVector forwardVector = GetActorForwardVector();
@@ -1202,7 +1202,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			}	
 		}
 
-		if (Bc == 0)
+		if (Bc == 0 && Ba == 1)
 		{
 			LOG_SCREEN("buttonC");
 			FVector backwardVector = -GetActorForwardVector();
@@ -1218,15 +1218,15 @@ void ADiveCharacter::Tick(float DeltaTime)
 			}
 		}
 
-		if ((float)Bx > AvRx)
+		if ((float)Bx > AvRx && Ba == 0 && Bc == 0)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
-			AddControllerYawInput(-0.5f);
+			AddControllerYawInput(-0.75f);
 		}
-		else if ((float)Bx < AvRx)
+		else if ((float)Bx < AvRx && Ba == 0 && Bc == 0)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
-			AddControllerYawInput(0.5f);
+			AddControllerYawInput(0.75f);
 		}
 
 		if (GetCharacterMovement()->IsSwimming())
