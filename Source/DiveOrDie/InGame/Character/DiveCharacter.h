@@ -38,6 +38,15 @@ public:
 	bool bCanJump = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bRandomItemOxygen = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsWKey = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsWKeyTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bIsZKey = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
@@ -75,6 +84,8 @@ public:
 
 	UFUNCTION()
 	void UpdateCurrentSelectedActor(AActor* NewSelectedActor);
+
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;

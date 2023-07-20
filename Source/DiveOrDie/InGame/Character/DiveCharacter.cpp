@@ -58,7 +58,7 @@ ADiveCharacter::ADiveCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
+	GetCharacterMovement()->MaxSwimSpeed = 500.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
@@ -184,11 +184,13 @@ ADiveCharacter::ADiveCharacter()
 	bIsUnderwater = false;
 	_bOnShield = false;
 	bCanJump = true;
+	bIsWKey = false;
+	bIsWKeyTime = 0.0f;
 	bIsZKey = false;
 	bIsZKeyTime = 0.0f;
 	GetTrashCount = 0;
 	NaturallyDecreaseOxygen = 10.f;
-
+	bRandomItemOxygen = false;
 	bIsSerialButtonBD = false;
 	bIsSerialButtonBDTime = 0.0f;
 }
@@ -454,12 +456,13 @@ void ADiveCharacter::UpdateTrashItem()
 	}
 	else if (RandomItem == 3)
 	{
-		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetCharacterMovement()->MaxSwimSpeed *= 1.5f;
 		SetMessage("Trash collect1 : Swim Speed * 1.5");
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
 	else if (RandomItem == 4)
 	{
+		bRandomItemOxygen = true;
 		NaturallyDecreaseOxygen = 0.f;
 		SetMessage("Trash collect1 : No Decrease Oxygen");
 		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
@@ -475,7 +478,8 @@ void ADiveCharacter::RestoreMaxSwimSpeed()
 
 void ADiveCharacter::RestoreDecreaseOxygen()
 {
-	NaturallyDecreaseOxygen = 10.f;
+	bRandomItemOxygen = false;
+	NaturallyDecreaseOxygen = 10.f;	
 }
 
 void ADiveCharacter::ReceiveOxygenDamage(float damage)
@@ -1084,11 +1088,57 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;
 	else
 		_bOnMove = false;
+
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	{
+		bIsWKeyTime += DeltaTime;
+
+		if (bIsWKeyTime > 2.f)
+		{
+			GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+
+			if (_fCurrentHp - 20.f <= 0.f)
+			{
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsWKeyTime = 0.f;
+				Die();
+			}
+			else
+			{
+				bIsWKeyTime = 0.f, _fCurrentHp -= 20.f;
+			}
+		}
+		else
+		{
+			GetCharacterMovement()->MaxSwimSpeed = 1200.0f;
+			
+			if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
+			{
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+				Die();
+			}
+			else
+				NaturallyDecreaseOxygen = 20.f;
+		}		
+	}
+	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	{
+		bIsWKeyTime = 0.f;
+		GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+
+		if(bRandomItemOxygen == false)
+			NaturallyDecreaseOxygen = 10.f;
+	}
+		
+	if (GetCharacterMovement()->IsSwimming() && _fCurrentHp > 0.f && _fCurrentOxygen > 0.f)
+	{
+		FVector AutoforwardVector = GetActorForwardVector();
+		AddMovementInput(AutoforwardVector, 1.f);
+	}
 
 	if (!_bOnJump && GetCharacterMovement()->IsFalling())
 		_bOnJump = true;
