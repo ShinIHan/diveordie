@@ -44,9 +44,9 @@ ADiveCharacter::ADiveCharacter()
 	BaseTurnRate = 40.0f;
 	BaseLookUpRate = 40.0f;
 
-	_fMaxHp = 400.0f;
+	_fMaxHp = 500.0f;
 	_fCurrentHp = _fMaxHp;
-	_fMaxOxygen = 500.0f;
+	_fMaxOxygen = 700.0f;
 	_fCurrentOxygen = _fMaxOxygen;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -58,7 +58,7 @@ ADiveCharacter::ADiveCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+	GetCharacterMovement()->MaxSwimSpeed = 405.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
@@ -193,6 +193,7 @@ ADiveCharacter::ADiveCharacter()
 	bRandomItemOxygen = false;
 	bIsSerialButtonBD = false;
 	bIsSerialButtonBDTime = 0.0f;
+	bIsBaTime = 0.0f;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -430,7 +431,7 @@ void ADiveCharacter::UpdateTrashCount()
 	{
 		_fCurrentHp = _fMaxHp;
 		_fCurrentOxygen = _fMaxOxygen;
-		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
 	else if (GetTrashCount == 5)
@@ -473,7 +474,7 @@ void ADiveCharacter::UpdateTrashItem()
 
 void ADiveCharacter::RestoreMaxSwimSpeed()
 {
-	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
+	GetCharacterMovement()->MaxSwimSpeed /= 1.5f;
 }
 
 void ADiveCharacter::RestoreDecreaseOxygen()
@@ -1100,16 +1101,16 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (bIsWKeyTime > 2.f)
 		{
-			GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+			GetCharacterMovement()->MaxSwimSpeed = 405.0f;
 
-			if (_fCurrentHp - 20.f <= 0.f)
+			if (_fCurrentHp - 5.f <= 0.f)
 			{
 				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsWKeyTime = 0.f;
 				Die();
 			}
 			else
 			{
-				bIsWKeyTime = 0.f, _fCurrentHp -= 20.f;
+				bIsWKeyTime = 0.f, _fCurrentHp -= 5.f;
 			}
 		}
 		else
@@ -1122,13 +1123,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 				Die();
 			}
 			else
-				NaturallyDecreaseOxygen = 20.f;
+				NaturallyDecreaseOxygen = 15.f;
 		}		
 	}
 	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
 	{
 		bIsWKeyTime = 0.f;
-		GetCharacterMovement()->MaxSwimSpeed = 500.0f;
+		GetCharacterMovement()->MaxSwimSpeed = 405.0f;
 
 		if(bRandomItemOxygen == false)
 			NaturallyDecreaseOxygen = 10.f;
@@ -1138,6 +1139,8 @@ void ADiveCharacter::Tick(float DeltaTime)
 	{
 		FVector AutoforwardVector = GetActorForwardVector();
 		AddMovementInput(AutoforwardVector, 1.f);
+
+		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
 	}
 
 	if (!_bOnJump && GetCharacterMovement()->IsFalling())
@@ -1216,7 +1219,16 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (AVcount == 62 && Bx != NULL && By != NULL)
 	{
-		if (Bb == 0 && Bd == 0)
+		if (Ba == 1)
+		{
+			bIsBaTime = 0.f;
+			GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+
+			if (bRandomItemOxygen == false)
+				NaturallyDecreaseOxygen = 10.f;
+		}
+
+		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
 		{
 			TurnNearTrash();
 
@@ -1235,35 +1247,67 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnTrash = false;
 		}
 
-		if (Ba == 0 && Bc == 1)
+		if (Ba == 0 && Bb == 1 && Bc == 1 && Bd == 1)
 		{
-			LOG_SCREEN("buttonA", Ba);
-			FVector forwardVector = GetActorForwardVector();
+			if (!GetCharacterMovement()->IsSwimming())
+			{
+				FVector forwardVector = GetActorForwardVector();
+				AddMovementInput(forwardVector, 1.f);
+			}	
+			else if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+			{
+				bIsBaTime += DeltaTime;
 
-			AddMovementInput(forwardVector, 1.f);
+				if (bIsBaTime > 2.f)
+				{
+					GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+
+					if (_fCurrentHp - 5.f <= 0.f)
+					{
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsBaTime = 0.f;
+						Die();
+					}
+					else
+					{
+						bIsBaTime = 0.f, _fCurrentHp -= 5.f;
+					}
+				}
+				else
+				{
+					GetCharacterMovement()->MaxSwimSpeed = 1200.0f;
+
+					if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
+					{
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+						Die();
+					}
+					else
+						NaturallyDecreaseOxygen = 15.f;
+				}
+			}
 		}
 
-		if (Bb == 0 && Bd == 1)
+		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 1)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
-				LOG_SCREEN("buttonB", Bb);
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
 			}	
 		}
 
-		if (Bc == 0 && Ba == 1)
+		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
 		{
-			LOG_SCREEN("buttonC");
-			FVector backwardVector = -GetActorForwardVector();
-			AddMovementInput(backwardVector, 1.f);
+			if (!GetCharacterMovement()->IsSwimming())
+			{
+				FVector backwardVector = -GetActorForwardVector();
+				AddMovementInput(backwardVector, 1.f);
+			}
 		}
 
-		if (Bd == 0 && Bb == 1)
+		if (Ba == 1 && Bb == 1 && Bc == 1 && Bd == 0)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
-				LOG_SCREEN("buttond", Bd);
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
 			}
 		}
