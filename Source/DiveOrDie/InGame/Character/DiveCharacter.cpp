@@ -797,18 +797,31 @@ void ADiveCharacter::MoveForward(float Value)
 	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
+		FVector NewLocation;
+
 		if (GetCharacterMovement()->IsSwimming())
 		{
-			AddMovementInput(FollowCamera->GetForwardVector(), Value);
+			NewLocation = GetActorLocation() + FollowCamera->GetForwardVector() * Value;
 		}
 		else
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
 			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			AddMovementInput(Direction, Value);
+
+			NewLocation = GetActorLocation() + Direction * Value;
 		}
+		float DistanceToWaterBody = FVector::Dist(NewLocation, FVector(NewLocation.X, NewLocation.Y, _WaterBodyPos.Z));
+
+		if (GetCharacterMovement()->IsSwimming())
+		{
+			if (DistanceToWaterBody > 1.25f)
+			{
+				return;
+			}
+		}
+
+		AddMovementInput(NewLocation - GetActorLocation());
 	}
 }
 
@@ -1137,9 +1150,14 @@ void ADiveCharacter::Tick(float DeltaTime)
 		
 	if (GetCharacterMovement()->IsSwimming() && _fCurrentHp > 0.f && _fCurrentOxygen > 0.f)
 	{
-		FVector AutoforwardVector = GetActorForwardVector();
-		AddMovementInput(AutoforwardVector, 1.f);
+		FVector NextLocation = GetActorLocation() + GetActorForwardVector();
 
+		if (FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, NextLocation.Z)) > 1.25f)
+		{
+			return;
+		}
+
+		AddMovementInput(GetActorForwardVector(), 1.f);
 		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
 	}
 
@@ -1251,8 +1269,14 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			if (!GetCharacterMovement()->IsSwimming())
 			{
-				FVector forwardVector = GetActorForwardVector();
-				AddMovementInput(forwardVector, 1.f);
+				FVector SerialNextLocation = GetActorLocation() + GetActorForwardVector();
+
+				if (FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, SerialNextLocation.Z)) > 1.25f)
+				{
+					return;
+				}
+
+				AddMovementInput(GetActorForwardVector(), 1.f);
 			}	
 			else if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
 			{
