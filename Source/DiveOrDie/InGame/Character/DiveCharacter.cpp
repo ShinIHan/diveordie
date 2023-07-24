@@ -184,15 +184,13 @@ ADiveCharacter::ADiveCharacter()
 	bIsUnderwater = false;
 	_bOnShield = false;
 	bCanJump = true;
-	bIsWKey = false;
-	bIsWKeyTime = 0.0f;
-	bIsZKey = false;
-	bIsZKeyTime = 0.0f;
+	bIsDashKey = false, bIsDashTime = 0.0f;
+	bIsWKey = false, bIsWKeyTime = 0.0f;
+	bIsZKey = false, bIsZKeyTime = 0.0f;
 	GetTrashCount = 0;
 	NaturallyDecreaseOxygen = 10.f;
 	bRandomItemOxygen = false;
-	bIsSerialButtonBD = false;
-	bIsSerialButtonBDTime = 0.0f;
+	bIsSerialButtonBD = false, bIsSerialButtonBDTime = 0.0f;
 	bIsBaTime = 0.0f;
 }
 
@@ -901,6 +899,16 @@ void ADiveCharacter::EndZKeyPress()
 	LOG_SCREEN("false");
 }
 
+void ADiveCharacter::StartDashPress()
+{
+	bIsDashKey = true;
+}
+
+void ADiveCharacter::EndDashPress()
+{
+	bIsDashKey = false;
+}
+
 void ADiveCharacter::TurnOnNearObjectOutline()
 {
 	TArray<AActor*> OverlappingActors;
@@ -1405,4 +1413,7 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	InputComponent->BindAction("ZKey", IE_Pressed, this, &ADiveCharacter::StartZKeyPress);
 	InputComponent->BindAction("ZKey", IE_Released, this, &ADiveCharacter::EndZKeyPress);
+
+	InputComponent->BindAction("Dash", IE_Pressed, this, &ADiveCharacter::StartDashPress);
+	InputComponent->BindAction("Dash", IE_Released, this, &ADiveCharacter::EndDashPress);
 }

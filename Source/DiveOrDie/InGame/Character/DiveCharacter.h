@@ -44,6 +44,12 @@ public:
 	float bIsBaTime = 0.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsDashKey = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsDashTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bIsWKey = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
@@ -361,6 +367,10 @@ protected:
 	void StartZKeyPress();
 
 	void EndZKeyPress();
+
+	void StartDashPress();
+
+	void EndDashPress();
 
 	void TurnOnNearObjectOutline();
 
