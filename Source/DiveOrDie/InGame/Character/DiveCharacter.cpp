@@ -187,7 +187,6 @@ ADiveCharacter::ADiveCharacter()
 	bIsDashKey = false, bIsDashTime = 0.0f;
 	bIsWKey = false, bIsWKeyTime = 0.0f;
 	bIsZKey = false, bIsZKeyTime = 0.0f;
-	GetTrashCount = 0;
 	NaturallyDecreaseOxygen = 10.f;
 	bRandomItemOxygen = false;
 	bIsSerialButtonBD = false, bIsSerialButtonBDTime = 0.0f;
@@ -419,7 +418,6 @@ void ADiveCharacter::UpdateTrashCount()
 	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
 
 	GameState->iTrash += 1;
-	GetTrashCount += 1;
 
 	USoundWave* Sound = GoldRingWave;
 	FVector SoundLocation = GetActorLocation();
@@ -432,7 +430,14 @@ void ADiveCharacter::UpdateTrashCount()
 		GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
-	else if (GetTrashCount == 5)
+	else if (GameState->iTrash % 10 == 0)
+	{
+		_fMaxHp += 10.f;
+		_fMaxOxygen += 10.f;
+		_fCurrentHp += 10.f;
+		_fCurrentOxygen += 10.f;
+	}
+	else if (GameState->iTrash % 5 == 0)
 	{
 		UpdateTrashItem();
 	}
@@ -466,8 +471,6 @@ void ADiveCharacter::UpdateTrashItem()
 		SetMessage("Trash collect1 : No Decrease Oxygen");
 		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
 	}
-
-	GetTrashCount = 0;
 }
 
 void ADiveCharacter::RestoreMaxSwimSpeed()
@@ -514,7 +517,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 
-	if(damage == 25.f || damage == 10.f)
+	if(damage == 10.f || damage == 50.f)
 	{
 		SetOnFishTrue();
 	}
@@ -573,9 +576,9 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 void ADiveCharacter::Heal(float amount)
 {
-	if (_fCurrentHp >= 500.f)
+	if (_fCurrentHp >= _fMaxHp)
 	{
-		_fCurrentHp = 500.f;
+		_fCurrentHp = _fMaxHp;
 	}
 	else
 	{
