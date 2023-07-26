@@ -58,7 +58,7 @@ ADiveCharacter::ADiveCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+	GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
@@ -1122,7 +1122,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (bIsWKeyTime > 2.f)
 		{
-			GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 
 			if (_fCurrentHp - 5.f <= 0.f)
 			{
@@ -1136,7 +1136,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			GetCharacterMovement()->MaxSwimSpeed = 1200.0f;
+			GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
 			
 			if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 			{
@@ -1150,7 +1150,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
 	{
 		bIsWKeyTime = 0.f;
-		GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+		GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 
 		if(bRandomItemOxygen == false)
 			NaturallyDecreaseOxygen = 10.f;
@@ -1248,7 +1248,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		if (Ba == 1)
 		{
 			bIsBaTime = 0.f;
-			GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 
 			if (bRandomItemOxygen == false)
 				NaturallyDecreaseOxygen = 10.f;
@@ -1292,7 +1292,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 				if (bIsBaTime > 2.f)
 				{
-					GetCharacterMovement()->MaxSwimSpeed = 405.0f;
+					GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 
 					if (_fCurrentHp - 5.f <= 0.f)
 					{
@@ -1306,7 +1306,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				}
 				else
 				{
-					GetCharacterMovement()->MaxSwimSpeed = 1200.0f;
+					GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
 
 					if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 					{
