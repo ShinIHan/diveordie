@@ -1323,8 +1323,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
+				DiveCharacterAnim->bOnSerialAbove = true;
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));		
 			}	
+		}
+		else
+		{
+			DiveCharacterAnim->bOnSerialAbove = false;
 		}
 
 		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
@@ -1340,8 +1345,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
+				DiveCharacterAnim->bOnSerialUnder = true;
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
 			}
+		}
+		else
+		{
+			DiveCharacterAnim->bOnSerialUnder = false;
 		}
 
 		if ((float)Bx > AvRx && Ba == 0 && Bc == 0)
