@@ -123,7 +123,7 @@ uint32 FAsyncCalculateLocationTask::Run()
 					}
 				});
 
-			FPlatformProcess::Sleep(0.05f);
+			FPlatformProcess::Sleep(0.03f);
 		}
 		else
 		{

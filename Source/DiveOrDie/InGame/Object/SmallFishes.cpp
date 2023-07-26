@@ -121,7 +121,7 @@ uint32 SmallFishesCalLocationTask::Run()
 					}
 				});
 
-			FPlatformProcess::Sleep(0.04f);
+			FPlatformProcess::Sleep(0.03f);
 		}
 		else
 		{

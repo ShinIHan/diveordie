@@ -573,9 +573,9 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 void ADiveCharacter::Heal(float amount)
 {
-	if (_fCurrentHp >= 400.f)
+	if (_fCurrentHp >= 500.f)
 	{
-		_fCurrentHp = 400.f;
+		_fCurrentHp = 500.f;
 	}
 	else
 	{
@@ -1323,7 +1323,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
-				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));		
 			}	
 		}
 
