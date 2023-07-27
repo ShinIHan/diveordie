@@ -1248,6 +1248,10 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (AVcount == 62 && Bx != NULL && By != NULL)
 	{
+		if (Ba == 0 && Bb == 0 && Bc == 0 && Bd == 0)
+		{
+			GamePause();
+		}
 		if (Ba == 1)
 		{
 			bIsBaTime = 0.f;
