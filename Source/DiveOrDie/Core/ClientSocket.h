@@ -25,7 +25,7 @@ class UDiveGameInstance;
 
 #define	MAX_BUFFER		4096
 #define SERVER_PORT		80
-#define SERVER_IP		"14.63.15.105"
+#define SERVER_IP		"112.169.97.151"
 #define MAX_CLIENTS		100
 
 struct SOCKETINFO
