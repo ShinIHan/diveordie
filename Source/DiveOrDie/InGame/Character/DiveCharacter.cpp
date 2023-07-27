@@ -44,9 +44,9 @@ ADiveCharacter::ADiveCharacter()
 	BaseTurnRate = 40.0f;
 	BaseLookUpRate = 40.0f;
 
-	_fMaxHp = 400.0f;
+	_fMaxHp = 500.0f;
 	_fCurrentHp = _fMaxHp;
-	_fMaxOxygen = 500.0f;
+	_fMaxOxygen = 700.0f;
 	_fCurrentOxygen = _fMaxOxygen;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
@@ -58,7 +58,7 @@ ADiveCharacter::ADiveCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
-	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
+	GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->MaxOutOfWaterStepHeight = 0.0f;
 	GetCharacterMovement()->OutofWaterZ = 0.0f;
@@ -184,13 +184,13 @@ ADiveCharacter::ADiveCharacter()
 	bIsUnderwater = false;
 	_bOnShield = false;
 	bCanJump = true;
-	bIsZKey = false;
-	bIsZKeyTime = 0.0f;
-	GetTrashCount = 0;
+	bIsDashKey = false, bIsDashTime = 0.0f;
+	bIsWKey = false, bIsWKeyTime = 0.0f;
+	bIsZKey = false, bIsZKeyTime = 0.0f;
 	NaturallyDecreaseOxygen = 10.f;
-
-	bIsSerialButtonBD = false;
-	bIsSerialButtonBDTime = 0.0f;
+	bRandomItemOxygen = false;
+	bIsSerialButtonBD = false, bIsSerialButtonBDTime = 0.0f;
+	bIsBaTime = 0.0f;
 }
 
 void ADiveCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -418,7 +418,6 @@ void ADiveCharacter::UpdateTrashCount()
 	ADiveGameState* GameState = Cast<ADiveGameState>(GetWorld()->GetGameState());
 
 	GameState->iTrash += 1;
-	GetTrashCount += 1;
 
 	USoundWave* Sound = GoldRingWave;
 	FVector SoundLocation = GetActorLocation();
@@ -428,10 +427,17 @@ void ADiveCharacter::UpdateTrashCount()
 	{
 		_fCurrentHp = _fMaxHp;
 		_fCurrentOxygen = _fMaxOxygen;
-		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
-	else if (GetTrashCount == 5)
+	else if (GameState->iTrash % 10 == 0)
+	{
+		_fMaxHp += 10.f;
+		_fMaxOxygen += 10.f;
+		_fCurrentHp += 10.f;
+		_fCurrentOxygen += 10.f;
+	}
+	else if (GameState->iTrash % 5 == 0)
 	{
 		UpdateTrashItem();
 	}
@@ -454,28 +460,28 @@ void ADiveCharacter::UpdateTrashItem()
 	}
 	else if (RandomItem == 3)
 	{
-		GetCharacterMovement()->MaxSwimSpeed = 1500.0f;
+		GetCharacterMovement()->MaxSwimSpeed *= 1.5f;
 		SetMessage("Trash collect1 : Swim Speed * 1.5");
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
 	else if (RandomItem == 4)
 	{
+		bRandomItemOxygen = true;
 		NaturallyDecreaseOxygen = 0.f;
 		SetMessage("Trash collect1 : No Decrease Oxygen");
 		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
 	}
-
-	GetTrashCount = 0;
 }
 
 void ADiveCharacter::RestoreMaxSwimSpeed()
 {
-	GetCharacterMovement()->MaxSwimSpeed = 1000.0f;
+	GetCharacterMovement()->MaxSwimSpeed /= 1.5f;
 }
 
 void ADiveCharacter::RestoreDecreaseOxygen()
 {
-	NaturallyDecreaseOxygen = 10.f;
+	bRandomItemOxygen = false;
+	NaturallyDecreaseOxygen = 10.f;	
 }
 
 void ADiveCharacter::ReceiveOxygenDamage(float damage)
@@ -511,7 +517,7 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 
-	if(damage == 25.f || damage == 10.f)
+	if(damage == 10.f || damage == 50.f)
 	{
 		SetOnFishTrue();
 	}
@@ -570,9 +576,9 @@ void ADiveCharacter::ReceiveAnyDamage(float damage)
 
 void ADiveCharacter::Heal(float amount)
 {
-	if (_fCurrentHp >= 400.f)
+	if (_fCurrentHp >= _fMaxHp)
 	{
-		_fCurrentHp = 400.f;
+		_fCurrentHp = _fMaxHp;
 	}
 	else
 	{
@@ -792,18 +798,31 @@ void ADiveCharacter::MoveForward(float Value)
 	
 	if ((Controller != NULL) && (Value != 0.0f))
 	{
+		FVector NewLocation;
+
 		if (GetCharacterMovement()->IsSwimming())
 		{
-			AddMovementInput(FollowCamera->GetForwardVector(), Value);
+			NewLocation = GetActorLocation() + FollowCamera->GetForwardVector() * Value;
 		}
 		else
 		{
 			const FRotator Rotation = Controller->GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);
-
 			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-			AddMovementInput(Direction, Value);
+
+			NewLocation = GetActorLocation() + Direction * Value;
 		}
+		float DistanceToWaterBody = FVector::Dist(NewLocation, FVector(NewLocation.X, NewLocation.Y, _WaterBodyPos.Z));
+
+		if (GetCharacterMovement()->IsSwimming())
+		{
+			if (DistanceToWaterBody > 1.25f)
+			{
+				return;
+			}
+		}
+
+		AddMovementInput(NewLocation - GetActorLocation());
 	}
 }
 
@@ -881,6 +900,16 @@ void ADiveCharacter::EndZKeyPress()
 {
 	bIsZKey = false;
 	LOG_SCREEN("false");
+}
+
+void ADiveCharacter::StartDashPress()
+{
+	bIsDashKey = true;
+}
+
+void ADiveCharacter::EndDashPress()
+{
+	bIsDashKey = false;
 }
 
 void ADiveCharacter::TurnOnNearObjectOutline()
@@ -1084,11 +1113,64 @@ void ADiveCharacter::DestroyNearbyCannedActors()
 void ADiveCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if (GetVelocity().Size() > 0)
 		_bOnMove = true;
 	else
 		_bOnMove = false;
+
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	{
+		bIsWKeyTime += DeltaTime;
+
+		if (bIsWKeyTime > 2.f)
+		{
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+			if (_fCurrentHp - 5.f <= 0.f)
+			{
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsWKeyTime = 0.f;
+				Die();
+			}
+			else
+			{
+				bIsWKeyTime = 0.f, _fCurrentHp -= 5.f;
+			}
+		}
+		else
+		{
+			GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
+			
+			if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
+			{
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+				Die();
+			}
+			else
+				NaturallyDecreaseOxygen = 15.f;
+		}		
+	}
+	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	{
+		bIsWKeyTime = 0.f;
+		GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+		if(bRandomItemOxygen == false)
+			NaturallyDecreaseOxygen = 10.f;
+	}
+		
+	if (GetCharacterMovement()->IsSwimming() && _fCurrentHp > 0.f && _fCurrentOxygen > 0.f)
+	{
+		FVector NextLocation = GetActorLocation() + GetActorForwardVector();
+
+		if (FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, NextLocation.Z)) > 1.25f)
+		{
+			return;
+		}
+
+		AddMovementInput(GetActorForwardVector(), 1.f);
+		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
+	}
 
 	if (!_bOnJump && GetCharacterMovement()->IsFalling())
 		_bOnJump = true;
@@ -1166,7 +1248,20 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	if (AVcount == 62 && Bx != NULL && By != NULL)
 	{
-		if (Bb == 0 && Bd == 0)
+		if (Ba == 0 && Bb == 0 && Bc == 0 && Bd == 0)
+		{
+			GamePause();
+		}
+		if (Ba == 1)
+		{
+			bIsBaTime = 0.f;
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+			if (bRandomItemOxygen == false)
+				NaturallyDecreaseOxygen = 10.f;
+		}
+
+		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
 		{
 			TurnNearTrash();
 
@@ -1185,37 +1280,85 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnTrash = false;
 		}
 
-		if (Ba == 0 && Bc == 1)
+		if (Ba == 0 && Bb == 1 && Bc == 1 && Bd == 1)
 		{
-			LOG_SCREEN("buttonA", Ba);
-			FVector forwardVector = GetActorForwardVector();
+			if (!GetCharacterMovement()->IsSwimming())
+			{
+				FVector SerialNextLocation = GetActorLocation() + GetActorForwardVector();
 
-			AddMovementInput(forwardVector, 1.f);
+				if (FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, SerialNextLocation.Z)) > 1.25f)
+				{
+					return;
+				}
+
+				AddMovementInput(GetActorForwardVector(), 1.f);
+			}	
+			else if (!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+			{
+				bIsBaTime += DeltaTime;
+
+				if (bIsBaTime > 2.f)
+				{
+					GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+					if (_fCurrentHp - 5.f <= 0.f)
+					{
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsBaTime = 0.f;
+						Die();
+					}
+					else
+					{
+						bIsBaTime = 0.f, _fCurrentHp -= 5.f;
+					}
+				}
+				else
+				{
+					GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
+
+					if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
+					{
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+						Die();
+					}
+					else
+						NaturallyDecreaseOxygen = 15.f;
+				}
+			}
 		}
 
-		if (Bb == 0 && Bd == 1)
+		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 1)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
-				LOG_SCREEN("buttonB", Bb);
-				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));
+				DiveCharacterAnim->bOnSerialAbove = true;
+				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, 1.f));		
 			}	
 		}
-
-		if (Bc == 0 && Ba == 1)
+		else
 		{
-			LOG_SCREEN("buttonC");
-			FVector backwardVector = -GetActorForwardVector();
-			AddMovementInput(backwardVector, 1.f);
+			DiveCharacterAnim->bOnSerialAbove = false;
 		}
 
-		if (Bd == 0 && Bb == 1)
+		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
+		{
+			if (!GetCharacterMovement()->IsSwimming())
+			{
+				FVector backwardVector = -GetActorForwardVector();
+				AddMovementInput(backwardVector, 1.f);
+			}
+		}
+
+		if (Ba == 1 && Bb == 1 && Bc == 1 && Bd == 0)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
-				LOG_SCREEN("buttond", Bd);
+				DiveCharacterAnim->bOnSerialUnder = true;
 				GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -1.f));
 			}
+		}
+		else
+		{
+			DiveCharacterAnim->bOnSerialUnder = false;
 		}
 
 		if ((float)Bx > AvRx && Ba == 0 && Bc == 0)
@@ -1287,4 +1430,7 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	InputComponent->BindAction("ZKey", IE_Pressed, this, &ADiveCharacter::StartZKeyPress);
 	InputComponent->BindAction("ZKey", IE_Released, this, &ADiveCharacter::EndZKeyPress);
+
+	InputComponent->BindAction("Dash", IE_Pressed, this, &ADiveCharacter::StartDashPress);
+	InputComponent->BindAction("Dash", IE_Released, this, &ADiveCharacter::EndDashPress);
 }

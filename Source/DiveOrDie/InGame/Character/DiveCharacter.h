@@ -38,13 +38,28 @@ public:
 	bool bCanJump = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bRandomItemOxygen = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsBaTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsDashKey = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsDashTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsWKey = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	float bIsWKeyTime = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bIsZKey = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	float bIsZKeyTime = 0.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
-	int GetTrashCount = 0;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	float DamageHP = 0.f;
@@ -75,6 +90,8 @@ public:
 
 	UFUNCTION()
 	void UpdateCurrentSelectedActor(AActor* NewSelectedActor);
+
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool _bCanMove = true;
@@ -347,6 +364,10 @@ protected:
 	void StartZKeyPress();
 
 	void EndZKeyPress();
+
+	void StartDashPress();
+
+	void EndDashPress();
 
 	void TurnOnNearObjectOutline();
 

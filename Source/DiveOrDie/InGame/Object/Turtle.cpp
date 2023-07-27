@@ -117,7 +117,7 @@ uint32 TurtleCalLocationTask::Run()
 					}
 				});
 
-			FPlatformProcess::Sleep(0.1f);
+			FPlatformProcess::Sleep(0.075f);
 		}
 		else
 		{

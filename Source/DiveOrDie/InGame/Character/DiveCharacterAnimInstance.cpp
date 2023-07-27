@@ -15,6 +15,8 @@ UDiveCharacterAnimInstance::UDiveCharacterAnimInstance()
 	bOnNet = false;
 	bOnBullet = false;
 	bOnTrash = false;
+	bOnSerialAbove = false;
+	bOnSerialUnder = false;
 }
 
 void UDiveCharacterAnimInstance::AnimNotify_Die()

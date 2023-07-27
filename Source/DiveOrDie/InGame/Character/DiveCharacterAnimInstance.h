@@ -58,6 +58,12 @@ public:
 	bool bOnTrash;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnSerialAbove;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnSerialUnder;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	float direction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
