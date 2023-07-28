@@ -1252,6 +1252,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		{
 			GamePause();
 		}
+
 		if (Ba == 1)
 		{
 			bIsBaTime = 0.f;
@@ -1261,7 +1262,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				NaturallyDecreaseOxygen = 10.f;
 		}
 
-		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
+		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
 		{
 			TurnNearTrash();
 
@@ -1339,15 +1340,6 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnSerialAbove = false;
 		}
 
-		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
-		{
-			if (!GetCharacterMovement()->IsSwimming())
-			{
-				FVector backwardVector = -GetActorForwardVector();
-				AddMovementInput(backwardVector, 1.f);
-			}
-		}
-
 		if (Ba == 1 && Bb == 1 && Bc == 1 && Bd == 0)
 		{
 			if (GetCharacterMovement()->IsSwimming())
@@ -1361,15 +1353,35 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnSerialUnder = false;
 		}
 
-		if ((float)Bx > AvRx && Ba == 0 && Bc == 0)
+		if ((float)Bx > AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			AddControllerYawInput(-0.75f);
 		}
-		else if ((float)Bx < AvRx && Ba == 0 && Bc == 0)
+		else if ((float)Bx < AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			AddControllerYawInput(0.75f);
+		}
+
+		if ((float)By < AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
+		{
+			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			DiveCharacterAnim->bOnSerialMoveR = false;
+			DiveCharacterAnim->bOnSerialMoveL = true;
+			AddMovementInput(GetActorRightVector(), -1.f);
+		}
+		else if ((float)By > AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
+		{
+			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			DiveCharacterAnim->bOnSerialMoveL = false;
+			DiveCharacterAnim->bOnSerialMoveR = true;
+			AddMovementInput(GetActorRightVector(), 1.f);
+		}
+		else
+		{
+			DiveCharacterAnim->bOnSerialMoveL = false;
+			DiveCharacterAnim->bOnSerialMoveR = false;
 		}
 
 		if (GetCharacterMovement()->IsSwimming())
