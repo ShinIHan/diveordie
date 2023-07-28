@@ -1367,12 +1367,18 @@ void ADiveCharacter::Tick(float DeltaTime)
 		if ((float)By < AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			DiveCharacterAnim->bOnSerialMoveL = true;
 			AddMovementInput(GetActorRightVector(), -1.f);
 		}
 		else if ((float)By > AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
+			DiveCharacterAnim->bOnSerialMoveL = false;
 			AddMovementInput(GetActorRightVector(), 1.f);
+		}
+		else
+		{
+			DiveCharacterAnim->bOnSerialMoveL = false;
 		}
 
 		if (GetCharacterMovement()->IsSwimming())

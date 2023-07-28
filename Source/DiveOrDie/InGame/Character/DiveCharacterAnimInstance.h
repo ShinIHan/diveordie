@@ -58,6 +58,9 @@ public:
 	bool bOnTrash;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnSerialMoveL;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	bool bOnSerialAbove;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
