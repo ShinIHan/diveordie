@@ -16,6 +16,7 @@ UDiveCharacterAnimInstance::UDiveCharacterAnimInstance()
 	bOnBullet = false;
 	bOnTrash = false;
 	bOnSerialMoveL = false;
+	bOnSerialMoveR = false;
 	bOnSerialAbove = false;
 	bOnSerialUnder = false;
 }

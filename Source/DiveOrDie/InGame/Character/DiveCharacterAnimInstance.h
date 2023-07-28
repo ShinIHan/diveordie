@@ -61,6 +61,9 @@ public:
 	bool bOnSerialMoveL;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
+	bool bOnSerialMoveR;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
 	bool bOnSerialAbove;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Instance)
