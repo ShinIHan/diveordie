@@ -1174,7 +1174,13 @@ void ADiveCharacter::Tick(float DeltaTime)
 			return;
 		}
 
-		AddMovementInput(GetActorForwardVector(), 1.f);
+		AddMovementInput(GetActorForwardVector(), 1.f); 
+
+		if (GetCharacterMovement()->IsFalling())
+		{
+			AddMovementInput(GetActorForwardVector(), -1.5f);
+		}
+
 		GetCharacterMovement()->AddInputVector(FVector(0.f, 0.f, -0.075f));
 	}
 
