@@ -182,6 +182,7 @@ ADiveCharacter::ADiveCharacter()
 	AudioComponent->SetupAttachment(GetMesh());
 
 	bIsUnderwater = false;
+	bIsHitTrap = false;
 	_bOnShield = false;
 	bCanJump = true;
 	bIsDashKey = false, bIsDashTime = 0.0f;
@@ -468,7 +469,7 @@ void ADiveCharacter::UpdateTrashItem()
 	{
 		bRandomItemOxygen = true;
 		NaturallyDecreaseOxygen = 0.f;
-		SetMessage("Trash collect1 : No Decrease Oxygen");
+		SetMessage("Trash collect1 : No Decrease Oxygen 10's");
 		GetWorldTimerManager().SetTimer(DecreaseOxygenTimerHandle, this, &ADiveCharacter::RestoreDecreaseOxygen, 10.0f, false);
 	}
 }
@@ -673,8 +674,11 @@ void ADiveCharacter::Stern(float time)
 
 	if (_bOnStern) return;
 
+	if(bIsHitTrap == false)
+		SetMessage("Stern (2.5 sec)");
+	else
+		SetMessage("Stern (1.5 sec)");
 
-	SetMessage("Stern (2.5 sec)");
 	_bOnStern = true;
 	DiveCharacterAnim->bOnJelly = true;
 
@@ -705,6 +709,8 @@ void ADiveCharacter::SternEnd()
 	DiveCharacterAnim->bOnJelly = false;
 
 	SetEnableInput();
+
+	bIsHitTrap = false;
 }
 
 void ADiveCharacter::SlowDown(float time)

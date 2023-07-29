@@ -38,6 +38,9 @@ public:
 	bool bCanJump = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsHitTrap = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bRandomItemOxygen = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))

@@ -43,6 +43,7 @@ void AFishingTrap::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* O
 	ADiveCharacter* character = Cast<ADiveCharacter>(OtherActor);
 	if (character)
 	{
+		character->bIsHitTrap = true;
 		character->Stern(1.5f);
 	}
 }
