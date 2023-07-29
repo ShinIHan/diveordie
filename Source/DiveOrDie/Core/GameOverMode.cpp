@@ -33,7 +33,7 @@ void AGameOverMode::RetryGame()
 	if (_iRetrying >= _iPlayerCount)
 	{
 		//LOG_SCREEN("ReStart Game");	
-		UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetGameInstance());
+		UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 		if (DiveGameInstance)
 		{
 			int iStage = DiveGameInstance->iStageNum;
