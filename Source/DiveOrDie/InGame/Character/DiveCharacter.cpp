@@ -1119,7 +1119,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 	else
 		_bOnMove = false;
 
-	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming() && _bOnStern == false)
 	{
 		bIsWKeyTime += DeltaTime;
 
@@ -1150,7 +1150,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				NaturallyDecreaseOxygen = 15.f;
 		}		
 	}
-	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
+	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming() && _bOnStern == false)
 	{
 		bIsWKeyTime = 0.f;
 		GetCharacterMovement()->MaxSwimSpeed = 495.0f;
@@ -1159,7 +1159,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			NaturallyDecreaseOxygen = 10.f;
 	}
 		
-	if (GetCharacterMovement()->IsSwimming() && _fCurrentHp > 0.f && _fCurrentOxygen > 0.f)
+	if (GetCharacterMovement()->IsSwimming() && _fCurrentHp > 0.f && _fCurrentOxygen > 0.f && _bOnStern == false)
 	{
 		FVector NextLocation = GetActorLocation() + GetActorForwardVector();
 
@@ -1179,7 +1179,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 	TurnOnNearObjectOutline();
 
-	if (bIsZKey == true)
+	if (bIsZKey == true && _bOnStern == false)
 	{
 		TurnNearTrash();
 
@@ -1214,7 +1214,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 		DiveCharacterAnim->bOnTrash = false;
 	}
 
-	if (GetCharacterMovement()->IsSwimming())
+	if (GetCharacterMovement()->IsSwimming() && _bOnStern == false)
 	{
 		if (DiveCharacterAnim->bOnNet == true || bIsZKey == true)	{	}
 		else if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::Z))
@@ -1253,7 +1253,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			GamePause();
 		}
 
-		if (Ba == 1)
+		if (Ba == 1 && _bOnStern == false)
 		{
 			bIsBaTime = 0.f;
 			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
@@ -1262,7 +1262,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 				NaturallyDecreaseOxygen = 10.f;
 		}
 
-		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1)
+		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1 && _bOnStern == false)
 		{
 			TurnNearTrash();
 
@@ -1281,7 +1281,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnTrash = false;
 		}
 
-		if (Ba == 0 && Bb == 1 && Bc == 1 && Bd == 1)
+		if (Ba == 0 && Bb == 1 && Bc == 1 && Bd == 1 && _bOnStern == false)
 		{
 			if (!GetCharacterMovement()->IsSwimming())
 			{
@@ -1327,7 +1327,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			}
 		}
 
-		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 1)
+		if (Ba == 1 && Bb == 0 && Bc == 1 && Bd == 1 && _bOnStern == false)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
@@ -1340,7 +1340,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnSerialAbove = false;
 		}
 
-		if (Ba == 1 && Bb == 1 && Bc == 1 && Bd == 0)
+		if (Ba == 1 && Bb == 1 && Bc == 1 && Bd == 0 && _bOnStern == false)
 		{
 			if (GetCharacterMovement()->IsSwimming())
 			{
@@ -1353,25 +1353,25 @@ void ADiveCharacter::Tick(float DeltaTime)
 			DiveCharacterAnim->bOnSerialUnder = false;
 		}
 
-		if ((float)Bx > AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1)
+		if ((float)Bx > AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1 && _bOnStern == false)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			AddControllerYawInput(-0.75f);
 		}
-		else if ((float)Bx < AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1)
+		else if ((float)Bx < AvRx && Ba == 0 && Bb == 1 && Bc == 0 && Bd == 1 && _bOnStern == false)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			AddControllerYawInput(0.75f);
 		}
 
-		if ((float)By < AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
+		if ((float)By < AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0 && _bOnStern == false)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			DiveCharacterAnim->bOnSerialMoveR = false;
 			DiveCharacterAnim->bOnSerialMoveL = true;
 			AddMovementInput(GetActorRightVector(), -1.f);
 		}
-		else if ((float)By > AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0)
+		else if ((float)By > AvRy && Ba == 1 && Bb == 0 && Bc == 1 && Bd == 0 && _bOnStern == false)
 		{
 			LOG_SCREEN("ax : %d, AvRx : %f", Bx, AvRx);
 			DiveCharacterAnim->bOnSerialMoveL = false;
