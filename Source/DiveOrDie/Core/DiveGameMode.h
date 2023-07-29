@@ -42,6 +42,8 @@ class GAME_API ADiveGameMode : public AGameModeBase
 public:
 	ADiveGameMode();
 
+	int countdie = 0;
+
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;

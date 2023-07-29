@@ -52,6 +52,7 @@ ADiveGameMode::ADiveGameMode()
 
     PrimaryActorTick.bCanEverTick = true;
     bUseSeamlessTravel = true;
+    countdie = 0;
 }
 
 void ADiveGameMode::BeginPlay()
@@ -246,11 +247,20 @@ void ADiveGameMode::GameOver()
 
     if (StageManagerActor->bIsOnline)
     {
-        GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
+        countdie++;
+        if (countdie == 1)
+        {
+            GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
+            DeleteSerial();
 
-        DeleteSerial();
-
-        return;
+            return;
+        }
+        else if (countdie == 2)
+        {
+            DeleteSerial();
+            UGameplayStatics::OpenLevel(GetWorld(), "GameOver");
+            countdie = 0;
+        }
     }
 
     DeleteSerial();
