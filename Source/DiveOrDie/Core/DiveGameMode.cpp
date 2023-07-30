@@ -84,21 +84,22 @@ void ADiveGameMode::BeginPlay()
             _serialPort = nullptr;
         }
 
+        AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
+
+        bIsReadingSerialData = true;
+
         _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
 
         if (_serialPort && _serialPort->IsOpen())
         {
             LOG_SCREEN("Serial");
 
-            AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
-
-            bIsReadingSerialData = true;
-
             std::thread readThread(&ADiveGameMode::ReadSerialData, this);
             readThread.detach();
         }
         else
         {
+            bIsReadingSerialData = false;
             delete _serialPort;
             _serialPort = nullptr;
             UE_LOG(LogTemp, Error, TEXT("Failed to open serial port."));
@@ -111,11 +112,10 @@ void ADiveGameMode::BeginPlay()
             delete _serialPort;
             _serialPort = nullptr;
 
-            _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
-
+            bIsReadingSerialData = true;
             AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 
-            bIsReadingSerialData = true;
+            _serialPort = new SerialPort("COM4", 115200, 8, NOPARITY, ONESTOPBIT);
 
             std::thread readThread(&ADiveGameMode::ReadSerialData, this);
             readThread.detach();
@@ -239,6 +239,8 @@ void ADiveGameMode::GameClear()
 {
     LOG_SCREEN("GameClear");
 
+    bIsReadingSerialData = false;
+
     GetWorld()->ServerTravel("/Game/Maps/GameClear?listen");
 
     DeleteSerial();
@@ -248,11 +250,15 @@ void ADiveGameMode::GameClear()
 void ADiveGameMode::GameOver()
 {
     LOG_SCREEN("GameOver");
+
+    DeleteSerial();
+
     if (StageManagerActor->bIsOnline)
     {
         GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
         return;
     }
+
     UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/GameOver");
 }
 
