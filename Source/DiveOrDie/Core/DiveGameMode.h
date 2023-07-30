@@ -52,6 +52,10 @@ public:
 
 	void ReadSerialData();
 
+	const FString GameOverMapURL = "/Game/Maps/GameOver?listen";
+	const FString GameOverMapName = "GameOver";
+	
+
 protected:
 	UFUNCTION()
 	void GameClear();
@@ -61,6 +65,8 @@ protected:
 
 	UFUNCTION()
 	void DeleteSerial();
+
+	
 
 	UPROPERTY(BlueprintReadWrite)
 	AStageManagerActor* StageManagerActor = nullptr;

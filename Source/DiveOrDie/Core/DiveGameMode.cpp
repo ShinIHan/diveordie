@@ -9,6 +9,9 @@
 #include "DiveOrDie/Core/SerialPort.h"
 #include "DiveOrDie/InGame/Character/DiveCharacter.h"
 #include <future>
+#include "GameFramework/PlayerController.h"
+#include "EngineUtils.h"
+
 
 int buttonA = 2;
 int buttonB = 2;
@@ -241,31 +244,16 @@ void ADiveGameMode::GameClear()
     DeleteSerial();
 }
 
+
 void ADiveGameMode::GameOver()
 {
     LOG_SCREEN("GameOver");
-
     if (StageManagerActor->bIsOnline)
     {
-        countdie++;
-        if (countdie == 1)
-        {
-            GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
-            DeleteSerial();
-
-            return;
-        }
-        else if (countdie == 2)
-        {
-            DeleteSerial();
-            UGameplayStatics::OpenLevel(GetWorld(), "GameOver");
-            countdie = 0;
-        }
+        GetWorld()->ServerTravel("/Game/Maps/GameOver?listen");
+        return;
     }
-
-    DeleteSerial();
-
-    UGameplayStatics::OpenLevel(GetWorld(), "GameOver");
+    UGameplayStatics::OpenLevel(GetWorld(), "/Game/Maps/GameOver");
 }
 
 void ADiveGameMode::DeleteSerial()
