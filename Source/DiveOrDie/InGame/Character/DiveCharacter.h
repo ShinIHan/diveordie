@@ -44,6 +44,9 @@ public:
 	bool bIsHitTrap = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
+	bool bIsSuperShieldPress = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
 	bool bRandomItemOxygen = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Instance, meta = (AllowPrivateAccess = true))
@@ -392,6 +395,10 @@ protected:
 	void StartDashPress();
 
 	void EndDashPress();
+
+	void SuperShieldPress();
+
+	void SuperShieldEndPress();
 
 	void TurnOnNearObjectOutline();
 
