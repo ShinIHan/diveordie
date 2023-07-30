@@ -173,7 +173,7 @@ ADiveCharacter::ADiveCharacter()
 		UNiagaraSystem* FX_BubbleSystem = NiagaraSystemAsset.Object;
 		CharacterNiagaraComponent->SetAsset(FX_BubbleSystem);
 
-		CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsUnderwater);
+		CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsBubble);
 	}
 
 	//AudioComponent
@@ -181,6 +181,7 @@ ADiveCharacter::ADiveCharacter()
 	AudioComponent->bAutoActivate = false;
 	AudioComponent->SetupAttachment(GetMesh());
 
+	bIsBubble = false;
 	bIsUnderwater = false;
 	bIsHitTrap = false;
 	_bOnShield = false;
@@ -395,7 +396,14 @@ void ADiveCharacter::StopSwim()
 int ADiveCharacter::GetDepth()
 {
 	_iDepth = int(FVector::Dist(GetActorLocation(), FVector(GetActorLocation().X, GetActorLocation().Y, _WaterBodyPos.Z))) / 100;
-	
+	if (bIsUnderwater) 
+	{
+		if (_iDepth >= 5)
+			bIsBubble = true;
+		else
+			bIsBubble = false;
+	}
+
 	return GetCharacterMovement()->IsSwimming() ? _iDepth : 0;
 }
 
@@ -975,6 +983,8 @@ void ADiveCharacter::TurnOnNearObjectOutline()
 			FVector ActorLocation = Actor->GetActorLocation();
 			float DistanceSquared = FVector::DistSquared(CharacterLocation, ActorLocation);
 
+			SetMessage("Press \"Z\" Button to Destroy Trash");
+
 			// 가장 가까운 액터를 선택
 			if (DistanceSquared < ClosestDistanceSquared)
 			{
@@ -1037,7 +1047,6 @@ void ADiveCharacter::TurnNearTrash()
 			(Actor->IsA<ACanned>() || Actor->IsA<ACan>() || Actor->IsA<ACup>() || Actor->IsA<ATrashBagA>() || Actor->IsA<ATrashBagB>() || Actor->IsA<ATrashBagC>()))
 		{
 			
-			SetMessage("Press \"Z\" Button to Destroy Trash");
 
 			//외곽선 표시를 위한 CustomDepth 활성화
 			TArray<UStaticMeshComponent*> MeshComponents;
@@ -1471,7 +1480,7 @@ void ADiveCharacter::Tick(float DeltaTime)
 	Bx = NULL, By = NULL;
 	depthMove = false;
 
-	CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsUnderwater);
+	CharacterNiagaraComponent->SetVariableBool("IsVisible", bIsBubble);
 }
 
 void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
