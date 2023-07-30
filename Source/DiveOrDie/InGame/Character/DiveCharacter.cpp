@@ -918,6 +918,43 @@ void ADiveCharacter::EndDashPress()
 	bIsDashKey = false;
 }
 
+void ADiveCharacter::ApplySpeedBoost()
+{
+	if (!_bIsSpeedBuff) {
+		GetCharacterMovement()->MaxSwimSpeed *= 1.5f;
+		SetMessage("Speed Buff(10s)");
+		_bIsSpeedBuff = true;
+	}
+}
+
+void ADiveCharacter::ApplyDamage()
+{
+	if (_fCurrentHp >= 100.f)
+		_fCurrentHp -= 100.f;
+	else
+		_fCurrentHp = 0.f;
+
+	SetMessage("HP -100");
+}
+
+void ADiveCharacter::ApplyHeal()
+{
+	if (_fCurrentHp <= 400.f)
+		_fCurrentHp += 100.f;
+	else
+		_fCurrentHp = 500.f;
+	SetMessage("Heal");
+}
+
+void ADiveCharacter::RemoveBuff()
+{
+	if (_bIsSpeedBuff) {
+		GetCharacterMovement()->MaxSwimSpeed /= 1.5f;
+		SetMessage("Remove Speed Buff");
+		_bIsSpeedBuff = false;
+	}
+}
+
 void ADiveCharacter::TurnOnNearObjectOutline()
 {
 	TArray<AActor*> OverlappingActors;

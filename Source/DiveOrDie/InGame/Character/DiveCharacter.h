@@ -327,6 +327,24 @@ private:
 	
 	FTimerHandle DecreaseOxygenTimerHandle;
 
+public:
+	UFUNCTION(BlueprintCallable, Category = "Buff")
+		void ApplySpeedBoost();
+
+	UFUNCTION(BlueprintCallable, Category = "Buff")
+		void ApplyDamage();
+
+	UFUNCTION(BlueprintCallable, Category = "Buff")
+		void ApplyHeal();
+
+	UFUNCTION(BlueprintCallable, Category = "Buff")
+		void RemoveBuff();
+
+	bool _bIsSpeedBuff;
+
+	FTimerHandle BuffTimer;
+
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Camera)
 	class USpringArmComponent* CameraBoom;
