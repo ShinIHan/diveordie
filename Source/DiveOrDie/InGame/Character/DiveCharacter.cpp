@@ -184,7 +184,6 @@ ADiveCharacter::ADiveCharacter()
 	bIsBubble = false;
 	bIsUnderwater = false;
 	bIsHitTrap = false;
-	bIsSuperShieldPress = false;
 	_bOnShield = false;
 	bCanJump = true;
 	bIsDashKey = false, bIsDashTime = 0.0f;
@@ -354,9 +353,6 @@ void ADiveCharacter::OxygenConsume()
 
 	if (_bOnShield) return;
 
-	if (bIsSuperShieldPress == true)
-		return;
-
 	if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 	{
 		_fCurrentOxygen = 0;
@@ -499,9 +495,6 @@ void ADiveCharacter::RestoreDecreaseOxygen()
 
 void ADiveCharacter::ReceiveOxygenDamage(float damage)
 {
-	if (bIsSuperShieldPress == true)
-		return;
-
 	if (_bOnShield) return;
 
 	SetOnFishTrue();
@@ -529,9 +522,6 @@ void ADiveCharacter::ReceiveOxygenDamage(float damage)
 
 void ADiveCharacter::ReceiveAnyDamage(float damage)
 {
-	if (bIsSuperShieldPress == true)
-		return;
-
 	if (_bOnShield) return;
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
@@ -653,8 +643,6 @@ void ADiveCharacter::TimelineSetting()
 
 void ADiveCharacter::Restraint(float time)
 {
-	if (bIsSuperShieldPress == true)
-		return;
 
 	if (_bOnShield) return;
 
@@ -691,9 +679,6 @@ bool ADiveCharacter::GetRestraint()
 
 void ADiveCharacter::Stern(float time)
 {
-	if (bIsSuperShieldPress == true)
-		return;
-
 	if (_bOnShield) return;
 
 	if (_bOnStern) return;
@@ -739,9 +724,6 @@ void ADiveCharacter::SternEnd()
 
 void ADiveCharacter::SlowDown(float time)
 {
-	if (bIsSuperShieldPress == true)
-		return;
-
 	if (_bOnShield) return;
 
 	if (_bOnSlowDown) return;
@@ -943,21 +925,6 @@ void ADiveCharacter::StartDashPress()
 void ADiveCharacter::EndDashPress()
 {
 	bIsDashKey = false;
-}
-
-void ADiveCharacter::SuperShieldPress()
-{
-	bIsSuperShieldPress = true;
-
-	GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
-}
-
-void ADiveCharacter::SuperShieldEndPress()
-{
-	bIsSuperShieldPress = false;
-
-	bIsWKeyTime = 0.f;
-	GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 }
 
 void ADiveCharacter::ApplySpeedBoost()
@@ -1205,54 +1172,38 @@ void ADiveCharacter::Tick(float DeltaTime)
 	else
 		_bOnMove = false;
 
-	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming() && _bOnStern == false && _bOnRestraint == false && bIsSuperShieldPress == false)
+	if (GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming() && _bOnStern == false && _bOnRestraint == false)
 	{
 		bIsWKeyTime += DeltaTime;
 
 		if (bIsWKeyTime > 2.f)
 		{
-			if (bIsSuperShieldPress == true)
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+			if (_fCurrentHp - 5.f <= 0.f)
 			{
-				GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
-				bIsWKeyTime = 0.f;
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsWKeyTime = 0.f;
+				Die();
 			}
 			else
 			{
-				GetCharacterMovement()->MaxSwimSpeed = 495.0f;
-
-				if (_fCurrentHp - 5.f <= 0.f)
-				{
-					_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsWKeyTime = 0.f;
-					Die();
-				}
-				else
-				{
-					bIsWKeyTime = 0.f, _fCurrentHp -= 5.f;
-				}
+				bIsWKeyTime = 0.f, _fCurrentHp -= 5.f;
 			}
 		}
 		else
 		{
-			if (bIsSuperShieldPress == true)
+			GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
+
+			if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 			{
-				GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
-				bIsWKeyTime = 0.f;
+				_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+				Die();
 			}
 			else
-			{
-				GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
-
-				if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
-				{
-					_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
-					Die();
-				}
-				else
-					NaturallyDecreaseOxygen = 15.f;
-			}
+				NaturallyDecreaseOxygen = 15.f;
 		}		
 	}
-	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming() && bIsSuperShieldPress == false)
+	else if(!GetWorld()->GetFirstPlayerController()->IsInputKeyDown(EKeys::W) && GetCharacterMovement()->IsSwimming())
 	{
 		bIsWKeyTime = 0.f;
 		GetCharacterMovement()->MaxSwimSpeed = 495.0f;
@@ -1363,19 +1314,11 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 		if (Ba == 1 && _bOnStern == false)
 		{
-			if (bIsSuperShieldPress == true)
-			{
-				bIsBaTime = 0.f;
-				GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
-			}
-			else
-			{
-				bIsBaTime = 0.f;
-				GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+			bIsBaTime = 0.f;
+			GetCharacterMovement()->MaxSwimSpeed = 495.0f;
 
-				if (bRandomItemOxygen == false)
-					NaturallyDecreaseOxygen = 10.f;
-			}
+			if (bRandomItemOxygen == false)
+				NaturallyDecreaseOxygen = 10.f;
 		}
 
 		if (Ba == 1 && Bb == 1 && Bc == 0 && Bd == 1 && _bOnStern == false && _bOnRestraint == false)
@@ -1416,45 +1359,29 @@ void ADiveCharacter::Tick(float DeltaTime)
 
 				if (bIsBaTime > 2.f)
 				{
-					if (bIsSuperShieldPress == true)
+					GetCharacterMovement()->MaxSwimSpeed = 495.0f;
+
+					if (_fCurrentHp - 5.f <= 0.f)
 					{
-						bIsBaTime = 0.f;
-						GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsBaTime = 0.f;
+						Die();
 					}
 					else
 					{
-						GetCharacterMovement()->MaxSwimSpeed = 495.0f;
-
-						if (_fCurrentHp - 5.f <= 0.f)
-						{
-							_fCurrentHp = 0.f, _fCurrentOxygen = 0.f, bIsBaTime = 0.f;
-							Die();
-						}
-						else
-						{
-							bIsBaTime = 0.f, _fCurrentHp -= 5.f;
-						}
-					}				
+						bIsBaTime = 0.f, _fCurrentHp -= 5.f;
+					}			
 				}
 				else
 				{
-					if (bIsSuperShieldPress == true)
+					GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
+
+					if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
 					{
-						bIsBaTime = 0.f;
-						GetCharacterMovement()->MaxSwimSpeed = 2000.0f;
+						_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
+						Die();
 					}
 					else
-					{
-						GetCharacterMovement()->MaxSwimSpeed = 1350.0f;
-
-						if (_fCurrentOxygen - NaturallyDecreaseOxygen <= 0.f)
-						{
-							_fCurrentHp = 0.f, _fCurrentOxygen = 0.f;
-							Die();
-						}
-						else
-							NaturallyDecreaseOxygen = 15.f;
-					}
+						NaturallyDecreaseOxygen = 15.f;
 				}
 			}
 		}
@@ -1577,7 +1504,4 @@ void ADiveCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	InputComponent->BindAction("Dash", IE_Pressed, this, &ADiveCharacter::StartDashPress);
 	InputComponent->BindAction("Dash", IE_Released, this, &ADiveCharacter::EndDashPress);
-
-	InputComponent->BindAction("SuperShield", IE_Pressed, this, &ADiveCharacter::SuperShieldPress);
-	InputComponent->BindAction("SuperShield", IE_Released, this, &ADiveCharacter::SuperShieldEndPress);
 }

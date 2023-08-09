@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Megalodon.generated.h"
 
-class FAsyncCalculateLocationTask;
-
 UCLASS()
 class GAME_API AMegalodon : public AActor
 {
@@ -24,7 +22,6 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	void CalculateLocationAsync(float DeltaTime);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -32,22 +29,4 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* box;
-
-	FAsyncCalculateLocationTask* CalculateLocationTask;
-};
-
-class FAsyncCalculateLocationTask : public FRunnable
-{
-public:
-	FAsyncCalculateLocationTask(AMegalodon* InMegalodon, float InDeltaTime);
-
-	virtual bool Init() override;
-	virtual uint32 Run() override;
-	virtual void Stop() override;
-	virtual void Exit() override;
-
-private:
-	AMegalodon* Megalodon;
-	float DeltaTime;
-	FThreadSafeBool bIsRunning;
 };

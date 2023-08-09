@@ -35,8 +35,6 @@ AWhale::AWhale()
 			Whale->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		}
 	}
-
-	CalculateLocationTask = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -73,71 +71,23 @@ void AWhale::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	WhaleCalLocationAsync(DeltaTime);
-}
+	FVector CurrentLocation = GetActorLocation();
 
-void AWhale::WhaleCalLocationAsync(float DeltaTime)
-{
-	if (!CalculateLocationTask)
-	{
-		CalculateLocationTask = new WhaleCalLocationTask(this, DeltaTime);
-		FRunnableThread::Create(CalculateLocationTask, TEXT("CalculateLocationTask"));
-	}
-}
+	float ArcHeight = 15.f;
+	float ArcDuration = 2.f;
 
-WhaleCalLocationTask::WhaleCalLocationTask(AWhale* InWhale, float InDeltaTime)
-	: Whale(InWhale)
-	, DeltaTime(InDeltaTime)
-	, bIsRunning(false)
-{
-}
+	float TimeElapsed = GetWorld()->GetTimeSeconds();
+	float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
 
-bool WhaleCalLocationTask::Init()
-{
-	bIsRunning = true;
-	return true;
-}
+	FVector NewLocation = CurrentLocation;
 
-uint32 WhaleCalLocationTask::Run()
-{
-	while (bIsRunning)
-	{
-		if (Whale && Whale->GetWorld() && Whale->GetWorld()->IsGameWorld())
-		{
-			FVector CurrentLocation = Whale->GetActorLocation();
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+	FRotator NewRotation = CurrentRotation + RotationToAdd;
+	FVector ForwardDirection = NewRotation.Vector();
 
-			FRotator CurrentRotation = Whale->GetActorRotation();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
-			FRotator NewRotation = CurrentRotation + RotationToAdd;
-			FVector ForwardDirection = NewRotation.Vector();
+	NewLocation += ForwardDirection * 25.f;
+	NewLocation.Z += ZOffset;
 
-			FVector NewLocation = CurrentLocation;
-			NewLocation += ForwardDirection * 25.f;
-
-			AsyncTask(ENamedThreads::GameThread, [this, NewLocation]()
-				{
-					if (Whale && Whale->IsValidLowLevelFast())
-					{
-						Whale->SetActorLocation(NewLocation);
-					}
-				});
-
-			FPlatformProcess::Sleep(0.03f);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
-void WhaleCalLocationTask::Stop()
-{
-	bIsRunning = false;
-}
-
-void WhaleCalLocationTask::Exit()
-{
+	SetActorLocation(NewLocation);
 }

@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Turtle.generated.h"
 
-class TurtleCalLocationTask;
-
 UCLASS()
 class GAME_API ATurtle : public AActor
 {
@@ -16,39 +14,19 @@ class GAME_API ATurtle : public AActor
 public:
 	ATurtle();
 
+protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+private:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* TurtleBox;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Turtlemesh;
 
-	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-protected:
-	virtual void BeginPlay() override;
-
 public:
 	virtual void Tick(float DeltaTime) override;
-
-	void TurtleCalLocationAsync(float DeltaTime);
-
-private:
-	TurtleCalLocationTask* TurtleCalculateLocationTask;
-};
-
-class TurtleCalLocationTask : public FRunnable
-{
-public:
-	TurtleCalLocationTask(ATurtle* InTurtle, float InTurtleDeltaTime);
-
-	virtual bool Init() override;
-	virtual uint32 Run() override;
-	virtual void Stop() override;
-	virtual void Exit() override;
-
-private:
-	ATurtle* Turtle;
-	float DeltaTime;
-	FThreadSafeBool bIsRunning;
 };

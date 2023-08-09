@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "SmallFishes.generated.h"
 
-class SmallFishesCalLocationTask;
-
 UCLASS()
 class GAME_API ASmallFishes : public AActor
 {
@@ -28,28 +26,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UStaticMeshComponent*> SmallFishesMesh;
 
-	SmallFishesCalLocationTask* CalculateLocationTask;
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	void SmallFishesCalLocationAsync(float DeltaTime);
 };
-
-class SmallFishesCalLocationTask : public FRunnable
-{
-public:
-	SmallFishesCalLocationTask(ASmallFishes* InSmallFishes, float InDeltaTime);
-
-	virtual bool Init() override;
-	virtual uint32 Run() override;
-	virtual void Stop() override;
-	virtual void Exit() override;
-
-private:
-	ASmallFishes* SmallFishes;
-	float DeltaTime;
-	FThreadSafeBool bIsRunning;
-};
-

@@ -35,8 +35,6 @@ ASmallFishes::ASmallFishes()
 			SmallFishes->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 		}
 	}
-
-	CalculateLocationTask = nullptr;
 }
 
 // Called when the game starts or when spawned
@@ -64,79 +62,23 @@ void ASmallFishes::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SmallFishesCalLocationAsync(DeltaTime);
-}
+	FVector CurrentLocation = GetActorLocation();
 
-void ASmallFishes::SmallFishesCalLocationAsync(float DeltaTime)
-{
-	if (!CalculateLocationTask)
-	{
-		CalculateLocationTask = new SmallFishesCalLocationTask(this, DeltaTime);
-		FRunnableThread::Create(CalculateLocationTask, TEXT("CalculateLocationTask"));
-	}
-}
+	float ArcHeight = 10.f;
+	float ArcDuration = 2.f;
 
-SmallFishesCalLocationTask::SmallFishesCalLocationTask(ASmallFishes* InSmallFishes, float InDeltaTime)
-	: SmallFishes(InSmallFishes)
-	, DeltaTime(InDeltaTime)
-	, bIsRunning(false)
-{
-}
+	float TimeElapsed = GetWorld()->GetTimeSeconds() / 2;
+	float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
 
-bool SmallFishesCalLocationTask::Init()
-{
-	bIsRunning = true;
-	return true;
-}
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+	FRotator NewRotation = CurrentRotation + RotationToAdd;
+	FVector ForwardDirection = NewRotation.Vector();
 
-uint32 SmallFishesCalLocationTask::Run()
-{
-	while (bIsRunning)
-	{
-		if (SmallFishes && SmallFishes->GetWorld() && SmallFishes->GetWorld()->IsGameWorld())
-		{
-			FVector CurrentLocation = SmallFishes->GetActorLocation();
+	FVector NewLocation = CurrentLocation;
 
-			float ArcHeight = 10.f;
-			float ArcDuration = 2.f;
+	NewLocation += ForwardDirection * 10.f;
+	NewLocation.Z += ZOffset;
 
-			float TimeElapsed = SmallFishes->GetWorld()->GetTimeSeconds();
-			float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
-
-			FRotator CurrentRotation = SmallFishes->GetActorRotation();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
-			FRotator NewRotation = CurrentRotation + RotationToAdd;
-			FVector ForwardDirection = NewRotation.Vector();
-
-			FVector NewLocation = CurrentLocation;
-
-			NewLocation += ForwardDirection * 10.f;
-			NewLocation.Z += ZOffset;
-
-			AsyncTask(ENamedThreads::GameThread, [this, NewLocation, ZOffset]()
-				{
-					if (SmallFishes && SmallFishes->IsValidLowLevel())
-					{
-						SmallFishes->SetActorLocation(NewLocation);
-					}
-				});
-
-			FPlatformProcess::Sleep(0.03f);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
-void SmallFishesCalLocationTask::Stop()
-{
-	bIsRunning = false;
-}
-
-void SmallFishesCalLocationTask::Exit()
-{
+	SetActorLocation(NewLocation);
 }

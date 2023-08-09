@@ -31,7 +31,6 @@ ATurtle::ATurtle()
 	}
 
 	TurtleBox->OnComponentBeginOverlap.AddDynamic(this, &ATurtle::OnOverlapBegin);
-	TurtleCalculateLocationTask = nullptr;
 }
 
 void ATurtle::BeginPlay()
@@ -66,73 +65,23 @@ void ATurtle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	TurtleCalLocationAsync(DeltaTime);
-}
+	FVector CurrentLocation = GetActorLocation();
 
-void ATurtle::TurtleCalLocationAsync(float DeltaTime)
-{
-	if (!TurtleCalculateLocationTask)
-	{
-		TurtleCalculateLocationTask = new TurtleCalLocationTask(this, DeltaTime);
-		FRunnableThread::Create(TurtleCalculateLocationTask, TEXT("TurtleCalculateLocationTask"));
-	}
-}
+	float ArcHeight = 10.f;
+	float ArcDuration = 2.f;
 
-TurtleCalLocationTask::TurtleCalLocationTask(ATurtle* InTurtle, float InTurtleDeltaTime)
-	: Turtle(InTurtle)
-	, DeltaTime(InTurtleDeltaTime)
-	, bIsRunning(false)
-{
-}
+	float TimeElapsed = GetWorld()->GetTimeSeconds();
+	float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
 
-bool TurtleCalLocationTask::Init()
-{
-	bIsRunning = true;
-	return true;
-}
+	FVector NewLocation = CurrentLocation;
 
-uint32 TurtleCalLocationTask::Run()
-{
-	while (bIsRunning)
-	{
-		if (Turtle && Turtle->IsValidLowLevel() && Turtle->GetWorld() && Turtle->GetWorld()->IsGameWorld())
-		{
-			FVector CurrentLocation = Turtle->GetActorLocation();
-			FVector NewLocation = CurrentLocation;
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+	FRotator NewRotation = CurrentRotation + RotationToAdd;
+	FVector ForwardDirection = NewRotation.Vector();
 
-			FRotator CurrentRotation = Turtle->GetActorRotation();
-			FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
-			FRotator NewRotation = CurrentRotation + RotationToAdd;
-			FVector ForwardDirection = NewRotation.Vector();
+	NewLocation -= ForwardDirection * 15.f;
+	NewLocation.Z += ZOffset;
 
-			NewLocation -= ForwardDirection * 15.f;
-
-			TWeakObjectPtr<ATurtle> TurtlePtr = Turtle;
-
-			AsyncTask(ENamedThreads::GameThread, [TurtlePtr, NewLocation]()
-				{
-					if (TurtlePtr.IsValid())
-					{
-						TurtlePtr->SetActorLocation(NewLocation);
-					}
-				});
-
-			FPlatformProcess::Sleep(0.075f);
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	return 0;
-}
-
-void TurtleCalLocationTask::Stop()
-{
-	bIsRunning = false;
-}
-
-void TurtleCalLocationTask::Exit()
-{
+	SetActorLocation(NewLocation);
 }
