@@ -41,6 +41,7 @@ void AFishingNet::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if (character)
 	{
 		character->Restraint(5.0f);
+		Destroy();
 	}
 }
 
@@ -56,5 +57,24 @@ void AFishingNet::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector CurrentLocation = GetActorLocation();
+
+	float ArcHeight = 7.5f;
+	float ArcDuration = 1.5f;
+
+	float TimeElapsed = GetWorld()->GetTimeSeconds();
+	float ZOffset = (FMath::Sin(TimeElapsed / ArcDuration * PI) * ArcHeight);
+
+	FVector NewLocation = CurrentLocation;
+
+	FRotator CurrentRotation = GetActorRotation();
+	FRotator RotationToAdd = FRotator(0.f, 90.f, 0.f);
+	FRotator NewRotation = CurrentRotation + RotationToAdd;
+	FVector ForwardDirection = NewRotation.Vector();
+
+	NewLocation -= ForwardDirection * 7.5f;
+	NewLocation.Z += ZOffset;
+
+	SetActorLocation(NewLocation);
 }
 

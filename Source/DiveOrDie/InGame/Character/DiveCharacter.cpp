@@ -643,7 +643,6 @@ void ADiveCharacter::TimelineSetting()
 
 void ADiveCharacter::Restraint(float time)
 {
-
 	if (_bOnShield) return;
 
 	if (_bOnRestraint) return;
