@@ -5,6 +5,7 @@
 
 #include "DiveGameInstance.h"
 #include "Blueprint/UserWidget.h"
+#include "DiveOrDie/Core/DiveGameMode.h"
 
 
 AMainMenuGameMode::AMainMenuGameMode()
@@ -18,6 +19,10 @@ AMainMenuGameMode::AMainMenuGameMode()
 void AMainMenuGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	bIsReadingSerialData = false;
+
+	AVcount = 0, SumRX = 0, SumRY = 0, AvRx = 0, AvRy = 0, recount = 0, Bx = NULL, By = NULL;
 
 	UDiveGameInstance* DiveGameInstance = Cast<UDiveGameInstance>(GetWorld()->GetGameInstance());
 	if (DiveGameInstance)
