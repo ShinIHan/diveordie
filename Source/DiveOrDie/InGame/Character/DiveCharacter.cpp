@@ -439,14 +439,14 @@ void ADiveCharacter::UpdateTrashCount()
 		GetCharacterMovement()->MaxSwimSpeed *= 2.0f;
 		GetWorldTimerManager().SetTimer(MaxSwimSpeedTimerHandle, this, &ADiveCharacter::RestoreMaxSwimSpeed, 10.0f, false);
 	}
-	else if (GameState->iTrash % 10 == 0)
+	else if (GameState->iTrash % 3 == 0)
 	{
 		_fMaxHp += 10.f;
 		_fMaxOxygen += 10.f;
 		_fCurrentHp += 10.f;
 		_fCurrentOxygen += 10.f;
 	}
-	else if (GameState->iTrash % 5 == 0)
+	else if (GameState->iTrash % 1 == 0)
 	{
 		UpdateTrashItem();
 	}
