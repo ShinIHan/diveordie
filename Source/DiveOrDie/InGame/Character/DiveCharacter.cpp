@@ -446,7 +446,7 @@ void ADiveCharacter::UpdateTrashCount()
 		_fCurrentHp += 10.f;
 		_fCurrentOxygen += 10.f;
 	}
-	else if (GameState->iTrash % 1 == 0)
+	else
 	{
 		UpdateTrashItem();
 	}
